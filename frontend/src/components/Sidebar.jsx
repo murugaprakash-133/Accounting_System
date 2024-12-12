@@ -1,3 +1,4 @@
+// Sidebar.jsx
 import { Link, Outlet } from "react-router-dom";
 
 const Sidebar = () => {

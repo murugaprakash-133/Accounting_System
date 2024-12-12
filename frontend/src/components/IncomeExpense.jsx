@@ -1,3 +1,4 @@
+// IncomeExpense.jsx
 import React, { useState } from "react";
 
 const IncomeExpense = () => {
