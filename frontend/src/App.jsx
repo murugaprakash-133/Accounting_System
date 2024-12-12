@@ -8,6 +8,8 @@ import CashFlowPart from "./components/CashFlow";
 import MonthlyReport from "./components/MonthlyReports";
 import DetailedReportslide from "./components/DetailedReports";
 import Header from "./components/Header";
+import Login from "./components/Login";
+import Register from "./components/Register";
 
 function App() {
   return (
@@ -18,6 +20,8 @@ function App() {
           <Sidebar />
           <div className="flex-grow p-4">
             <Routes>
+              <Route path="/login" element={<Login />} />
+              <Route path="/register" element={<Register />} />
               <Route index element={<Dashboard />} />
               <Route path="income-expense" element={<IncomeExpense />} />
               <Route path="profit-loss" element={<Profit_Loss />} />
