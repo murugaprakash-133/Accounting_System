@@ -1,5 +1,5 @@
-// App.jsx
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+import { useState } from "react";
 import Sidebar from "./components/Sidebar";
 import IncomeExpense from "./components/IncomeExpense";
 import Dashboard from "./components/Dashboard";
@@ -12,22 +12,30 @@ import Login from "./components/Login";
 import Register from "./components/Register";
 
 function App() {
+  const [isLoggedIn, setIsLoggedIn] = useState(Boolean(localStorage.getItem("token")));
+
+  const handleLoginSuccess = () => {
+    setIsLoggedIn(true);
+  };
+
   return (
     <Router>
-      <div className="flex flex-col h-screen ">
+      <div className="flex flex-col h-screen">
         <Header />
         <div className="flex flex-grow">
           <Sidebar />
           <div className="flex-grow p-4">
             <Routes>
-              <Route path="/login" element={<Login />} />
+              <Route path="/" element={isLoggedIn ? <Navigate to="/dashboard" /> : <Login onLoginSuccess={handleLoginSuccess} />} />
+              <Route path="/login" element={<Login onLoginSuccess={handleLoginSuccess} />} />
+              <Route path="/signup" element={<Register />} />
               <Route path="/register" element={<Register />} />
-              <Route index element={<Dashboard />} />
-              <Route path="income-expense" element={<IncomeExpense />} />
-              <Route path="profit-loss" element={<Profit_Loss />} />
-              <Route path="cash-flow" element={<CashFlowPart />} />
-              <Route path="monthly-reports" element={<MonthlyReport />} />
-              <Route path="detailed-reports" element={<DetailedReportslide />} />
+              <Route path="/dashboard" element={isLoggedIn ? <Dashboard /> : <Navigate to="/" />} />
+              <Route path="/income-expense" element={isLoggedIn ? <IncomeExpense /> : <Navigate to="/" />} />
+              <Route path="/profit-loss" element={isLoggedIn ? <Profit_Loss /> : <Navigate to="/" />} />
+              <Route path="/cash-flow" element={isLoggedIn ? <CashFlowPart /> : <Navigate to="/" />} />
+              <Route path="/monthly-reports" element={isLoggedIn ? <MonthlyReport /> : <Navigate to="/" />} />
+              <Route path="/detailed-reports" element={isLoggedIn ? <DetailedReportslide /> : <Navigate to="/" />} />
             </Routes>
           </div>
         </div>

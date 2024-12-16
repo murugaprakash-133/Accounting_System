@@ -1,168 +1,442 @@
-// IncomeExpense.jsx
-import React, { useState } from "react";
+"use client";
 
-const IncomeExpense = () => {
-  const [transactions, setTransactions] = useState([]);
+import { useState, useEffect } from "react";
+import axios from "axios";
+
+export default function Transactions() {
+  const [activeTab, setActiveTab] = useState("income");
   const [formData, setFormData] = useState({
-    type: "",
-    category: "",
+    date: new Date().toISOString().split("T")[0],
+    time: getCurrentTime(),
+    amPm: getCurrentPeriod(),
     amount: "",
-    date: "",
-    description: "",
+    category: "",
+    account: "",
+    note: "",
+    from: "",
+    to: "",
   });
-  const [isEditing, setIsEditing] = useState(false);
-  const [currentId, setCurrentId] = useState(null);
 
-  // Handle input changes
+  const [userId, setUserId] = useState(null); // Store the user ID here
+
+  // Fetch user details to get userId
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const response = await axios.get("http://localhost:5000/api/users", {
+          withCredentials: true,
+        });
+        setUserId(response.data._id); // Store userId from the backend response
+        // console.log(response.data._id);
+      } catch (error) {
+        console.error("Error fetching user data:", error);
+      }
+    };
+
+    fetchUser();
+  }, []);
+
+  const [categories, setCategories] = useState([
+    "Food",
+    "Education",
+    "Household",
+    "Transport",
+  ]);
+  const [accounts, setAccounts] = useState([
+    "Cash",
+    "Bank Account",
+    "Credit Card",
+  ]);
+  const [transferOptions, setTransferOptions] = useState([
+    "Cash",
+    "Bank Account",
+    "Credit Card",
+  ]);
+
+  function getCurrentTime() {
+    const now = new Date();
+    let hours = now.getHours();
+    const minutes = String(now.getMinutes()).padStart(2, "0");
+    if (hours > 12) hours -= 12;
+    if (hours === 0) hours = 12;
+    return `${String(hours).padStart(2, "0")}:${minutes}`;
+  }
+
+  function getCurrentPeriod() {
+    return new Date().getHours() >= 12 ? "PM" : "AM";
+  }
+
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData((prevData) => ({ ...prevData, [name]: value }));
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  // Add or update a transaction
-  const handleSubmit = (e) => {
+  // const handleSubmit = async (e) => {
+  //   e.preventDefault();
+
+  //   if (!formData.amount || !formData.category || !formData.account) {
+  //     alert("Please fill in all required fields.");
+  //     return;
+  //   }
+
+  //   if (!userId) {
+  //     alert("User not authenticated.");
+  //     return;
+  //   }
+
+  //   let transactionData = {
+  //     userId: userId, // Use the user ID obtained from the backend
+  //     type: activeTab, // Your logic for activeTab
+  //     date: formData.date,
+  //     time: formData.time,
+  //     amPm: formData.amPm,
+  //     amount: formData.amount,
+  //     note: formData.note,
+  //   };
+
+  //   // Add fields based on the activeTab
+  //   if (activeTab === 'income' || activeTab === 'expense') {
+  //     transactionData.category = formData.category;
+  //     transactionData.account = formData.account;
+  //   } else if (activeTab === 'transfer') {
+  //     transactionData.from = formData.from;
+  //     transactionData.to = formData.to;
+  //   }
+
+  //   // Now use transactionData for the API call or further processing
+  //   console.log(transactionData);
+
+  //   try {
+  //     const response = await axios.post(
+  //       "http://localhost:5000/api/transactions",
+  //       transactionData,
+  //       {
+  //         withCredentials: true, // Ensure the JWT token is sent in the request
+  //       }
+  //     );
+  //     console.log("Transaction saved:", response.data);
+  //     alert("Transaction successfully saved!");
+
+  //     // Reset form after submission
+  //     setFormData({
+  //       date: new Date().toISOString().split("T")[0],
+  //       time: "",
+  //       amPm: "",
+  //       amount: "",
+  //       category: "",
+  //       account: "",
+  //       note: "",
+  //       from: "",
+  //       to: "",
+  //     });
+  //   } catch (error) {
+  //     console.error("Error saving transaction:", error);
+  //     alert("Error saving transaction. Please try again.");
+  //   }
+  // };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (isEditing) {
-      setTransactions((prevTransactions) =>
-        prevTransactions.map((transaction, index) =>
-          index === currentId ? formData : transaction
-        )
-      );
-      setIsEditing(false);
-    } else {
-      setTransactions((prevTransactions) => [...prevTransactions, formData]);
+
+    // Validate fields based on the active tab
+    if (!formData.amount) {
+      alert("Please fill in all required fields.");
+      return;
     }
-    setFormData({ type: "", category: "", amount: "", date: "", description: "" });
+
+    if (activeTab === "income" || activeTab === "expense") {
+      if (!formData.category || !formData.account) {
+        alert("Please fill in all required fields.");
+        return;
+      }
+    } else if (activeTab === "transfer") {
+      if (!formData.from || !formData.to) {
+        alert("Please select both 'From' and 'To' accounts.");
+        return;
+      }
+    }
+
+    if (!userId) {
+      alert("User not authenticated.");
+      return;
+    }
+
+    let transactionData = {
+      userId: userId, // Use the user ID obtained from the backend
+      type: activeTab, // Your logic for activeTab
+      date: formData.date,
+      time: formData.time,
+      amPm: formData.amPm,
+      amount: formData.amount,
+      note: formData.note,
+    };
+
+    // Add fields based on the activeTab
+    if (activeTab === "income" || activeTab === "expense") {
+      transactionData.category = formData.category;
+      transactionData.account = formData.account;
+    } else if (activeTab === "transfer") {
+      transactionData.from = formData.from;
+      transactionData.to = formData.to;
+    }
+
+    // Now use transactionData for the API call or further processing
+    console.log(transactionData);
+
+    try {
+      const response = await axios.post(
+        "http://localhost:5000/api/transactions",
+        transactionData,
+        {
+          withCredentials: true, // Ensure the JWT token is sent in the request
+        }
+      );
+      console.log("Transaction saved:", response.data);
+      alert("Transaction successfully saved!");
+
+      // Reset form after submission
+      setFormData({
+        date: new Date().toISOString().split("T")[0],
+        time: "",
+        amPm: "",
+        amount: "",
+        category: "",
+        account: "",
+        note: "",
+        from: "",
+        to: "",
+      });
+    } catch (error) {
+      console.error("Error saving transaction:", error);
+      alert("Error saving transaction. Please try again.");
+    }
   };
 
-  // Edit transaction
-  const handleEdit = (index) => {
-    setFormData(transactions[index]);
-    setIsEditing(true);
-    setCurrentId(index);
+  const handleAddCategory = () => {
+    const newCategory = prompt("Enter new category:");
+    if (newCategory && !categories.includes(newCategory)) {
+      setCategories((prevCategories) => [...prevCategories, newCategory]);
+    }
   };
 
-  // Delete transaction
-  const handleDelete = (index) => {
-    setTransactions((prevTransactions) =>
-      prevTransactions.filter((_, i) => i !== index)
-    );
+  const handleAddAccount = () => {
+    const newAccount = prompt("Enter new account:");
+    if (newAccount && !accounts.includes(newAccount)) {
+      setAccounts((prevAccounts) => [...prevAccounts, newAccount]);
+    }
+  };
+
+  const handleAddTransferOption = (field) => {
+    const newOption = prompt(`Enter new ${field}:`);
+    if (newOption && !transferOptions.includes(newOption)) {
+      setTransferOptions((prevOptions) => [...prevOptions, newOption]);
+    }
   };
 
   return (
-    <div className="p-6 bg-gray-100 mt-20 min-h-screen">
-      <h2 className="text-3xl font-semibold mb-6 text-gray-800">Income & Expense Tracker</h2>
-      <form
-        className="space-y-4 bg-white p-6 rounded shadow-md"
-        onSubmit={handleSubmit}
-      >
-        <div className="grid grid-cols-2 gap-4">
-          <select
-            name="type"
-            value={formData.type}
-            onChange={handleChange}
-            className="border border-gray-300 rounded p-2 w-full bg-white"
-            required
+    <div className="p-6 bg-gray-50 min-h-screen mt-20">
+      <div className="flex items-center justify-between mb-6">
+        <h1 className="text-3xl font-semibold capitalize text-gray-800">
+          {activeTab.charAt(0).toUpperCase() + activeTab.slice(1)} Transactions
+        </h1>
+      </div>
+
+      <div className="grid grid-cols-3 gap-4 mb-8">
+        {["income", "expense", "transfer"].map((tab) => (
+          <button
+            key={tab}
+            onClick={() => setActiveTab(tab)}
+            className={`px-4 py-2 rounded-lg shadow transition-all ${
+              activeTab === tab
+                ? "bg-blue-500 text-white"
+                : "bg-white text-gray-600 hover:bg-gray-100"
+            }`}
           >
-            <option value="" disabled>
-              Select Type
-            </option>
-            <option value="Income">Income</option>
-            <option value="Expense">Expense</option>
-          </select>
+            {tab.charAt(0).toUpperCase() + tab.slice(1)}
+          </button>
+        ))}
+      </div>
+
+      <div className="bg-white p-8 rounded-lg shadow">
+        <form onSubmit={handleSubmit} className="space-y-6">
+          <div className="flex justify-between gap-4 mb-4">
+            <div className="flex-1">
+              <label className="block text-sm text-gray-600 mb-1">Date</label>
+              <input
+                type="date"
+                name="date"
+                value={formData.date}
+                onChange={handleChange}
+                className="w-full border border-gray-300 rounded px-3 py-2 text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+            {(activeTab === "income" ||
+              activeTab === "expense" ||
+              activeTab === "transfer") && (
+              <div className="flex-1 flex gap-2">
+                <div className="flex-1">
+                  <label className="block text-sm text-gray-600 mb-1">
+                    Time
+                  </label>
+                  <input
+                    type="text"
+                    name="time"
+                    value={formData.time}
+                    onChange={handleChange}
+                    placeholder="HH:MM"
+                    className="w-full border border-gray-300 rounded px-3 py-2 text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm text-gray-600 mb-1">
+                    AM/PM
+                  </label>
+                  <select
+                    name="amPm"
+                    value={formData.amPm}
+                    onChange={handleChange}
+                    className="w-full border border-gray-300 rounded px-3 py-2 text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  >
+                    <option value="AM">AM</option>
+                    <option value="PM">PM</option>
+                  </select>
+                </div>
+              </div>
+            )}
+          </div>
+
           <input
             type="text"
-            name="category"
-            value={formData.category}
-            placeholder="Category"
-            onChange={handleChange}
-            className="border border-gray-300 rounded p-2 w-full"
-            required
-          />
-        </div>
-        <div className="grid grid-cols-2 gap-4">
-          <input
-            type="number"
             name="amount"
             value={formData.amount}
+            onChange={handleChange}
             placeholder="Amount"
-            onChange={handleChange}
-            className="border border-gray-300 rounded p-2 w-full"
-            required
+            className="w-full px-4 py-2 bg-gray-50 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
-          <input
-            type="date"
-            name="date"
-            value={formData.date}
-            onChange={handleChange}
-            className="border border-gray-300 rounded p-2 w-full"
-            required
-          />
-        </div>
-        <input
-          type="text"
-          name="description"
-          value={formData.description}
-          placeholder="Description"
-          onChange={handleChange}
-          className="border border-gray-300 rounded p-2 w-full"
-        />
-        <button
-          type="submit"
-          className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition"
-        >
-          {isEditing ? "Update Transaction" : "Add Transaction"}
-        </button>
-      </form>
 
-      {/* Transactions Table */}
-      <table className="table-auto w-full mt-8 border border-gray-300 bg-white rounded shadow-md">
-        <thead>
-          <tr className="bg-gray-200 text-gray-700">
-            <th className="border p-2">Type</th>
-            <th className="border p-2">Category</th>
-            <th className="border p-2">Amount</th>
-            <th className="border p-2">Date</th>
-            <th className="border p-2">Description</th>
-            <th className="border p-2">Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {transactions.length === 0 ? (
-            <tr>
-              <td colSpan="6" className="text-center p-4 text-gray-500">
-                No transactions found
-              </td>
-            </tr>
+          {activeTab === "transfer" ? (
+            <>
+              <div>
+                <select
+                  name="from"
+                  value={formData.from}
+                  onChange={handleChange}
+                  className="w-full px-4 py-2 bg-gray-50 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                  <option value="">From</option>
+                  {transferOptions.map((option) => (
+                    <option key={option} value={option}>
+                      {option}
+                    </option>
+                  ))}
+                </select>
+                <div className="mt-2">
+                  <button
+                    type="button"
+                    onClick={() => handleAddTransferOption("from")}
+                    className="px-4 py-2 bg-green-500 text-white rounded-lg mr-2"
+                  >
+                    Add From
+                  </button>
+                </div>
+              </div>
+
+              <div>
+                <select
+                  name="to"
+                  value={formData.to}
+                  onChange={handleChange}
+                  className="w-full px-4 py-2 bg-gray-50 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                  <option value="">To</option>
+                  {transferOptions.map((option) => (
+                    <option key={option} value={option}>
+                      {option}
+                    </option>
+                  ))}
+                </select>
+                <div className="mt-2">
+                  <button
+                    type="button"
+                    onClick={() => handleAddTransferOption("to")}
+                    className="px-4 py-2 bg-green-500 text-white rounded-lg mr-2"
+                  >
+                    Add To
+                  </button>
+                </div>
+              </div>
+            </>
           ) : (
-            transactions.map((transaction, index) => (
-              <tr key={index} className="text-center hover:bg-gray-100">
-                <td className="border p-2">{transaction.type}</td>
-                <td className="border p-2">{transaction.category}</td>
-                <td className="border p-2">${transaction.amount}</td>
-                <td className="border p-2">{transaction.date}</td>
-                <td className="border p-2">{transaction.description}</td>
-                <td className="border p-2 space-x-2">
+            <>
+              <div>
+                <select
+                  name="category"
+                  value={formData.category}
+                  onChange={handleChange}
+                  className="w-full px-4 py-2 bg-gray-50 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                  <option value="">Select Category</option>
+                  {categories.map((category) => (
+                    <option key={category} value={category}>
+                      {category}
+                    </option>
+                  ))}
+                </select>
+                <div className="mt-2">
                   <button
-                    className="bg-yellow-400 text-white px-2 py-1 rounded hover:bg-yellow-500"
-                    onClick={() => handleEdit(index)}
+                    type="button"
+                    onClick={handleAddCategory}
+                    className="px-4 py-2 bg-green-500 text-white rounded-lg mr-2"
                   >
-                    Edit
+                    Add Category
                   </button>
+                </div>
+              </div>
+
+              <div>
+                <select
+                  name="account"
+                  value={formData.account}
+                  onChange={handleChange}
+                  className="w-full px-4 py-2 bg-gray-50 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                  <option value="">Select Account</option>
+                  {accounts.map((account) => (
+                    <option key={account} value={account}>
+                      {account}
+                    </option>
+                  ))}
+                </select>
+                <div className="mt-2">
                   <button
-                    className="bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600"
-                    onClick={() => handleDelete(index)}
+                    type="button"
+                    onClick={handleAddAccount}
+                    className="px-4 py-2 bg-green-500 text-white rounded-lg mr-2"
                   >
-                    Delete
+                    Add Account
                   </button>
-                </td>
-              </tr>
-            ))
+                </div>
+              </div>
+            </>
           )}
-        </tbody>
-      </table>
+
+          <input
+            type="text"
+            name="note"
+            value={formData.note}
+            onChange={handleChange}
+            placeholder="Note"
+            className="w-full px-4 py-2 bg-gray-50 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+
+          <button
+            type="submit"
+            className="w-full px-4 py-2 bg-blue-500 text-white rounded-lg"
+          >
+            Add Transaction
+          </button>
+        </form>
+      </div>
     </div>
   );
-};
-
-export default IncomeExpense;
+}

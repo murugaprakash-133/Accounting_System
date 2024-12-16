@@ -14,7 +14,7 @@ const Sidebar = () => {
   return (
     <div className="flex">
       {/* Sidebar */}
-      <div className="w-64 bg-gradient-to-br from-gray-800 to-gray-600 p-5 pt-8 fixed top-0 left-0 h-screen">
+      <div className="w-64 bg-gradient-to-br from-gray-800 to-gray-600 p-5 pt-4 fixed top-0 left-0 h-screen">
         {/* Logo Section */}
         <div className="flex items-center gap-x-4">
           <img
