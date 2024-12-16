@@ -70,12 +70,6 @@ const MonthlyReport = () => {
           <p className="text-gray-700">Overview of your transactions</p>
         </div>
         <div className="flex items-center space-x-4">
-          <button
-            onClick={() => changeMonth(-1)}
-            className="bg-blue-500 text-white px-4 py-2 rounded-md"
-          >
-            Previous Month
-          </button>
           <select
             value={currentDate.getMonth().toString()}
             onChange={(e) => handleMonthChange(e.target.value)}
@@ -85,12 +79,6 @@ const MonthlyReport = () => {
               <option key={index} value={index.toString()}>{month}</option>
             ))}
           </select>
-          <button
-            onClick={() => changeMonth(1)}
-            className="bg-blue-500 text-white px-4 py-2 rounded-md"
-          >
-            Next Month
-          </button>
           <button
             onClick={downloadExcel}
             className="bg-green-500 text-white px-4 py-2 rounded-md"
@@ -104,16 +92,16 @@ const MonthlyReport = () => {
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 mb-8">
         <div className="bg-white p-6 rounded-md shadow-md">
           <h3 className="font-semibold text-xl">Total Income</h3>
-          <p className="text-2xl font-bold text-green-600">${totalIncome.toFixed(2)}</p>
+          <p className="text-2xl font-bold text-green-600">₹{totalIncome.toFixed(2)}</p>
         </div>
         <div className="bg-white p-6 rounded-md shadow-md">
           <h3 className="font-semibold text-xl">Total Expenses</h3>
-          <p className="text-2xl font-bold text-red-600">${totalExpenses.toFixed(2)}</p>
+          <p className="text-2xl font-bold text-red-600">₹{totalExpenses.toFixed(2)}</p>
         </div>
         <div className="bg-white p-6 rounded-md shadow-md">
           <h3 className="font-semibold text-xl">Net Profit</h3>
           <p className="text-2xl font-bold text-blue-600">
-            ${(totalIncome - totalExpenses).toFixed(2)}
+          ₹{(totalIncome - totalExpenses).toFixed(2)}
           </p>
         </div>
       </div>
@@ -158,14 +146,14 @@ const MonthlyReport = () => {
                     {transaction.account}
                   </td>
                   <td className="py-4 px-6 border-b border-gray-300 text-gray-800">
-                    {transaction.type === 'income' ? 'Income' : 'Expense'}
+                    {transaction.type === 'income' ? 'Credit' : 'Debit'}
                   </td>
                   <td
                     className={`py-4 px-6 border-b border-gray-300 text-right font-semibold ${
                       transaction.type === 'expense' ? 'text-red-600' : 'text-green-600'
                     }`}
                   >
-                    ${transaction.amount.toFixed(2)}
+                    ₹{transaction.amount.toFixed(2)}
                   </td>
                   <td className="py-4 px-6 border-b border-gray-300 text-gray-800">
                     {new Date(transaction.date).toLocaleDateString()}

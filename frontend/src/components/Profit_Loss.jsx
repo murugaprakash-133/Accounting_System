@@ -29,15 +29,15 @@ const CustomTooltip = ({ active, payload, label }) => {
         <p className="font-semibold text-lg">{label}</p>
         <p>
           <span className="text-blue-400 font-medium">Income:</span>{' '}
-          <span className="ml-2">${payload.find((d) => d.dataKey === 'revenue')?.value}</span>
+          <span className="ml-2">₹{payload.find((d) => d.dataKey === 'revenue')?.value}</span>
         </p>
         <p>
           <span className="text-indigo-400 font-medium">Profit:</span>{' '}
-          <span className="ml-2">${payload.find((d) => d.dataKey === 'profit')?.value}</span>
+          <span className="ml-2">₹{payload.find((d) => d.dataKey === 'profit')?.value}</span>
         </p>
         <p>
           <span className="text-green-400 font-medium">Expenses:</span>{' '}
-          <span className="ml-2">${payload.find((d) => d.dataKey === 'expenses')?.value}</span>
+          <span className="ml-2">₹{payload.find((d) => d.dataKey === 'expenses')?.value}</span>
         </p>
       </div>
     );
@@ -55,17 +55,17 @@ const Profit_Loss = () => {
         <div className="bg-white shadow p-6 rounded-lg">
           <h2 className="text-2xl font-bold">Total Income</h2>
           <p className="text-gray-700">Year to Date</p>
-          <h3 className="text-2xl font-bold text-green-600">$16060.00</h3>
+          <h3 className="text-2xl font-bold text-green-600">₹16060.00</h3>
         </div>
         <div className="bg-white shadow p-6 rounded-lg">
           <h2 className="text-2xl font-bold">Total Expenses</h2>
           <p className="text-gray-700">Year to Date</p>
-          <h3 className="text-2xl font-bold text-red-600">$26106.00</h3>
+          <h3 className="text-2xl font-bold text-red-600">₹26106.00</h3>
         </div>
         <div className="bg-white shadow p-6 rounded-lg">
           <h2 className="text-2xl font-bold">Net Profit/Loss</h2>
           <p className="text-gray-700">Year to Date</p>
-          <h3 className="text-2xl font-bold text-blue-600">$-10046.00</h3>
+          <h3 className="text-2xl font-bold text-blue-600">₹-10046.00</h3>
         </div>
       </div>
 

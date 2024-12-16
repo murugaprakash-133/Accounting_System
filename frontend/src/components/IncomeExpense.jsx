@@ -12,7 +12,7 @@ export default function Transactions() {
     amount: "",
     category: "",
     account: "",
-    note: "",
+    description: "",
     from: "",
     to: "",
   });
@@ -168,7 +168,7 @@ export default function Transactions() {
       time: formData.time,
       amPm: formData.amPm,
       amount: formData.amount,
-      note: formData.note,
+      description: formData.description,
     };
 
     // Add fields based on the activeTab
@@ -202,7 +202,7 @@ export default function Transactions() {
         amount: "",
         category: "",
         account: "",
-        note: "",
+        description: "",
         from: "",
         to: "",
       });
@@ -422,10 +422,11 @@ export default function Transactions() {
 
           <input
             type="text"
-            name="note"
-            value={formData.note}
+            name="description"
+            value={formData.description
+            }
             onChange={handleChange}
-            placeholder="Note"
+            placeholder="Description"
             className="w-full px-4 py-2 bg-gray-50 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
 

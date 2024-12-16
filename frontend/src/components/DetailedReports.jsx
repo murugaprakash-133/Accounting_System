@@ -89,7 +89,7 @@ const DetailedReports = () => {
             <tr key={label} className="even:bg-gray-50">
               <td className="px-8 py-4 border-b text-gray-700">{label}</td>
               <td className="px-8 py-4 border-b text-right text-gray-700">
-                ${dataMap[selectedReport].datasets[0].data[index]}
+              ₹{dataMap[selectedReport].datasets[0].data[index]}
               </td>
             </tr>
           ))}

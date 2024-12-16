@@ -28,11 +28,11 @@ const CustomTooltip = ({ active, payload, label }) => {
         <p className="font-semibold text-lg">{label}</p>
         <p>
           <span className="text-blue-400 font-medium">Income:</span>{' '}
-          <span className="ml-2">${payload[0].value}</span>
+          <span className="ml-2">₹{payload[0].value}</span>
         </p>
         <p>
           <span className="text-indigo-400 font-medium">Expenses:</span>{' '}
-          <span className="ml-2">${payload[1].value}</span>
+          <span className="ml-2">₹{payload[1].value}</span>
         </p>
       </div>
     );
@@ -48,17 +48,17 @@ const Dashboard = () => {
         <div className="bg-white p-6 rounded-lg shadow">
           <h3 className="text-3xl font-semibold">Total Income</h3>
           <p className="text-sm text-gray-500">Year of date</p>
-          <h3 className="text-3xl font-semibold text-green-600">$24,000</h3>
+          <h3 className="text-3xl font-semibold text-green-600">₹24,000</h3>
         </div>
         <div className="bg-white p-6 rounded-lg shadow">
           <h3 className="text-3xl font-semibold">Total Expenses</h3>
           <p className="text-sm text-gray-500">Year of date</p>
-          <h3 className="text-3xl font-semibold text-red-600">$18,000</h3>
+          <h3 className="text-3xl font-semibold text-red-600">₹18,000</h3>
         </div>
         <div className="bg-white p-6 rounded-lg shadow">
           <h3 className="text-3xl font-semibold">Net Profit</h3>
           <p className="text-sm text-gray-500">Year of date</p>
-          <h3 className="text-3xl font-semibold text-blue-600">$6,000</h3>
+          <h3 className="text-3xl font-semibold text-blue-600">₹6,000</h3>
         </div>
       </div>
       <div className="bg-white p-8 rounded-lg shadow">

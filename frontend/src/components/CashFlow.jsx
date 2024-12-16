@@ -30,7 +30,7 @@ const CustomTooltip = ({ active, payload, label }) => {
         <p className="font-semibold text-lg">{label}</p>
         {payload.map((entry, index) => (
           <p key={`item-${index}`} style={{ color: entry.color }}>
-            {entry.name}: ${entry.value}
+            {entry.name}: ₹{entry.value}
           </p>
         ))}
       </div>
@@ -50,17 +50,17 @@ const CashFlow = () => {
         <div className="bg-white shadow p-6 rounded-lg">
           <h2 className="text-2xl font-bold">Total Cash In</h2>
           <p className="text-gray-700">Year to Date</p>
-          <h3 className="text-2xl font-bold text-blue-600">$29008.00</h3>
+          <h3 className="text-2xl font-bold text-blue-600">₹29008.00</h3>
         </div>
         <div className="bg-white shadow p-6 rounded-lg">
           <h2 className="text-2xl font-bold">Total Cash Out</h2>
           <p className="text-gray-700">Year to Date</p>
-          <h3 className="text-2xl font-bold text-green-600">$13258.00</h3>
+          <h3 className="text-2xl font-bold text-green-600">₹13258.00</h3>
         </div>
         <div className="bg-white shadow p-6 rounded-lg">
           <h2 className="text-2xl font-bold">Net Cash Flow</h2>
           <p className="text-gray-700">Year to Date</p>
-          <h3 className="text-2xl font-bold text-orange-600">$15750.00</h3>
+          <h3 className="text-2xl font-bold text-orange-600">₹15750.00</h3>
         </div>
       </div>
 

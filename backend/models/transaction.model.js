@@ -54,7 +54,7 @@ const transactionSchema = new mongoose.Schema(
       enum: ["AM", "PM"],
       required: true,
     },
-    note: {
+    description: {
       type: String,
       default: "",
     },
