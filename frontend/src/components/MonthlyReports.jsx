@@ -8,24 +8,27 @@ const MonthlyReport = () => {
   const [transactions, setTransactions] = useState([]);
   const [totalIncome, setTotalIncome] = useState(0);
   const [totalExpenses, setTotalExpenses] = useState(0);
-  const [currentDate, setCurrentDate] = useState(new Date());
+  const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth());
+  const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
 
   const months = [
     'January', 'February', 'March', 'April', 'May', 'June',
     'July', 'August', 'September', 'October', 'November', 'December'
   ];
 
+  const years = Array.from({ length: 50 }, (_, i) => new Date().getFullYear() - 25 + i); // Generate a range of years
+
   // Fetch transactions data using Axios
   useEffect(() => {
     fetchTransactions();
-  }, [currentDate]);
+  }, [selectedMonth, selectedYear]);
 
   const fetchTransactions = async () => {
     try {
       const response = await axios.get('http://localhost:5000/api/transactions', {
         params: {
-          month: currentDate.getMonth() + 1,
-          year: currentDate.getFullYear(),
+          month: selectedMonth + 1,
+          year: selectedYear,
         },
         withCredentials: true, // Ensure cookies are sent with the request
       });
@@ -38,27 +41,19 @@ const MonthlyReport = () => {
     }
   };
 
-  const changeMonth = (change) => {
-    setCurrentDate(prevDate => {
-      const newDate = new Date(prevDate);
-      newDate.setMonth(prevDate.getMonth() + change);
-      return newDate;
-    });
+  const handleMonthChange = (event) => {
+    setSelectedMonth(parseInt(event.target.value));
   };
 
-  const handleMonthChange = (value) => {
-    setCurrentDate(prevDate => {
-      const newDate = new Date(prevDate);
-      newDate.setMonth(parseInt(value));
-      return newDate;
-    });
+  const handleYearChange = (event) => {
+    setSelectedYear(parseInt(event.target.value));
   };
 
   const downloadExcel = () => {
     const worksheet = XLSX.utils.json_to_sheet(transactions);
     const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, worksheet, "Transactions");
-    XLSX.writeFile(workbook, `transactions_${currentDate.getFullYear()}_${months[currentDate.getMonth()]}.xlsx`);
+    XLSX.writeFile(workbook, `transactions_${selectedYear}_${months[selectedMonth]}.xlsx`);
   };
 
   return (
@@ -70,30 +65,43 @@ const MonthlyReport = () => {
           <p className="text-gray-700">Overview of your transactions</p>
         </div>
         <div className="flex items-center space-x-4">
-          <button
-            onClick={() => changeMonth(-1)}
-            className="bg-blue-500 text-white px-4 py-2 rounded-md"
-          >
-            Previous Month
-          </button>
-          <select
-            value={currentDate.getMonth().toString()}
-            onChange={(e) => handleMonthChange(e.target.value)}
-            className="border px-4 py-2 rounded-md"
-          >
-            {months.map((month, index) => (
-              <option key={index} value={index.toString()}>{month}</option>
-            ))}
-          </select>
-          <button
-            onClick={() => changeMonth(1)}
-            className="bg-blue-500 text-white px-4 py-2 rounded-md"
-          >
-            Next Month
-          </button>
+          {/* Dynamic Month Selector */}
+          <div>
+            <label htmlFor="month-selector" className="sr-only">
+              Select Month
+            </label>
+            <select
+              id="month-selector"
+              value={selectedMonth}
+              onChange={handleMonthChange}
+              className="border px-4 py-2 rounded-md shadow-md focus:ring-2 focus:ring-blue-500 focus:outline-none"
+            >
+              {months.map((month, index) => (
+                <option key={index} value={index}>{month}</option>
+              ))}
+            </select>
+          </div>
+
+          {/* Dynamic Year Selector */}
+          <div>
+            <label htmlFor="year-selector" className="sr-only">
+              Select Year
+            </label>
+            <select
+              id="year-selector"
+              value={selectedYear}
+              onChange={handleYearChange}
+              className="border px-4 py-2 rounded-md shadow-md focus:ring-2 focus:ring-blue-500 focus:outline-none"
+            >
+              {years.map((year) => (
+                <option key={year} value={year}>{year}</option>
+              ))}
+            </select>
+          </div>
+
           <button
             onClick={downloadExcel}
-            className="bg-green-500 text-white px-4 py-2 rounded-md"
+            className="bg-green-500 text-white px-4 py-2 rounded-md shadow hover:bg-green-600 transition"
           >
             Download Excel
           </button>
@@ -102,15 +110,15 @@ const MonthlyReport = () => {
 
       {/* Summary Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 mb-8">
-        <div className="bg-white p-6 rounded-md shadow-md">
+        <div className="bg-white p-6 rounded-md shadow-md transition hover:shadow-lg">
           <h3 className="font-semibold text-xl">Total Income</h3>
           <p className="text-2xl font-bold text-green-600">${totalIncome.toFixed(2)}</p>
         </div>
-        <div className="bg-white p-6 rounded-md shadow-md">
+        <div className="bg-white p-6 rounded-md shadow-md transition hover:shadow-lg">
           <h3 className="font-semibold text-xl">Total Expenses</h3>
           <p className="text-2xl font-bold text-red-600">${totalExpenses.toFixed(2)}</p>
         </div>
-        <div className="bg-white p-6 rounded-md shadow-md">
+        <div className="bg-white p-6 rounded-md shadow-md transition hover:shadow-lg">
           <h3 className="font-semibold text-xl">Net Profit</h3>
           <p className="text-2xl font-bold text-blue-600">
             ${(totalIncome - totalExpenses).toFixed(2)}
@@ -134,7 +142,7 @@ const MonthlyReport = () => {
                 <th className="text-left py-4 px-6 border-b-2 border-gray-300 text-gray-700 font-medium uppercase">
                   Type
                 </th>
-                <th className="text-right py-4 px-6 border-b-2 border-gray-300 text-gray-700 font-medium uppercase">
+                <th className="text-right py-4 px-6 border-b border-gray-300 text-gray-700 font-medium uppercase">
                   Amount
                 </th>
                 <th className="text-left py-4 px-6 border-b-2 border-gray-300 text-gray-700 font-medium uppercase">
