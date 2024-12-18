@@ -62,6 +62,7 @@ export const getTransactions = async (req, res) => {
       .filter(transaction => transaction.type === 'expense')
       .reduce((acc, curr) => acc + curr.amount, 0);
 
+    // Prepare response
     res.status(200).json({
       transactions,
       totalIncome,
@@ -70,6 +71,53 @@ export const getTransactions = async (req, res) => {
   } catch (error) {
     console.error("Error fetching transactions:", error);
     res.status(500).json({ message: "Error fetching transactions" });
+  }
+};
+
+// Get aggregated data for the dashboard
+export const getDashboardData = async (req, res) => {
+  try {
+    const userId = req.user._id;
+
+    const transactions = await Transaction.find({ userId });
+
+    const monthlyData = [];
+    const totalIncome = transactions
+      .filter((t) => t.type === 'income')
+      .reduce((acc, t) => acc + t.amount, 0);
+    const totalExpenses = transactions
+      .filter((t) => t.type === 'expense')
+      .reduce((acc, t) => acc + t.amount, 0);
+
+    // Calculate monthly totals
+    const groupedByMonth = transactions.reduce((acc, t) => {
+      const month = new Date(t.date).getMonth(); // Month index (0-11)
+      const type = t.type;
+
+      if (!acc[month]) acc[month] = { income: 0, expenses: 0 };
+      if (type === 'income') acc[month].income += t.amount;
+      if (type === 'expense') acc[month].expenses += t.amount;
+
+      return acc;
+    }, {});
+
+    // Prepare monthly data for the chart
+    for (let i = 0; i < 12; i++) {
+      monthlyData.push({
+        name: new Date(0, i).toLocaleString('default', { month: 'short' }),
+        income: groupedByMonth[i]?.income || 0,
+        expenses: groupedByMonth[i]?.expenses || 0,
+      });
+    }
+
+    res.status(200).json({
+      monthlyData,
+      totalIncome,
+      totalExpenses,
+    });
+  } catch (error) {
+    console.error("Error fetching dashboard data:", error);
+    res.status(500).json({ message: "Error fetching dashboard data." });
   }
 };
 
