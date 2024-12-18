@@ -28,15 +28,36 @@ export const createTransaction = async (req, res) => {
   }
 };
 
-// Get all transactions for the authenticated user
+// Get all transactions for the authenticated user with optional filters
 export const getTransactions = async (req, res) => {
   try {
-    const transactions = await Transaction.find({ userId: req.user._id }).sort({ createdAt: -1 });
+    const { month, year, type } = req.query;
+
+    // Build dynamic query
+    const query = { userId: req.user._id };
+
+    // Filter by month and year if provided
+    if (month && year) {
+      const startOfMonth = new Date(year, month - 1, 1);
+      const endOfMonth = new Date(year, month, 0, 23, 59, 59); // Last day of the month
+      query.date = {
+        $gte: startOfMonth,
+        $lte: endOfMonth,
+      };
+    }
+
+    // Filter by type (income/expense/transfer) if provided
+    if (type) {
+      query.type = type;
+    }
+
+    const transactions = await Transaction.find(query).sort({ createdAt: -1 });
 
     // Calculate total income and total expenses
     const totalIncome = transactions
       .filter(transaction => transaction.type === 'income')
       .reduce((acc, curr) => acc + curr.amount, 0);
+
     const totalExpenses = transactions
       .filter(transaction => transaction.type === 'expense')
       .reduce((acc, curr) => acc + curr.amount, 0);
