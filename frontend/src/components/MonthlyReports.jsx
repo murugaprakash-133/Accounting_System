@@ -54,12 +54,40 @@ const MonthlyReport = () => {
     });
   };
 
-  const downloadExcel = () => {
-    const worksheet = XLSX.utils.json_to_sheet(transactions);
-    const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, "Transactions");
-    XLSX.writeFile(workbook, `transactions_${currentDate.getFullYear()}_${months[currentDate.getMonth()]}.xlsx`);
-  };
+    const downloadExcel = () => {
+      // Prepare formatted data for Excel
+      const formattedTransactions = transactions.map((transaction, index) => ({
+        ID: transaction._id || index + 1, // Provide a unique ID
+        User_Id: transaction.userId || "N/A", // Include user ID if available
+        Date: new Date(transaction.date).toLocaleDateString(),
+        Time: `${transaction.time} ${transaction.amPm}`,
+        Description: transaction.description || "N/A",
+        "Voucher Type": transaction.voucherType || "N/A",
+        "Voucher No": transaction.voucherNo || "N/A",
+        "Debit(₹)": transaction.type === "expense" ? transaction.amount.toFixed(2) : "",
+        "Credit(₹)": transaction.type === "income" ? transaction.amount.toFixed(2) : "",
+        "Balance(₹)": (totalIncome - totalExpenses).toFixed(2),
+      }));
+    
+      // Create Excel sheet and workbook
+      const worksheet = XLSX.utils.json_to_sheet(formattedTransactions);
+      const workbook = XLSX.utils.book_new();
+    
+      // Append sheet to workbook
+      XLSX.utils.book_append_sheet(workbook, worksheet, "Transactions");
+    
+      // Create filename with current date
+      const currentDate = new Date();
+      const months = [
+        "January", "February", "March", "April", "May", "June",
+        "July", "August", "September", "October", "November", "December",
+      ];
+      const filename = `transactions_${currentDate.getFullYear()}_${months[currentDate.getMonth()]}.xlsx`;
+    
+      // Download Excel file
+      XLSX.writeFile(workbook, filename);
+    };
+  
 
   return (
     <div className="p-6 bg-gray-50 min-h-screen mt-20">
@@ -112,24 +140,30 @@ const MonthlyReport = () => {
         <div className="overflow-x-auto">
           <table className="w-full table-auto border-collapse">
             <thead>
-              <tr className="bg-gray-100">
-                <th className="text-left py-4 px-6 border-b-2 border-gray-300 text-gray-700 font-medium uppercase">
-                  Category
-                </th>
-                <th className="text-left py-4 px-6 border-b-2 border-gray-300 text-gray-700 font-medium uppercase">
-                  Account
-                </th>
-                <th className="text-left py-4 px-6 border-b-2 border-gray-300 text-gray-700 font-medium uppercase">
-                  Type
-                </th>
-                <th className="text-right py-4 px-6 border-b-2 border-gray-300 text-gray-700 font-medium uppercase">
-                  Amount
-                </th>
-                <th className="text-left py-4 px-6 border-b-2 border-gray-300 text-gray-700 font-medium uppercase">
+            <tr className="bg-gray-100">
+                <th className="text-left py-4 px-4 border-b-2 border-gray-300 text-gray-700 font-medium uppercase">
                   Date
                 </th>
-                <th className="text-left py-4 px-6 border-b-2 border-gray-300 text-gray-700 font-medium uppercase">
+                <th className="text-left py-4 px-4 border-b-2 border-gray-300 text-gray-700 font-medium uppercase">
                   Time
+                </th>
+                <th className="text-left py-4 px-4 border-b-2 border-gray-300 text-gray-700 font-medium uppercase">
+                  Description
+                </th>
+                <th className="text-left py-4 px-4 border-b-2 border-gray-300 text-gray-700 font-medium uppercase">
+                  Voucher Type
+                </th>
+                <th className="text-left py-4 px-4 border-b-2 border-gray-300 text-gray-700 font-medium uppercase">
+                  Voucher No
+                </th>
+                <th className="text-right py-4 px-4 border-b-2 border-gray-300 text-gray-700 font-medium uppercase">
+                  Debit ₹
+                </th>
+                <th className="text-right py-4 px-4 border-b-2 border-gray-300 text-gray-700 font-medium uppercase">
+                  Credit ₹
+                </th>
+                <th className="text-right py-4 px-4 border-b-2 border-gray-300 text-gray-700 font-medium uppercase">
+                  Balance
                 </th>
               </tr>
             </thead>
@@ -137,29 +171,37 @@ const MonthlyReport = () => {
               {transactions.map((transaction, index) => (
                 <tr
                   key={transaction._id}
-                  className={`${index % 2 === 0 ? 'bg-gray-50' : 'bg-white'} hover:bg-gray-200`}
+                  className={`${
+                    index % 2 === 0 ? 'bg-gray-50' : 'bg-white'
+                  } hover:bg-gray-200`}
                 >
-                  <td className="py-4 px-6 border-b border-gray-300 text-gray-800">
-                    {transaction.category}
-                  </td>
-                  <td className="py-4 px-6 border-b border-gray-300 text-gray-800">
-                    {transaction.account}
-                  </td>
-                  <td className="py-4 px-6 border-b border-gray-300 text-gray-800">
-                    {transaction.type === 'income' ? 'Credit' : 'Debit'}
-                  </td>
-                  <td
-                    className={`py-4 px-6 border-b border-gray-300 text-right font-semibold ${
-                      transaction.type === 'expense' ? 'text-red-600' : 'text-green-600'
-                    }`}
-                  >
-                    ₹{transaction.amount.toFixed(2)}
-                  </td>
                   <td className="py-4 px-6 border-b border-gray-300 text-gray-800">
                     {new Date(transaction.date).toLocaleDateString()}
                   </td>
                   <td className="py-4 px-6 border-b border-gray-300 text-gray-800">
                     {transaction.time} {transaction.amPm}
+                  </td>
+                  <td className="py-4 px-6 border-b border-gray-300 text-gray-800">
+                    {transaction.description}
+                  </td>
+                  <td className="py-4 px-6 border-b border-gray-300 text-gray-800">
+                    {transaction.voucherType}
+                  </td>
+                  <td className="py-4 px-6 border-b border-gray-300 text-gray-800">
+                    {transaction.voucherNo}
+                  </td>
+                  <td className="py-4 px-6 border-b border-gray-300 text-right font-semibold text-red-600">
+                    {transaction.type === 'expense'
+                      ? `₹${transaction.amount.toFixed(2)}`
+                      : " "}
+                  </td>
+                  <td className="py-4 px-6 border-b border-gray-300 text-right font-semibold text-green-600">
+                    {transaction.type === 'income'
+                      ? `₹${transaction.amount.toFixed(2)}`
+                      : " "}
+                  </td>
+                  <td className="py-4 px-6 border-b border-gray-300 text-right text-gray-800">
+                    ₹{(totalIncome - totalExpenses).toFixed(2)}
                   </td>
                 </tr>
               ))}
