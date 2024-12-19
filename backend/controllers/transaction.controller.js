@@ -1,3 +1,4 @@
+// transaction.controller.js
 import Transaction from "../models/transaction.model.js";
 
 // Create a new transaction
@@ -78,25 +79,41 @@ export const getTransactions = async (req, res) => {
 export const getDashboardData = async (req, res) => {
   try {
     const userId = req.user._id;
+    const { year } = req.query;
 
-    const transactions = await Transaction.find({ userId });
+    // Validate year
+    if (!year) {
+      return res.status(400).json({ message: "Year is required." });
+    }
+
+    // Fetch all transactions for the given year
+    const startOfYear = new Date(year, 0, 1); // Jan 1st
+    const endOfYear = new Date(year, 11, 31, 23, 59, 59); // Dec 31st
+    const transactions = await Transaction.find({
+      userId,
+      date: { $gte: startOfYear, $lte: endOfYear },
+    });
 
     const monthlyData = [];
-    const totalIncome = transactions
-      .filter((t) => t.type === 'income')
-      .reduce((acc, t) => acc + t.amount, 0);
-    const totalExpenses = transactions
-      .filter((t) => t.type === 'expense')
-      .reduce((acc, t) => acc + t.amount, 0);
+    let totalIncome = 0;
+    let totalExpenses = 0;
 
-    // Calculate monthly totals
+    // Group transactions by month
     const groupedByMonth = transactions.reduce((acc, t) => {
       const month = new Date(t.date).getMonth(); // Month index (0-11)
       const type = t.type;
 
+      // Ensure each month has an income and expense bucket
       if (!acc[month]) acc[month] = { income: 0, expenses: 0 };
-      if (type === 'income') acc[month].income += t.amount;
-      if (type === 'expense') acc[month].expenses += t.amount;
+
+      // Update income or expenses based on the transaction type
+      if (type === "income") {
+        acc[month].income += t.amount;
+        totalIncome += t.amount;
+      } else if (type === "expense") {
+        acc[month].expenses += t.amount;
+        totalExpenses += t.amount;
+      }
 
       return acc;
     }, {});
@@ -104,16 +121,20 @@ export const getDashboardData = async (req, res) => {
     // Prepare monthly data for the chart
     for (let i = 0; i < 12; i++) {
       monthlyData.push({
-        name: new Date(0, i).toLocaleString('default', { month: 'short' }),
+        name: new Date(0, i).toLocaleString("default", { month: "short" }),
         income: groupedByMonth[i]?.income || 0,
         expenses: groupedByMonth[i]?.expenses || 0,
       });
     }
 
+    const netProfit = totalIncome - totalExpenses;
+
+    // Respond with aggregated data
     res.status(200).json({
       monthlyData,
       totalIncome,
       totalExpenses,
+      netProfit,
     });
   } catch (error) {
     console.error("Error fetching dashboard data:", error);
