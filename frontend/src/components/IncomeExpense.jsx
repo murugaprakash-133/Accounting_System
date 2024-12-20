@@ -10,9 +10,11 @@ export default function Transactions() {
     time: getCurrentTime(),
     amPm: getCurrentPeriod(),
     amount: "",
+    voucherType: "",
+    voucherNo: "",
     category: "",
     account: "",
-    note: "",
+    description: "",
     from: "",
     to: "",
   });
@@ -36,6 +38,11 @@ export default function Transactions() {
     fetchUser();
   }, []);
 
+  const [voucherTypes, setVoucherTypes] = useState([
+    "DD",
+    "Check",
+    "salan",
+  ]);
   const [categories, setCategories] = useState([
     "Food",
     "Education",
@@ -143,17 +150,38 @@ export default function Transactions() {
       alert("Please fill in all required fields.");
       return;
     }
+    let transactionData;
 
     if (activeTab === "income" || activeTab === "expense") {
-      if (!formData.category || !formData.account) {
+      if (!formData.category || !formData.account || !formData.voucherType) {
         alert("Please fill in all required fields.");
         return;
       }
+      transactionData = {
+        userId: userId, // Use the user ID obtained from the backend
+        type: activeTab, // Your logic for activeTab
+        date: formData.date,
+        time: formData.time,
+        amPm: formData.amPm,
+        amount: formData.amount,
+        description: formData.description,
+        voucherNo: formData.voucherNo,
+        // voucherTypes: formData.voucherType,
+      };
     } else if (activeTab === "transfer") {
       if (!formData.from || !formData.to) {
         alert("Please select both 'From' and 'To' accounts.");
         return;
       }
+      transactionData = {
+        userId: userId, // Use the user ID obtained from the backend
+        type: activeTab, // Your logic for activeTab
+        date: formData.date,
+        time: formData.time,
+        amPm: formData.amPm,
+        amount: formData.amount,
+        description: formData.description,
+      };
     }
 
     if (!userId) {
@@ -161,20 +189,11 @@ export default function Transactions() {
       return;
     }
 
-    let transactionData = {
-      userId: userId, // Use the user ID obtained from the backend
-      type: activeTab, // Your logic for activeTab
-      date: formData.date,
-      time: formData.time,
-      amPm: formData.amPm,
-      amount: formData.amount,
-      note: formData.note,
-    };
-
     // Add fields based on the activeTab
     if (activeTab === "income" || activeTab === "expense") {
       transactionData.category = formData.category;
       transactionData.account = formData.account;
+      transactionData.voucherType = formData.voucherType;
     } else if (activeTab === "transfer") {
       transactionData.from = formData.from;
       transactionData.to = formData.to;
@@ -200,9 +219,11 @@ export default function Transactions() {
         time: "",
         amPm: "",
         amount: "",
+        voucherType: "",
+        voucherNo:"",
         category: "",
         account: "",
-        note: "",
+        description: "",
         from: "",
         to: "",
       });
@@ -216,6 +237,13 @@ export default function Transactions() {
     const newCategory = prompt("Enter new category:");
     if (newCategory && !categories.includes(newCategory)) {
       setCategories((prevCategories) => [...prevCategories, newCategory]);
+    }
+  };
+
+  const handleAddVoucherType = () => {
+    const newVoucherType = prompt("Enter new category:");
+    if (newVoucherType && !voucherTypes.includes(newVoucherType)) {
+      setVoucherTypes((prevVoucherTypes) => [...prevVoucherTypes, newVoucherType]);
     }
   };
 
@@ -368,6 +396,38 @@ export default function Transactions() {
             </>
           ) : (
             <>
+            <div>
+                <select
+                  name="voucherType"
+                  value={formData.voucherType}
+                  onChange={handleChange}
+                  className="w-full px-4 py-2 bg-gray-50 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                  <option value="">Voucher Type</option>
+                  {voucherTypes.map((voucherType) => (
+                    <option key={voucherType} value={voucherType}>
+                      {voucherType}
+                    </option>
+                  ))}
+                </select>
+                <div className="mt-2">
+                  <button
+                    type="button"
+                    onClick={handleAddVoucherType}
+                    className="px-4 py-2 bg-green-500 text-white rounded-lg mr-2"
+                  >
+                    Add Category
+                  </button>
+                </div>
+              </div>
+              <input
+                type="text"
+                name="voucherNo"
+                value={formData.voucherNo}
+                onChange={handleChange}
+                placeholder="Voucher No"
+                className="w-full px-4 py-2 bg-gray-50 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
               <div>
                 <select
                   name="category"
@@ -422,10 +482,11 @@ export default function Transactions() {
 
           <input
             type="text"
-            name="note"
-            value={formData.note}
+            name="description"
+            value={formData.description
+            }
             onChange={handleChange}
-            placeholder="Note"
+            placeholder="Description"
             className="w-full px-4 py-2 bg-gray-50 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
 
