@@ -62,6 +62,21 @@ const Dashboard = () => {
     }
   };
 
+  const handleMonthChange = (event) => {
+    setSelectedMonth(parseInt(event.target.value));
+  };
+
+  const handleYearChange = (event) => {
+    setSelectedYear(parseInt(event.target.value));
+  };
+
+  const formatCurrency = (amount) => {
+    return new Intl.NumberFormat('en-IN', {
+      style: 'currency',
+      currency: 'INR',
+    }).format(amount);
+  };
+
   const CustomTooltip = ({ active, payload, label }) => {
     if (active && payload && payload.length) {
       return (
@@ -69,11 +84,11 @@ const Dashboard = () => {
           <p className="font-semibold text-lg">{label}</p>
           <p>
             <span className="text-blue-400 font-medium">Income:</span>{' '}
-            <span className="ml-2">${payload[0]?.value}</span>
+            <span className="ml-2">{formatCurrency(payload[0]?.value)}</span>
           </p>
           <p>
             <span className="text-indigo-400 font-medium">Expenses:</span>{' '}
-            <span className="ml-2">${payload[1]?.value}</span>
+            <span className="ml-2">{formatCurrency(payload[1]?.value)}</span>
           </p>
         </div>
       );
@@ -85,24 +100,24 @@ const Dashboard = () => {
     <div className="min-h-screen bg-gray-100 py-10 px-8 mt-20">
       <h1 className="text-4xl font-bold mb-6 text-gray-800">Financial Dashboard</h1>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-        <div className="bg-white p-6 rounded-lg shadow">
+        <div className="bg-green-100 p-6 rounded-lg shadow-lg hover:shadow-xl transition duration-300">
           <h3 className="text-3xl font-semibold">Total Income</h3>
           <p className="text-sm text-gray-500">Current Month</p>
-          <h3 className="text-3xl font-semibold text-green-600">${totalIncome.toFixed(2)}</h3>
+          <h3 className="text-3xl font-semibold text-green-600">{formatCurrency(totalIncome)}</h3>
         </div>
-        <div className="bg-white p-6 rounded-lg shadow">
+        <div className="bg-red-100 p-6 rounded-lg shadow-lg hover:shadow-xl transition duration-300">
           <h3 className="text-3xl font-semibold">Total Expenses</h3>
           <p className="text-sm text-gray-500">Current Month</p>
-          <h3 className="text-3xl font-semibold text-red-600">${totalExpenses.toFixed(2)}</h3>
+          <h3 className="text-3xl font-semibold text-red-600">{formatCurrency(totalExpenses)}</h3>
         </div>
-        <div className="bg-white p-6 rounded-lg shadow">
+        <div className="bg-blue-100 p-6 rounded-lg shadow-lg hover:shadow-xl transition duration-300">
           <h3 className="text-3xl font-semibold">Net Profit</h3>
           <p className="text-sm text-gray-500">Current Month</p>
-          <h3 className="text-3xl font-semibold text-blue-600">${netProfit.toFixed(2)}</h3>
+          <h3 className="text-3xl font-semibold text-blue-600">{formatCurrency(netProfit)}</h3>
         </div>
       </div>
 
-      <div className="bg-white p-8 rounded-lg shadow">
+      <div className="bg-white p-8 rounded-lg shadow-lg">
         <h2 className="text-3xl font-semibold mb-6 text-gray-800">Income vs Expenses</h2>
         <p className="text-sm text-gray-500">Monthly Comparison</p>
         <ResponsiveContainer width="100%" height={300}>
