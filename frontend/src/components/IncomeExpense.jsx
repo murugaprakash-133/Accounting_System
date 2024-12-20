@@ -29,7 +29,6 @@ export default function Transactions() {
           withCredentials: true,
         });
         setUserId(response.data._id); // Store userId from the backend response
-        // console.log(response.data._id);
       } catch (error) {
         console.error("Error fetching user data:", error);
       }
@@ -78,69 +77,12 @@ export default function Transactions() {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  // const handleSubmit = async (e) => {
-  //   e.preventDefault();
-
-  //   if (!formData.amount || !formData.category || !formData.account) {
-  //     alert("Please fill in all required fields.");
-  //     return;
-  //   }
-
-  //   if (!userId) {
-  //     alert("User not authenticated.");
-  //     return;
-  //   }
-
-  //   let transactionData = {
-  //     userId: userId, // Use the user ID obtained from the backend
-  //     type: activeTab, // Your logic for activeTab
-  //     date: formData.date,
-  //     time: formData.time,
-  //     amPm: formData.amPm,
-  //     amount: formData.amount,
-  //     note: formData.note,
-  //   };
-
-  //   // Add fields based on the activeTab
-  //   if (activeTab === 'income' || activeTab === 'expense') {
-  //     transactionData.category = formData.category;
-  //     transactionData.account = formData.account;
-  //   } else if (activeTab === 'transfer') {
-  //     transactionData.from = formData.from;
-  //     transactionData.to = formData.to;
-  //   }
-
-  //   // Now use transactionData for the API call or further processing
-  //   console.log(transactionData);
-
-  //   try {
-  //     const response = await axios.post(
-  //       "http://localhost:5000/api/transactions",
-  //       transactionData,
-  //       {
-  //         withCredentials: true, // Ensure the JWT token is sent in the request
-  //       }
-  //     );
-  //     console.log("Transaction saved:", response.data);
-  //     alert("Transaction successfully saved!");
-
-  //     // Reset form after submission
-  //     setFormData({
-  //       date: new Date().toISOString().split("T")[0],
-  //       time: "",
-  //       amPm: "",
-  //       amount: "",
-  //       category: "",
-  //       account: "",
-  //       note: "",
-  //       from: "",
-  //       to: "",
-  //     });
-  //   } catch (error) {
-  //     console.error("Error saving transaction:", error);
-  //     alert("Error saving transaction. Please try again.");
-  //   }
-  // };
+  const formatCurrency = (amount) => {
+    return new Intl.NumberFormat("en-IN", {
+      style: "currency",
+      currency: "INR",
+    }).format(amount);
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();

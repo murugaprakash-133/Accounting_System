@@ -1,4 +1,3 @@
-// transaction.controller.js
 import Transaction from "../models/transaction.model.js";
 
 // Create a new transaction
@@ -56,11 +55,11 @@ export const getTransactions = async (req, res) => {
 
     // Calculate total income and total expenses
     const totalIncome = transactions
-      .filter(transaction => transaction.type === 'income')
+      .filter(transaction => transaction.type === "income")
       .reduce((acc, curr) => acc + curr.amount, 0);
 
     const totalExpenses = transactions
-      .filter(transaction => transaction.type === 'expense')
+      .filter(transaction => transaction.type === "expense")
       .reduce((acc, curr) => acc + curr.amount, 0);
 
     // Prepare response
@@ -75,70 +74,72 @@ export const getTransactions = async (req, res) => {
   }
 };
 
-// Get aggregated data for the dashboard
-export const getDashboardData = async (req, res) => {
+// Get monthly cash flow data dynamically
+export const getMonthlyCashFlowData = async (req, res) => {
   try {
+    const { month, year } = req.query;
     const userId = req.user._id;
-    const { year } = req.query;
 
-    // Validate year
-    if (!year) {
-      return res.status(400).json({ message: "Year is required." });
+    // Validate month and year
+    if (!month || !year) {
+      return res.status(400).json({ message: "Month and year are required." });
     }
 
-    // Fetch all transactions for the given year
-    const startOfYear = new Date(year, 0, 1); // Jan 1st
-    const endOfYear = new Date(year, 11, 31, 23, 59, 59); // Dec 31st
+    // Define start and end of the month
+    const startOfMonth = new Date(year, month - 1, 1);
+    const endOfMonth = new Date(year, month, 0, 23, 59, 59); // Last day of the month
+
+    // Fetch all transactions for the given month
     const transactions = await Transaction.find({
       userId,
-      date: { $gte: startOfYear, $lte: endOfYear },
+      date: { $gte: startOfMonth, $lte: endOfMonth },
     });
 
-    const monthlyData = [];
-    let totalIncome = 0;
-    let totalExpenses = 0;
+    // Group transactions by day
+    const groupedByDay = transactions.reduce((acc, t) => {
+      const day = new Date(t.date).getDate(); // Day of the month
 
-    // Group transactions by month
-    const groupedByMonth = transactions.reduce((acc, t) => {
-      const month = new Date(t.date).getMonth(); // Month index (0-11)
-      const type = t.type;
+      if (!acc[day]) acc[day] = { cashIn: 0, cashOut: 0 };
 
-      // Ensure each month has an income and expense bucket
-      if (!acc[month]) acc[month] = { income: 0, expenses: 0 };
-
-      // Update income or expenses based on the transaction type
-      if (type === "income") {
-        acc[month].income += t.amount;
-        totalIncome += t.amount;
-      } else if (type === "expense") {
-        acc[month].expenses += t.amount;
-        totalExpenses += t.amount;
+      if (t.type === "income") {
+        acc[day].cashIn += t.amount;
+      } else if (t.type === "expense") {
+        acc[day].cashOut += t.amount;
       }
 
       return acc;
     }, {});
 
-    // Prepare monthly data for the chart
-    for (let i = 0; i < 12; i++) {
-      monthlyData.push({
-        name: new Date(0, i).toLocaleString("default", { month: "short" }),
-        income: groupedByMonth[i]?.income || 0,
-        expenses: groupedByMonth[i]?.expenses || 0,
-      });
-    }
+    // Calculate total cash in, cash out, and prepare daily data
+    const totalCashIn = transactions
+      .filter(t => t.type === "income")
+      .reduce((sum, t) => sum + t.amount, 0);
 
-    const netProfit = totalIncome - totalExpenses;
+    const totalCashOut = transactions
+      .filter(t => t.type === "expense")
+      .reduce((sum, t) => sum + t.amount, 0);
 
-    // Respond with aggregated data
+    const netCashFlow = totalCashIn - totalCashOut;
+
+    // Prepare data for each day of the month
+    const daysInMonth = new Date(year, month, 0).getDate(); // Number of days in the month
+    const cashFlowData = Array.from({ length: daysInMonth }, (_, i) => ({
+      day: `Day ${i + 1}`,
+      cashIn: groupedByDay[i + 1]?.cashIn || 0,
+      cashOut: groupedByDay[i + 1]?.cashOut || 0,
+      netCashFlow: (groupedByDay[i + 1]?.cashIn || 0) - (groupedByDay[i + 1]?.cashOut || 0),
+    }));
+
+    // Send response
     res.status(200).json({
-      monthlyData,
-      totalIncome,
-      totalExpenses,
-      netProfit,
+      cashFlowData,
+      totalCashIn,
+      totalCashOut,
+      netCashFlow,
     });
   } catch (error) {
-    console.error("Error fetching dashboard data:", error);
-    res.status(500).json({ message: "Error fetching dashboard data." });
+    console.error("Error fetching monthly cash flow data:", error);
+    res.status(500).json({ message: "Error fetching monthly cash flow data." });
   }
 };
 

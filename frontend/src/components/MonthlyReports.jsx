@@ -56,20 +56,25 @@ const MonthlyReport = () => {
     XLSX.writeFile(workbook, `transactions_${selectedYear}_${months[selectedMonth]}.xlsx`);
   };
 
+  const formatCurrency = (amount) => {
+    return new Intl.NumberFormat('en-IN', {
+      style: 'currency',
+      currency: 'INR',
+    }).format(amount);
+  };
+
   return (
     <div className="p-6 bg-gray-50 min-h-screen mt-20">
       {/* Header */}
       <div className="mb-6 flex justify-between items-center">
         <div>
-          <h2 className="text-3xl font-semibold">Monthly Report</h2>
+          <h2 className="text-3xl font-semibold text-gray-800">Monthly Report</h2>
           <p className="text-gray-700">Overview of your transactions</p>
         </div>
         <div className="flex items-center space-x-4">
           {/* Dynamic Month Selector */}
           <div>
-            <label htmlFor="month-selector" className="sr-only">
-              Select Month
-            </label>
+            <label htmlFor="month-selector" className="sr-only">Select Month</label>
             <select
               id="month-selector"
               value={selectedMonth}
@@ -84,9 +89,7 @@ const MonthlyReport = () => {
 
           {/* Dynamic Year Selector */}
           <div>
-            <label htmlFor="year-selector" className="sr-only">
-              Select Year
-            </label>
+            <label htmlFor="year-selector" className="sr-only">Select Year</label>
             <select
               id="year-selector"
               value={selectedYear}
@@ -112,16 +115,16 @@ const MonthlyReport = () => {
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 mb-8">
         <div className="bg-white p-6 rounded-md shadow-md transition hover:shadow-lg">
           <h3 className="font-semibold text-xl">Total Income</h3>
-          <p className="text-2xl font-bold text-green-600">${totalIncome.toFixed(2)}</p>
+          <p className="text-2xl font-bold text-green-600">{formatCurrency(totalIncome)}</p>
         </div>
         <div className="bg-white p-6 rounded-md shadow-md transition hover:shadow-lg">
           <h3 className="font-semibold text-xl">Total Expenses</h3>
-          <p className="text-2xl font-bold text-red-600">${totalExpenses.toFixed(2)}</p>
+          <p className="text-2xl font-bold text-red-600">{formatCurrency(totalExpenses)}</p>
         </div>
         <div className="bg-white p-6 rounded-md shadow-md transition hover:shadow-lg">
           <h3 className="font-semibold text-xl">Net Profit</h3>
           <p className="text-2xl font-bold text-blue-600">
-            ${(totalIncome - totalExpenses).toFixed(2)}
+            {formatCurrency(totalIncome - totalExpenses)}
           </p>
         </div>
       </div>
@@ -173,7 +176,7 @@ const MonthlyReport = () => {
                       transaction.type === 'expense' ? 'text-red-600' : 'text-green-600'
                     }`}
                   >
-                    ${transaction.amount.toFixed(2)}
+                    {formatCurrency(transaction.amount)}
                   </td>
                   <td className="py-4 px-6 border-b border-gray-300 text-gray-800">
                     {new Date(transaction.date).toLocaleDateString()}
