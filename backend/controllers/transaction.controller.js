@@ -3,7 +3,7 @@ import Transaction from "../models/transaction.model.js";
 // Create a new transaction
 export const createTransaction = async (req, res) => {
   try {
-    const { type, date, time, amPm, amount, voucherType, voucherNo, category, account, from, to, note } = req.body;
+    const { type, date, time, amPm, amount,voucherType, voucherNo, category, account, description } = req.body;
 
     // Create a new transaction with the authenticated user's ID
     const transaction = new Transaction({
@@ -17,9 +17,7 @@ export const createTransaction = async (req, res) => {
       voucherNo,
       category,
       account,
-      from,
-      to,
-      note,
+      description,
     });
 
     await transaction.save();
@@ -30,19 +28,41 @@ export const createTransaction = async (req, res) => {
   }
 };
 
-// Get all transactions for the authenticated user
+// Get all transactions for the authenticated user with optional filters
 export const getTransactions = async (req, res) => {
   try {
-    const transactions = await Transaction.find({ userId: req.user._id }).sort({ createdAt: -1 });
+    const { month, year, type } = req.query;
+
+    // Build dynamic query
+    const query = { userId: req.user._id };
+
+    // Filter by month and year if provided
+    if (month && year) {
+      const startOfMonth = new Date(year, month - 1, 1);
+      const endOfMonth = new Date(year, month, 0, 23, 59, 59); // Last day of the month
+      query.date = {
+        $gte: startOfMonth,
+        $lte: endOfMonth,
+      };
+    }
+
+    // Filter by type (income/expense/transfer) if provided
+    if (type) {
+      query.type = type;
+    }
+
+    const transactions = await Transaction.find(query).sort({ createdAt: -1 });
 
     // Calculate total income and total expenses
     const totalIncome = transactions
-      .filter(transaction => transaction.type === 'income')
-      .reduce((acc, curr) => acc + curr.amount, 0);
-    const totalExpenses = transactions
-      .filter(transaction => transaction.type === 'expense')
+      .filter(transaction => transaction.type === "income")
       .reduce((acc, curr) => acc + curr.amount, 0);
 
+    const totalExpenses = transactions
+      .filter(transaction => transaction.type === "expense")
+      .reduce((acc, curr) => acc + curr.amount, 0);
+
+    // Prepare response
     res.status(200).json({
       transactions,
       totalIncome,
@@ -51,6 +71,75 @@ export const getTransactions = async (req, res) => {
   } catch (error) {
     console.error("Error fetching transactions:", error);
     res.status(500).json({ message: "Error fetching transactions" });
+  }
+};
+
+// Get monthly cash flow data dynamically
+export const getMonthlyCashFlowData = async (req, res) => {
+  try {
+    const { month, year } = req.query;
+    const userId = req.user._id;
+
+    // Validate month and year
+    if (!month || !year) {
+      return res.status(400).json({ message: "Month and year are required." });
+    }
+
+    // Define start and end of the month
+    const startOfMonth = new Date(year, month - 1, 1);
+    const endOfMonth = new Date(year, month, 0, 23, 59, 59); // Last day of the month
+
+    // Fetch all transactions for the given month
+    const transactions = await Transaction.find({
+      userId,
+      date: { $gte: startOfMonth, $lte: endOfMonth },
+    });
+
+    // Group transactions by day
+    const groupedByDay = transactions.reduce((acc, t) => {
+      const day = new Date(t.date).getDate(); // Day of the month
+
+      if (!acc[day]) acc[day] = { cashIn: 0, cashOut: 0 };
+
+      if (t.type === "income") {
+        acc[day].cashIn += t.amount;
+      } else if (t.type === "expense") {
+        acc[day].cashOut += t.amount;
+      }
+
+      return acc;
+    }, {});
+
+    // Calculate total cash in, cash out, and prepare daily data
+    const totalCashIn = transactions
+      .filter(t => t.type === "income")
+      .reduce((sum, t) => sum + t.amount, 0);
+
+    const totalCashOut = transactions
+      .filter(t => t.type === "expense")
+      .reduce((sum, t) => sum + t.amount, 0);
+
+    const netCashFlow = totalCashIn - totalCashOut;
+
+    // Prepare data for each day of the month
+    const daysInMonth = new Date(year, month, 0).getDate(); // Number of days in the month
+    const cashFlowData = Array.from({ length: daysInMonth }, (_, i) => ({
+      day: `Day ${i + 1}`,
+      cashIn: groupedByDay[i + 1]?.cashIn || 0,
+      cashOut: groupedByDay[i + 1]?.cashOut || 0,
+      netCashFlow: (groupedByDay[i + 1]?.cashIn || 0) - (groupedByDay[i + 1]?.cashOut || 0),
+    }));
+
+    // Send response
+    res.status(200).json({
+      cashFlowData,
+      totalCashIn,
+      totalCashOut,
+      netCashFlow,
+    });
+  } catch (error) {
+    console.error("Error fetching monthly cash flow data:", error);
+    res.status(500).json({ message: "Error fetching monthly cash flow data." });
   }
 };
 

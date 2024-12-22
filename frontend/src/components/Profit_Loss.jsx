@@ -1,7 +1,7 @@
-// Profit_Loss.jsx
 'use client';
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+import axios from 'axios';
 import {
   LineChart,
   Line,
@@ -13,85 +13,188 @@ import {
   ResponsiveContainer,
 } from 'recharts';
 
-const salesData = [
-  { name: 'Jan', revenue: 4000, profit: 2400, expenses: 1600 },
-  { name: 'Feb', revenue: 3000, profit: 1398, expenses: 1602 },
-  { name: 'Mar', revenue: 9800, profit: 2000, expenses: 7800 },
-  { name: 'Apr', revenue: 3908, profit: 2780, expenses: 1128 },
-  { name: 'May', revenue: 4800, profit: 1890, expenses: 2910 },
-  { name: 'Jun', revenue: 3800, profit: 2390, expenses: 1410 },
-];
-
-const CustomTooltip = ({ active, payload, label }) => {
-  if (active && payload && payload.length) {
-    return (
-      <div className="p-4 bg-slate-800 text-white mt-20 rounded-md">
-        <p className="font-semibold text-lg">{label}</p>
-        <p>
-          <span className="text-blue-400 font-medium">Income:</span>{' '}
-          <span className="ml-2">₹{payload.find((d) => d.dataKey === 'revenue')?.value}</span>
-        </p>
-        <p>
-          <span className="text-indigo-400 font-medium">Profit:</span>{' '}
-          <span className="ml-2">₹{payload.find((d) => d.dataKey === 'profit')?.value}</span>
-        </p>
-        <p>
-          <span className="text-green-400 font-medium">Expenses:</span>{' '}
-          <span className="ml-2">₹{payload.find((d) => d.dataKey === 'expenses')?.value}</span>
-        </p>
-      </div>
-    );
-  }
-  return null;
-};
-
 const Profit_Loss = () => {
+  const [transactions, setTransactions] = useState([]);
+  const [totalIncome, setTotalIncome] = useState(0);
+  const [totalExpenses, setTotalExpenses] = useState(0);
+  const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth());
+  const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
+  const [monthlyData, setMonthlyData] = useState([]);
+
+  const months = [
+    'January', 'February', 'March', 'April', 'May', 'June',
+    'July', 'August', 'September', 'October', 'November', 'December',
+  ];
+
+  const years = Array.from({ length: 50 }, (_, i) => new Date().getFullYear() - 25 + i); // Generate a range of years
+
+  useEffect(() => {
+    fetchProfitLossData();
+  }, [selectedMonth, selectedYear]);
+
+  const fetchProfitLossData = async () => {
+    try {
+      const response = await axios.get('http://localhost:5000/api/transactions', {
+        params: {
+          month: selectedMonth + 1, // API expects month in 1-based index
+          year: selectedYear,
+        },
+        withCredentials: true,
+      });
+
+      const { transactions, totalIncome, totalExpenses } = response.data;
+
+      setTransactions(transactions);
+      setTotalIncome(totalIncome);
+      setTotalExpenses(totalExpenses);
+
+      // Prepare data for chart
+      const dailyData = Array.from({ length: new Date(selectedYear, selectedMonth + 1, 0).getDate() }, (_, i) => ({
+        day: `Day ${i + 1}`,
+        income: 0,
+        expenses: 0,
+      }));
+
+      transactions.forEach((transaction) => {
+        const day = new Date(transaction.date).getDate();
+        if (transaction.type === 'income') {
+          dailyData[day - 1].income += transaction.amount;
+        } else if (transaction.type === 'expense') {
+          dailyData[day - 1].expenses += transaction.amount;
+        }
+      });
+
+      setMonthlyData(dailyData.map((item) => ({
+        ...item,
+        profit: item.income - item.expenses,
+      })));
+    } catch (error) {
+      console.error('Error fetching profit/loss data:', error);
+    }
+  };
+
+  const handleMonthChange = (event) => {
+    setSelectedMonth(parseInt(event.target.value));
+  };
+
+  const handleYearChange = (event) => {
+    setSelectedYear(parseInt(event.target.value));
+  };
+
+  const formatCurrency = (amount) => {
+    return new Intl.NumberFormat('en-IN', {
+      style: 'currency',
+      currency: 'INR',
+    }).format(amount);
+  };
+
+  const CustomTooltip = ({ active, payload, label }) => {
+    if (active && payload && payload.length) {
+      return (
+        <div className="p-4 bg-white border shadow-xl rounded-lg">
+          <p className="font-bold text-lg text-gray-800">{label}</p>
+          {payload.map((entry, index) => (
+            <p key={`item-${index}`} style={{ color: entry.color }} className="text-gray-600">
+              {entry.name}: {formatCurrency(entry.value)}
+            </p>
+          ))}
+        </div>
+      );
+    }
+    return null;
+  };
+
   return (
-    <div className="p-6 bg-gray-50 mt-20 min-h-screen">
-      <h2 className="text-3xl font-semibold mb-6">Profit & Loss</h2>
+    <div className="bg-gray-50 min-h-screen mt-10 p-8">
+      {/* Header */}
+      <div className="mb-8 flex flex-col sm:flex-row justify-between items-center space-x-8">
+        <div>
+          <h2 className="text-4xl font-bold text-gray-900">Income, Expenses & Profit</h2>
+          <p className="text-xl text-gray-600">A detailed breakdown for the current month</p>
+        </div>
+        <div className="flex space-x-6 mt-4 sm:mt-0">
+          {/* Month Selector */}
+          <select
+            value={selectedMonth}
+            onChange={handleMonthChange}
+            className="border rounded-md py-2 px-4 shadow-md focus:ring-2 focus:ring-blue-500"
+          >
+            {months.map((month, index) => (
+              <option key={index} value={index}>
+                {month}
+              </option>
+            ))}
+          </select>
+
+          {/* Year Selector */}
+          <select
+            value={selectedYear}
+            onChange={handleYearChange}
+            className="border rounded-md py-2 px-4 shadow-md focus:ring-2 focus:ring-blue-500"
+          >
+            {years.map((year) => (
+              <option key={year} value={year}>
+                {year}
+              </option>
+            ))}
+          </select>
+        </div>
+      </div>
 
       {/* Summary Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 mb-8">
-        <div className="bg-white shadow p-6 rounded-lg">
-          <h2 className="text-2xl font-bold">Total Income</h2>
-          <p className="text-gray-700">Year to Date</p>
-          <h3 className="text-2xl font-bold text-green-600">₹16060.00</h3>
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 mb-10">
+        <div className="bg-green-100 p-6 rounded-md shadow-xl hover:shadow-2xl transition duration-300">
+          <h3 className="font-semibold text-xl text-green-800">Total Income</h3>
+          <p className="text-3xl font-bold text-green-600">{formatCurrency(totalIncome)}</p>
         </div>
-        <div className="bg-white shadow p-6 rounded-lg">
-          <h2 className="text-2xl font-bold">Total Expenses</h2>
-          <p className="text-gray-700">Year to Date</p>
-          <h3 className="text-2xl font-bold text-red-600">₹26106.00</h3>
+        <div className="bg-red-100 p-6 rounded-md shadow-xl hover:shadow-2xl transition duration-300">
+          <h3 className="font-semibold text-xl text-red-800">Total Expenses</h3>
+          <p className="text-3xl font-bold text-red-600">{formatCurrency(totalExpenses)}</p>
         </div>
-        <div className="bg-white shadow p-6 rounded-lg">
-          <h2 className="text-2xl font-bold">Net Profit/Loss</h2>
-          <p className="text-gray-700">Year to Date</p>
-          <h3 className="text-2xl font-bold text-blue-600">₹-10046.00</h3>
+        <div className="bg-blue-100 p-6 rounded-md shadow-xl hover:shadow-2xl transition duration-300">
+          <h3 className="font-semibold text-xl text-blue-800">Net Profit</h3>
+          <p className="text-3xl font-bold text-blue-600">
+            {formatCurrency(totalIncome - totalExpenses)}
+          </p>
         </div>
       </div>
 
       {/* Chart Section */}
-      <div className="bg-white p-8 rounded-lg shadow">
-        <h3 className="text-3xl font-semibold  text-gray-800">
-          Income & Expenses & Profit
-        </h3>
-        <p className="text-gray-700 mb-5">Monthly Comparison</p>
-        <div className="h-96">
-          <ResponsiveContainer width="100%" height="100%">
-            <LineChart
-              data={salesData}
-              margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
-            >
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="name" />
-              <YAxis />
-              <Tooltip content={<CustomTooltip />} />
-              <Legend />
-              <Line type="monotone" dataKey="revenue" stroke="#3b82f6" name="Income" />
-              <Line type="monotone" dataKey="profit" stroke="#8b5cf6" name="Profit" />
-              <Line type="monotone" dataKey="expenses" stroke="#10b981" name="Expenses" />
-            </LineChart>
-          </ResponsiveContainer>
-        </div>
+      <div className="bg-white p-8 rounded-md shadow-xl">
+        <h3 className="font-semibold text-xl mb-6 text-gray-800">Daily Breakdown</h3>
+        <ResponsiveContainer width="100%" height={400}>
+          <LineChart data={monthlyData}>
+            <CartesianGrid strokeDasharray="3 3" />
+            <XAxis dataKey="day" />
+            <YAxis reverse />
+            <Tooltip content={<CustomTooltip />} />
+            <Legend />
+            <Line
+              type="monotone"
+              dataKey="income"
+              stroke="#3b82f6" // Blue for income
+              name="Income"
+              strokeWidth={3}
+              dot={{ r: 4 }}
+            />
+            <Line
+              type="monotone"
+              dataKey="expenses"
+              stroke="#ef4444" // Red for expenses
+              name="Expenses"
+              strokeWidth={3}
+              dot={{ r: 4 }}
+            />
+            <Line
+              type="monotone"
+              dataKey="profit"
+              stroke="#10b981" // Green for profit
+              name="Profit"
+              strokeWidth={3}
+              dot={{ r: 4 }}
+            />
+          </LineChart>
+        </ResponsiveContainer>
       </div>
     </div>
   );

@@ -10,6 +10,7 @@ import DetailedReportslide from "./components/DetailedReports";
 import Header from "./components/Header";
 import Login from "./components/Login";
 import Register from "./components/Register";
+import ModifyOB from "./components/ModifyOB";
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(Boolean(localStorage.getItem("token")));
@@ -36,6 +37,7 @@ function App() {
               <Route path="/cash-flow" element={isLoggedIn ? <CashFlowPart /> : <Navigate to="/" />} />
               <Route path="/monthly-reports" element={isLoggedIn ? <MonthlyReport /> : <Navigate to="/" />} />
               <Route path="/detailed-reports" element={isLoggedIn ? <DetailedReportslide /> : <Navigate to="/" />} />
+              <Route path="/modify-ob" element={isLoggedIn ? <ModifyOB /> : <Navigate to="/" />} />
             </Routes>
           </div>
         </div>
