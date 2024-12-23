@@ -41,7 +41,9 @@ export default function Transactions() {
     fetchUser();
   }, []);
 
-  const [voucherTypes, setVoucherTypes] = useState(["DD", "Check", "salan"]);
+  const [voucherTypes, setVoucherTypes] = useState([
+    "DD", "Check", "salan"
+  ]);
   const [categories, setCategories] = useState([
     "Food",
     "Education",
