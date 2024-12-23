@@ -214,7 +214,7 @@ const MonthlyReport = () => {
           : "",
       "Credit(₹)":
         transfer.type === "External" ? transfer.amount.toFixed(2) : "",
-      "Balance(₹)": (totalIncome - totalExpenses).toFixed(2),
+      "Balance(₹)": (transfer.balance).toFixed(2),
     }));
 
     const formattedTransferBanks = filteredTransferBanks.map(
@@ -234,7 +234,7 @@ const MonthlyReport = () => {
           transferBank.type === "External"
             ? transferBank.amount.toFixed(2)
             : "",
-        "Balance(₹)": (totalIncome - totalExpenses).toFixed(2),
+        "Balance(₹)": (transferBank.balance).toFixed(2),
       })
     );
 
