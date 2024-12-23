@@ -3,7 +3,19 @@ import TransferBank from "../models/transferBank.model.js";
 // Create a new transaction
 export const createTransferBank = async (req, res) => {
   try {
-    const { type, date, time, amPm, amount, to, description, transactionType, bankName, bank } = req.body;
+    const {
+      type,
+      date,
+      time,
+      amPm,
+      amount,
+      to,
+      description,
+      transactionType,
+      bankName,
+      bank,
+      balance
+    } = req.body;
 
     // Validate date
     const validDate = new Date(date);
@@ -24,6 +36,7 @@ export const createTransferBank = async (req, res) => {
       transactionType,
       bankName,
       bank,
+      balance
     });
     // console.log(transferBank);
 
@@ -31,11 +44,13 @@ export const createTransferBank = async (req, res) => {
     res.status(201).json(transferBank);
   } catch (error) {
     console.error("Error creating transaction:", error);
-    res.status(500).json({ message: error.message || "Error creating transaction" });
+    res
+      .status(500)
+      .json({ message: error.message || "Error creating transaction" });
   }
 };
 
-// Get all transactions for the authenticated user with optional filters
+// Get all transactions for the authenticated user with optional filters and include balance
 export const getTransferBanks = async (req, res) => {
   try {
     const { month, year, type, page = 1, limit = 10 } = req.query;
@@ -48,7 +63,9 @@ export const getTransferBanks = async (req, res) => {
       const parsedYear = parseInt(year, 10);
 
       if (isNaN(parsedMonth) || isNaN(parsedYear)) {
-        return res.status(400).json({ message: "Invalid month or year format" });
+        return res
+          .status(400)
+          .json({ message: "Invalid month or year format" });
       }
 
       const startOfMonth = new Date(parsedYear, parsedMonth - 1, 1);
@@ -64,35 +81,29 @@ export const getTransferBanks = async (req, res) => {
       query.type = type;
     }
 
+    // Fetch transactions with balance included
     const transferBanks = await TransferBank.find(query)
       .sort({ createdAt: -1 })
       .skip((page - 1) * limit)
-      .limit(parseInt(limit, 10));
+      .limit(parseInt(limit, 10))
+      .select("+balance"); // Include the balance field
 
     const totalTransferBanks = await TransferBank.countDocuments(query);
-
-    // Calculate total income and expenses
-    const totalIncome = transferBanks
-      .filter(transferBank => transferBank.type === "income")
-      .reduce((acc, curr) => acc + curr.amount, 0);
-
-    const totalExpenses = transferBanks
-      .filter(transferBank => transferBank.type === "expense")
-      .reduce((acc, curr) => acc + curr.amount, 0);
 
     res.status(200).json({
       transferBanks,
       totalTransferBanks,
       totalPages: Math.ceil(totalTransferBanks / limit),
       currentPage: page,
-      totalIncome,
-      totalExpenses,
     });
   } catch (error) {
     console.error("Error fetching transactions:", error);
-    res.status(500).json({ message: error.message || "Error fetching transactions" });
+    res
+      .status(500)
+      .json({ message: error.message || "Error fetching transactions" });
   }
 };
+
 
 // Get monthly cash flow data dynamically
 export const getMonthlyCashFlowData = async (req, res) => {
@@ -134,11 +145,11 @@ export const getMonthlyCashFlowData = async (req, res) => {
     }, {});
 
     const totalCashIn = transferBanks
-      .filter(t => t.type === "income")
+      .filter((t) => t.type === "income")
       .reduce((sum, t) => sum + t.amount, 0);
 
     const totalCashOut = transferBanks
-      .filter(t => t.type === "expense")
+      .filter((t) => t.type === "expense")
       .reduce((sum, t) => sum + t.amount, 0);
 
     const netCashFlow = totalCashIn - totalCashOut;
@@ -148,7 +159,9 @@ export const getMonthlyCashFlowData = async (req, res) => {
       day: `Day ${i + 1}`,
       cashIn: groupedByDay[i + 1]?.cashIn || 0,
       cashOut: groupedByDay[i + 1]?.cashOut || 0,
-      netCashFlow: (groupedByDay[i + 1]?.cashIn || 0) - (groupedByDay[i + 1]?.cashOut || 0),
+      netCashFlow:
+        (groupedByDay[i + 1]?.cashIn || 0) -
+        (groupedByDay[i + 1]?.cashOut || 0),
     }));
 
     res.status(200).json({
@@ -159,7 +172,9 @@ export const getMonthlyCashFlowData = async (req, res) => {
     });
   } catch (error) {
     console.error("Error fetching monthly cash flow data:", error);
-    res.status(500).json({ message: error.message || "Error fetching monthly cash flow data." });
+    res.status(500).json({
+      message: error.message || "Error fetching monthly cash flow data.",
+    });
   }
 };
 
@@ -169,9 +184,21 @@ export const updateTransferBank = async (req, res) => {
     const { transferBankId } = req.params;
     const updates = req.body;
 
-    const allowedUpdates = ["type", "date", "time", "amount", "to", "description", "transactionType", "bankName", "bank"];
+    const allowedUpdates = [
+      "type",
+      "date",
+      "time",
+      "amount",
+      "to",
+      "description",
+      "transactionType",
+      "bankName",
+      "bank",
+    ];
     const updatesKeys = Object.keys(updates);
-    const isValidOperation = updatesKeys.every(key => allowedUpdates.includes(key));
+    const isValidOperation = updatesKeys.every((key) =>
+      allowedUpdates.includes(key)
+    );
 
     if (!isValidOperation) {
       return res.status(400).json({ message: "Invalid updates" });
@@ -190,7 +217,9 @@ export const updateTransferBank = async (req, res) => {
     res.status(200).json(transferBank);
   } catch (error) {
     console.error("Error updating transaction:", error);
-    res.status(500).json({ message: error.message || "Error updating transaction" });
+    res
+      .status(500)
+      .json({ message: error.message || "Error updating transaction" });
   }
 };
 
@@ -211,6 +240,8 @@ export const deleteTransferBank = async (req, res) => {
     res.status(200).json({ message: "Transaction deleted successfully" });
   } catch (error) {
     console.error("Error deleting transaction:", error);
-    res.status(500).json({ message: error.message || "Error deleting transaction" });
+    res
+      .status(500)
+      .json({ message: error.message || "Error deleting transaction" });
   }
 };

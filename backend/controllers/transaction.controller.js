@@ -62,6 +62,9 @@ export const getTransactions = async (req, res) => {
       .filter(transaction => transaction.type === "expense")
       .reduce((acc, curr) => acc + curr.amount, 0);
 
+      // console.log(totalExpenses);
+      // console.log(totalIncome);
+
     // Prepare response
     res.status(200).json({
       transactions,
