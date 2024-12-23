@@ -2,10 +2,10 @@
 
 import { useState, useEffect } from "react";
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
+// import { useNavigate } from "react-router-dom";
 
 export default function Transactions() {
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("income");
   const [formData, setFormData] = useState({
     date: new Date().toISOString().split("T")[0],
@@ -286,13 +286,13 @@ export default function Transactions() {
         <h1 className="text-3xl font-semibold capitalize text-gray-800">
           {activeTab.charAt(0).toUpperCase() + activeTab.slice(1)} Transactions
         </h1>
-        <button
+        {/* <button
           type="button"
           onClick={() => navigate("/modify-ob")}
           className="px-4 py-2 bg-green-500 text-white rounded-lg mr-2"
         >
           Modify Open Balance
-        </button>
+        </button> */}
       </div>
 
       <div className="grid grid-cols-3 gap-4 mb-8">

@@ -37,7 +37,7 @@ function App() {
               <Route path="/cash-flow" element={isLoggedIn ? <CashFlowPart /> : <Navigate to="/" />} />
               <Route path="/monthly-reports" element={isLoggedIn ? <MonthlyReport /> : <Navigate to="/" />} />
               <Route path="/detailed-reports" element={isLoggedIn ? <DetailedReportslide /> : <Navigate to="/" />} />
-              <Route path="/modify-ob" element={isLoggedIn ? <ModifyOB /> : <Navigate to="/" />} />
+              {/* <Route path="/modify-ob" element={isLoggedIn ? <ModifyOB /> : <Navigate to="/" />} /> */}
             </Routes>
           </div>
         </div>

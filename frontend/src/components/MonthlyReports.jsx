@@ -12,12 +12,12 @@ const MonthlyReport = () => {
   const [totalExpenses, setTotalExpenses] = useState(0);
   const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth());
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
-  const [lastModifiedBalances, setLastModifiedBalances] = useState({
-    bank1ModifiedOB: 0,
-    bank2ModifiedOB: 0,
-  });
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
+  // const [lastModifiedBalances, setLastModifiedBalances] = useState({
+  //   bank1ModifiedOB: 0,
+  //   bank2ModifiedOB: 0,
+  // });
+  // const [error, setError] = useState("");
+  // const [success, setSuccess] = useState("");
 
   const months = [
     "January",
@@ -52,38 +52,38 @@ const MonthlyReport = () => {
     fetchTransferBanks();
   }, [selectedMonth, selectedYear]);
 
-  useEffect(() => {
-    // Fetch the last modified balances for both banks when the component mounts
-    const fetchLastModifiedBalances = async () => {
-      try {
-        const response = await axios.get(
-          "http://localhost:5000/api/modifyOb/lastModifiedBalancesForBothBanks",
-          {
-            withCredentials: true, // Include cookies if authentication is required
-          }
-        );
-        
-        // Extract the bank balances
-        const { bank1ModifiedOB, bank2ModifiedOB } = response.data;
+  // useEffect(() => {
+  //   // Fetch the last modified balances for both banks when the component mounts
+  //   const fetchLastModifiedBalances = async () => {
+  //     try {
+  //       const response = await axios.get(
+  //         "http://localhost:5000/api/modifyOb/lastModifiedBalancesForBothBanks",
+  //         {
+  //           withCredentials: true, // Include cookies if authentication is required
+  //         }
+  //       );
 
-        // Set the balances in the state
-        setLastModifiedBalances({
-          bank1ModifiedOB,
-          bank2ModifiedOB,
-        });
+  //       // Extract the bank balances
+  //       const { bank1ModifiedOB, bank2ModifiedOB } = response.data;
 
-        setSuccess("Balances fetched successfully.");
-        setError("");
-      } catch (err) {
-        setError(
-          err.response?.data?.message || "Failed to fetch last modified balances."
-        );
-        setSuccess("");
-      }
-    };
+  //       // Set the balances in the state
+  //       setLastModifiedBalances({
+  //         bank1ModifiedOB,
+  //         bank2ModifiedOB,
+  //       });
 
-    fetchLastModifiedBalances();
-  }, []);
+  //       setSuccess("Balances fetched successfully.");
+  //       setError("");
+  //     } catch (err) {
+  //       setError(
+  //         err.response?.data?.message || "Failed to fetch last modified balances."
+  //       );
+  //       setSuccess("");
+  //     }
+  //   };
+
+  //   fetchLastModifiedBalances();
+  // }, []);
 
   const fetchTransactions = async () => {
     try {
@@ -421,13 +421,7 @@ const MonthlyReport = () => {
                         : " "}
                     </td>
                     <td className="py-4 px-6 border-b border-gray-300 text-right text-gray-800">
-                      {transaction.type === "income"
-                        ? `₹${(
-                            lastModifiedBalances.bank1ModifiedOB + transaction.amount
-                          ).toFixed(2)}`
-                        : `₹${(
-                            lastModifiedBalances.bank1ModifiedOB - transaction.amount
-                          ).toFixed(2)}`}
+                      ₹{(totalIncome - totalExpenses).toFixed(2)}
                     </td>
                   </tr>
                 );
@@ -519,7 +513,26 @@ const MonthlyReport = () => {
                         : " "}
                     </td>
                     <td className="py-4 px-6 border-b border-gray-300 text-right text-gray-800">
-                      ₹{(totalIncome - totalExpenses).toFixed(2)}
+                      {item.transactionType === "Internal"
+                        ? item.bank === "Bank 2"
+                          ? // Bank 1 Internal: Reduce value
+                            `₹${(
+                              item.amount +
+                              (totalIncome - totalExpenses)
+                            ).toFixed(2)}`
+                          : item.bank === "Bank 1"
+                          ? // Bank 2 Internal: Add value
+                            `₹${(
+                              item.amount -
+                              (totalIncome - totalExpenses)
+                            ).toFixed(2)}`
+                          : // Default case for other banks
+                            `₹${item.amount.toFixed(2)}`
+                        : // External Transactions: Apply calculation
+                          `₹${(
+                            item.amount +
+                            (totalIncome - totalExpenses)
+                          ).toFixed(2)}`}
                     </td>
                   </tr>
                 );
@@ -576,15 +589,17 @@ const MonthlyReport = () => {
                 const formattedDate = `${day}-${month}-${year}`;
 
                 // Calculate the modified balance for Bank 2 dynamically
-                const updatedBank2Balance =
-                  item.type === "External"
-                    ? lastModifiedBalances.bank2ModifiedOB - item.amount
-                    : lastModifiedBalances.bank2ModifiedOB + item.amount;
+                // const updatedBank2Balance =
+                //   item.type === "External"
+                // ? lastModifiedBalances.bank2ModifiedOB - item.amount
+                // : lastModifiedBalances.bank2ModifiedOB + item.amount;
 
                 return (
                   <tr
                     key={item._id}
-                    className={`${index % 2 === 0 ? "bg-gray-50" : "bg-white"} hover:bg-gray-200`}
+                    className={`${
+                      index % 2 === 0 ? "bg-gray-50" : "bg-white"
+                    } hover:bg-gray-200`}
                   >
                     <td className="py-4 px-6 border-b border-gray-300 text-gray-800">
                       {formattedDate}
@@ -605,19 +620,41 @@ const MonthlyReport = () => {
                       {item.bankName}
                     </td>
                     <td className="py-4 px-6 border-b border-gray-300 text-right font-semibold text-red-600">
-                      {item.bank === "Bank 2" ? `₹${item.amount.toFixed(2)}` : " "}
+                      {item.bank === "Bank 2"
+                        ? `₹${item.amount.toFixed(2)}`
+                        : " "}
                     </td>
                     <td className="py-4 px-6 border-b border-gray-300 text-right font-semibold text-green-600">
-                      {item.bank === "Bank 1" ? `₹${item.amount.toFixed(2)}` : " "}
+                      {item.bank === "Bank 1"
+                        ? `₹${item.amount.toFixed(2)}`
+                        : " "}
                     </td>
                     <td className="py-4 px-6 border-b border-gray-300 text-right text-gray-800">
-                      ₹{updatedBank2Balance.toFixed(2)} {/* Display updated balance for Bank 2 */}
+                      {item.transactionType === "Internal"
+                        ? item.bank === "Bank 1"
+                          ? // Bank 1 Internal: Reduce value
+                            `₹${(
+                              item.amount -
+                              (totalIncome - totalExpenses)
+                            ).toFixed(2)}`
+                          : item.bank === "Bank 2"
+                          ? // Bank 2 Internal: Add value
+                            `₹${(
+                              item.amount +
+                              (totalIncome - totalExpenses)
+                            ).toFixed(2)}`
+                          : // Default case for other banks
+                            `₹${item.amount.toFixed(2)}`
+                        : // External Transactions: Apply calculation
+                          `₹${(
+                            item.amount -
+                            (totalIncome - totalExpenses)
+                          ).toFixed(2)}`}
                     </td>
                   </tr>
                 );
               })}
             </tbody>
-
           </table>
         </div>
       </div>
