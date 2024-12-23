@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 
 // Transaction Schema
-const transactionSchema = new mongoose.Schema(
+const transferBankSchema = new mongoose.Schema(
   {
     userId: {
       type: mongoose.Schema.Types.ObjectId,
@@ -17,26 +17,16 @@ const transactionSchema = new mongoose.Schema(
       type: Number,
       required: true,
     },
-    voucherType: {
+    transactionType: {
       type: String,
       required: function () {
-        return this.type !== "transfer";
+        return this.type === "transfer";
       },
     },
-    voucherNo: {
-      type: String,
-      default: "",
-    },
-    category: {
+    to: {
       type: String,
       required: function () {
-        return this.type !== "transfer";
-      },
-    },
-    account: {
-      type: String,
-      required: function () {
-        return this.type !== "transfer";
+        return this.type === "transfer";
       },
     },
     date: {
@@ -56,10 +46,22 @@ const transactionSchema = new mongoose.Schema(
       type: String,
       default: "",
     },
+    bankName: {
+      type: String,
+      required: function () {
+        return this.type === "transfer";
+      },
+    },
+    bank: {
+      type: String,
+      required: function () {
+        return this.type === "transfer";
+      },
+    },
   },
   { timestamps: true }
 );
 
-const Transaction = mongoose.model("Transaction", transactionSchema);
+const TransferBank = mongoose.model("TransferBank", transferBankSchema);
 
-export default Transaction;
+export default TransferBank;

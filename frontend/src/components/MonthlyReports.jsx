@@ -1,43 +1,146 @@
-'use client';
+"use client";
 
-import React, { useEffect, useState } from 'react';
-import axios from 'axios';
-import * as XLSX from 'xlsx';
+import React, { useEffect, useState } from "react";
+import axios from "axios";
+import * as XLSX from "xlsx";
 
 const MonthlyReport = () => {
   const [transactions, setTransactions] = useState([]);
+  const [transfers, setTransfers] = useState([]);
+  const [transferBanks, setTransferBanks] = useState([]);
   const [totalIncome, setTotalIncome] = useState(0);
   const [totalExpenses, setTotalExpenses] = useState(0);
   const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth());
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
+  // const [lastModifiedBalances, setLastModifiedBalances] = useState({
+  //   bank1ModifiedOB: 0,
+  //   bank2ModifiedOB: 0,
+  // });
+  // const [error, setError] = useState("");
+  // const [success, setSuccess] = useState("");
 
   const months = [
-    'January', 'February', 'March', 'April', 'May', 'June',
-    'July', 'August', 'September', 'October', 'November', 'December'
+    "January",
+    "February",
+    "March",
+    "April",
+    "May",
+    "June",
+    "July",
+    "August",
+    "September",
+    "October",
+    "November",
+    "December",
   ];
 
-  const years = Array.from({ length: 50 }, (_, i) => new Date().getFullYear() - 25 + i); // Generate a range of years
+  const years = Array.from(
+    { length: 50 },
+    (_, i) => new Date().getFullYear() - 25 + i
+  ); // Generate a range of years
 
   // Fetch transactions data using Axios
   useEffect(() => {
     fetchTransactions();
   }, [selectedMonth, selectedYear]);
 
+  useEffect(() => {
+    fetchTransfers();
+  }, [selectedMonth, selectedYear]);
+
+  useEffect(() => {
+    fetchTransferBanks();
+  }, [selectedMonth, selectedYear]);
+
+  // useEffect(() => {
+  //   // Fetch the last modified balances for both banks when the component mounts
+  //   const fetchLastModifiedBalances = async () => {
+  //     try {
+  //       const response = await axios.get(
+  //         "http://localhost:5000/api/modifyOb/lastModifiedBalancesForBothBanks",
+  //         {
+  //           withCredentials: true, // Include cookies if authentication is required
+  //         }
+  //       );
+
+  //       // Extract the bank balances
+  //       const { bank1ModifiedOB, bank2ModifiedOB } = response.data;
+
+  //       // Set the balances in the state
+  //       setLastModifiedBalances({
+  //         bank1ModifiedOB,
+  //         bank2ModifiedOB,
+  //       });
+
+  //       setSuccess("Balances fetched successfully.");
+  //       setError("");
+  //     } catch (err) {
+  //       setError(
+  //         err.response?.data?.message || "Failed to fetch last modified balances."
+  //       );
+  //       setSuccess("");
+  //     }
+  //   };
+
+  //   fetchLastModifiedBalances();
+  // }, []);
+
   const fetchTransactions = async () => {
     try {
-      const response = await axios.get('http://localhost:5000/api/transactions', {
+      const response = await axios.get(
+        "http://localhost:5000/api/transactions",
+        {
+          params: {
+            month: selectedMonth + 1,
+            year: selectedYear,
+          },
+          withCredentials: true, // Ensure cookies are sent with the request
+        }
+      );
+      const { transactions, totalIncome, totalExpenses } = response.data;
+      setTransactions(transactions);
+      setTotalIncome(totalIncome);
+      setTotalExpenses(totalExpenses);
+    } catch (error) {
+      console.error("Error fetching transactions:", error);
+    }
+  };
+
+  const fetchTransfers = async () => {
+    try {
+      const response = await axios.get("http://localhost:5000/api/transfers", {
         params: {
           month: selectedMonth + 1,
           year: selectedYear,
         },
         withCredentials: true, // Ensure cookies are sent with the request
       });
-      const { transactions, totalIncome, totalExpenses } = response.data;
-      setTransactions(transactions);
-      setTotalIncome(totalIncome);
-      setTotalExpenses(totalExpenses);
+      const { transfers, totalIncome, totalExpenses } = response.data;
+      setTransfers(transfers);
+      // setTotalIncome(totalIncome);
+      // setTotalExpenses(totalExpenses);
     } catch (error) {
-      console.error('Error fetching transactions:', error);
+      console.error("Error fetching transactions:", error);
+    }
+  };
+  const fetchTransferBanks = async () => {
+    try {
+      const response = await axios.get(
+        "http://localhost:5000/api/transferBanks",
+        {
+          params: {
+            month: selectedMonth + 1,
+            year: selectedYear,
+          },
+          withCredentials: true, // Ensure cookies are sent with the request
+        }
+      );
+      const { transferBanks, totalIncome, totalExpenses } = response.data;
+      setTransferBanks(transferBanks);
+      // setTotalIncome(totalIncome);
+      // setTotalExpenses(totalExpenses);
+    } catch (error) {
+      console.error("Error fetching transactions:", error);
     }
   };
 
@@ -50,16 +153,112 @@ const MonthlyReport = () => {
   };
 
   const downloadExcel = () => {
-    const worksheet = XLSX.utils.json_to_sheet(transactions);
+    // Filter transactions based on selected month and year
+    const filteredTransactions = transactions.filter((transaction) => {
+      const transactionDate = new Date(transaction.date);
+      return (
+        transactionDate.getMonth() === selectedMonth &&
+        transactionDate.getFullYear() === selectedYear
+      );
+    });
+
+    // Filter transfers based on selected month and year
+    const filteredTransfers = transfers.filter((transfer) => {
+      const transferDate = new Date(transfer.date);
+      return (
+        transferDate.getMonth() === selectedMonth &&
+        transferDate.getFullYear() === selectedYear
+      );
+    });
+
+    // Filter transferBanks based on selected month and year
+    const filteredTransferBanks = transferBanks.filter((transferBank) => {
+      const transferBankDate = new Date(transferBank.date);
+      return (
+        transferBankDate.getMonth() === selectedMonth &&
+        transferBankDate.getFullYear() === selectedYear
+      );
+    });
+
+    // Format data for each sheet
+    const formattedTransactions = filteredTransactions.map(
+      (transaction, index) => ({
+        ID: transaction._id || index + 1,
+        User_Id: transaction.userId || "N/A",
+        Date: new Date(transaction.date).toLocaleDateString(),
+        Time: `${transaction.time} ${transaction.amPm}`,
+        Description: transaction.description || "N/A",
+        "Voucher Type": transaction.voucherType || "N/A",
+        "Voucher No": transaction.voucherNo || "N/A",
+        "Debit(₹)":
+          transaction.type === "expense" ? transaction.amount.toFixed(2) : "",
+        "Credit(₹)":
+          transaction.type === "income" ? transaction.amount.toFixed(2) : "",
+        "Balance(₹)": (totalIncome - totalExpenses).toFixed(2),
+      })
+    );
+
+    const formattedTransfers = filteredTransfers.map((transfer, index) => ({
+      ID: transfer._id || index + 1,
+      Date: new Date(transfer.date).toLocaleDateString(),
+      Time: `${transfer.time} ${transfer.amPm}`,
+      Description: transfer.description || "N/A",
+      "Transaction Type": transfer.transactionType || "N/A",
+      To: transfer.to || "N/A",
+      "Bank Name": transfer.bankName || "N/A",
+      "Debit(₹)":
+        transfer.transactionType === "Internal"
+          ? transfer.amount.toFixed(2)
+          : "",
+      "Credit(₹)":
+        transfer.type === "External" ? transfer.amount.toFixed(2) : "",
+      "Balance(₹)": (totalIncome - totalExpenses).toFixed(2),
+    }));
+
+    const formattedTransferBanks = filteredTransferBanks.map(
+      (transferBank, index) => ({
+        ID: transferBank._id || index + 1,
+        Date: new Date(transferBank.date).toLocaleDateString(),
+        Time: `${transferBank.time} ${transferBank.amPm}`,
+        Description: transferBank.description || "N/A",
+        "Transaction Type": transferBank.transactionType || "N/A",
+        To: transferBank.to || "N/A",
+        "Bank Name": transferBank.bankName || "N/A",
+        "Debit(₹)":
+          transferBank.transactionType === "Internal"
+            ? transferBank.amount.toFixed(2)
+            : "",
+        "Credit(₹)":
+          transferBank.type === "External"
+            ? transferBank.amount.toFixed(2)
+            : "",
+        "Balance(₹)": (totalIncome - totalExpenses).toFixed(2),
+      })
+    );
+
+    // Create workbook and add sheets
     const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, "Transactions");
-    XLSX.writeFile(workbook, `transactions_${selectedYear}_${months[selectedMonth]}.xlsx`);
+
+    const transactionSheet = XLSX.utils.json_to_sheet(formattedTransactions);
+    XLSX.utils.book_append_sheet(workbook, transactionSheet, "Transactions");
+
+    const transferSheet = XLSX.utils.json_to_sheet(formattedTransfers);
+    XLSX.utils.book_append_sheet(workbook, transferSheet, "Transfers");
+
+    const transferBankSheet = XLSX.utils.json_to_sheet(formattedTransferBanks);
+    XLSX.utils.book_append_sheet(workbook, transferBankSheet, "TransferBanks");
+
+    // Create filename with current date
+    const filename = `financial_data_${selectedYear}_${months[selectedMonth]}.xlsx`;
+
+    // Download Excel file
+    XLSX.writeFile(workbook, filename);
   };
 
   const formatCurrency = (amount) => {
-    return new Intl.NumberFormat('en-IN', {
-      style: 'currency',
-      currency: 'INR',
+    return new Intl.NumberFormat("en-IN", {
+      style: "currency",
+      currency: "INR",
     }).format(amount);
   };
 
@@ -68,13 +267,17 @@ const MonthlyReport = () => {
       {/* Header */}
       <div className="mb-6 flex justify-between items-center">
         <div>
-          <h2 className="text-3xl font-semibold text-gray-800">Monthly Report</h2>
+          <h2 className="text-3xl font-semibold text-gray-800">
+            Monthly Report
+          </h2>
           <p className="text-gray-700">Overview of your transactions</p>
         </div>
         <div className="flex items-center space-x-4">
           {/* Dynamic Month Selector */}
           <div>
-            <label htmlFor="month-selector" className="sr-only">Select Month</label>
+            <label htmlFor="month-selector" className="sr-only">
+              Select Month
+            </label>
             <select
               id="month-selector"
               value={selectedMonth}
@@ -82,14 +285,18 @@ const MonthlyReport = () => {
               className="border px-4 py-2 rounded-md shadow-md focus:ring-2 focus:ring-blue-500 focus:outline-none"
             >
               {months.map((month, index) => (
-                <option key={index} value={index}>{month}</option>
+                <option key={index} value={index}>
+                  {month}
+                </option>
               ))}
             </select>
           </div>
 
           {/* Dynamic Year Selector */}
           <div>
-            <label htmlFor="year-selector" className="sr-only">Select Year</label>
+            <label htmlFor="year-selector" className="sr-only">
+              Select Year
+            </label>
             <select
               id="year-selector"
               value={selectedYear}
@@ -97,7 +304,9 @@ const MonthlyReport = () => {
               className="border px-4 py-2 rounded-md shadow-md focus:ring-2 focus:ring-blue-500 focus:outline-none"
             >
               {years.map((year) => (
-                <option key={year} value={year}>{year}</option>
+                <option key={year} value={year}>
+                  {year}
+                </option>
               ))}
             </select>
           </div>
@@ -115,11 +324,15 @@ const MonthlyReport = () => {
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 mb-8">
         <div className="bg-white p-6 rounded-md shadow-md transition hover:shadow-lg">
           <h3 className="font-semibold text-xl">Total Income</h3>
-          <p className="text-2xl font-bold text-green-600">{formatCurrency(totalIncome)}</p>
+          <p className="text-2xl font-bold text-green-600">
+            {formatCurrency(totalIncome)}
+          </p>
         </div>
         <div className="bg-white p-6 rounded-md shadow-md transition hover:shadow-lg">
           <h3 className="font-semibold text-xl">Total Expenses</h3>
-          <p className="text-2xl font-bold text-red-600">{formatCurrency(totalExpenses)}</p>
+          <p className="text-2xl font-bold text-red-600">
+            {formatCurrency(totalExpenses)}
+          </p>
         </div>
         <div className="bg-white p-6 rounded-md shadow-md transition hover:shadow-lg">
           <h3 className="font-semibold text-xl">Net Profit</h3>
@@ -131,61 +344,316 @@ const MonthlyReport = () => {
 
       {/* Detailed Breakdown */}
       <div className="bg-white p-6 rounded-md shadow-md">
-        <h3 className="font-semibold text-xl mb-4">Detailed Breakdown</h3>
+        <h3 className="font-semibold text-xl mb-4">Income & Expense</h3>
         <div className="overflow-x-auto">
           <table className="w-full table-auto border-collapse">
             <thead>
               <tr className="bg-gray-100">
-                <th className="text-left py-4 px-6 border-b-2 border-gray-300 text-gray-700 font-medium uppercase">
-                  Category
-                </th>
-                <th className="text-left py-4 px-6 border-b-2 border-gray-300 text-gray-700 font-medium uppercase">
-                  Account
-                </th>
-                <th className="text-left py-4 px-6 border-b-2 border-gray-300 text-gray-700 font-medium uppercase">
-                  Type
-                </th>
-                <th className="text-right py-4 px-6 border-b border-gray-300 text-gray-700 font-medium uppercase">
-                  Amount
-                </th>
-                <th className="text-left py-4 px-6 border-b-2 border-gray-300 text-gray-700 font-medium uppercase">
+                <th className="text-left py-4 px-4 border-b-2 border-gray-300 text-gray-700 font-medium uppercase">
                   Date
                 </th>
-                <th className="text-left py-4 px-6 border-b-2 border-gray-300 text-gray-700 font-medium uppercase">
+                <th className="text-left py-4 px-4 border-b-2 border-gray-300 text-gray-700 font-medium uppercase">
                   Time
+                </th>
+                <th className="text-left py-4 px-4 border-b-2 border-gray-300 text-gray-700 font-medium uppercase">
+                  Description
+                </th>
+                <th className="text-left py-4 px-4 border-b-2 border-gray-300 text-gray-700 font-medium uppercase">
+                  Voucher Type
+                </th>
+                <th className="text-left py-4 px-4 border-b-2 border-gray-300 text-gray-700 font-medium uppercase">
+                  Voucher No
+                </th>
+                <th className="text-right py-4 px-4 border-b-2 border-gray-300 text-gray-700 font-medium uppercase">
+                  Debit ₹
+                </th>
+                <th className="text-right py-4 px-4 border-b-2 border-gray-300 text-gray-700 font-medium uppercase">
+                  Credit ₹
+                </th>
+                <th className="text-right py-4 px-4 border-b-2 border-gray-300 text-gray-700 font-medium uppercase">
+                  Balance
                 </th>
               </tr>
             </thead>
             <tbody>
-              {transactions.map((transaction, index) => (
-                <tr
-                  key={transaction._id}
-                  className={`${index % 2 === 0 ? 'bg-gray-50' : 'bg-white'} hover:bg-gray-200`}
-                >
-                  <td className="py-4 px-6 border-b border-gray-300 text-gray-800">
-                    {transaction.category}
-                  </td>
-                  <td className="py-4 px-6 border-b border-gray-300 text-gray-800">
-                    {transaction.account}
-                  </td>
-                  <td className="py-4 px-6 border-b border-gray-300 text-gray-800">
-                    {transaction.type === 'income' ? 'Income' : 'Expense'}
-                  </td>
-                  <td
-                    className={`py-4 px-6 border-b border-gray-300 text-right font-semibold ${
-                      transaction.type === 'expense' ? 'text-red-600' : 'text-green-600'
-                    }`}
+              {transactions.map((transaction, index) => {
+                // Parse the date properly from the MongoDB date string
+                const UserDate = new Date(transaction.date);
+                const day = UserDate.getDate().toString().padStart(2, "0"); // Ensure two digits for the day
+                const month = (UserDate.getMonth() + 1)
+                  .toString()
+                  .padStart(2, "0"); // getMonth() is 0-indexed, so add 1
+                const year = UserDate.getFullYear();
+
+                // Combine them in the desired format
+                const formattedDate = `${day}-${month}-${year}`;
+
+                return (
+                  <tr
+                    key={transaction._id}
+                    className={`${
+                      index % 2 === 0 ? "bg-gray-50" : "bg-white"
+                    } hover:bg-gray-200`}
                   >
-                    {formatCurrency(transaction.amount)}
-                  </td>
-                  <td className="py-4 px-6 border-b border-gray-300 text-gray-800">
-                    {new Date(transaction.date).toLocaleDateString()}
-                  </td>
-                  <td className="py-4 px-6 border-b border-gray-300 text-gray-800">
-                    {transaction.time} {transaction.amPm}
-                  </td>
-                </tr>
-              ))}
+                    <td className="py-4 px-6 border-b border-gray-300 text-gray-800">
+                      {formattedDate}
+                    </td>
+                    <td className="py-4 px-6 border-b border-gray-300 text-gray-800">
+                      {transaction.time} {transaction.amPm}
+                    </td>
+                    <td className="py-4 px-6 border-b border-gray-300 text-gray-800">
+                      {transaction.description}
+                    </td>
+                    <td className="py-4 px-6 border-b border-gray-300 text-gray-800">
+                      {transaction.voucherType}
+                    </td>
+                    <td className="py-4 px-6 border-b border-gray-300 text-gray-800">
+                      {transaction.voucherNo}
+                    </td>
+                    <td className="py-4 px-6 border-b border-gray-300 text-right font-semibold text-red-600">
+                      {transaction.type === "expense"
+                        ? `₹${transaction.amount.toFixed(2)}`
+                        : " "}
+                    </td>
+                    <td className="py-4 px-6 border-b border-gray-300 text-right font-semibold text-green-600">
+                      {transaction.type === "income"
+                        ? `₹${transaction.amount.toFixed(2)}`
+                        : " "}
+                    </td>
+                    <td className="py-4 px-6 border-b border-gray-300 text-right text-gray-800">
+                      ₹{(totalIncome - totalExpenses).toFixed(2)}
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div className="bg-white p-6 rounded-md pt-4 mt-2 shadow-md">
+        <h3 className="font-semibold text-xl mb-4">Transfer Bank 1</h3>
+        <div className="overflow-x-auto">
+          <table className="w-full table-auto border-collapse">
+            <thead>
+              <tr className="bg-gray-100">
+                <th className="text-left py-4 px-4 border-b-2 border-gray-300 text-gray-700 font-medium uppercase">
+                  Date
+                </th>
+                <th className="text-left py-4 px-4 border-b-2 border-gray-300 text-gray-700 font-medium uppercase">
+                  Time
+                </th>
+                <th className="text-left py-4 px-4 border-b-2 border-gray-300 text-gray-700 font-medium uppercase">
+                  Description
+                </th>
+                <th className="text-left py-4 px-4 border-b-2 border-gray-300 text-gray-700 font-medium uppercase">
+                  Transaction Type
+                </th>
+                <th className="text-left py-4 px-4 border-b-2 border-gray-300 text-gray-700 font-medium uppercase">
+                  To
+                </th>
+                <th className="text-left py-4 px-4 border-b-2 border-gray-300 text-gray-700 font-medium uppercase">
+                  Bank Name
+                </th>
+                <th className="text-right py-4 px-4 border-b-2 border-gray-300 text-gray-700 font-medium uppercase">
+                  Debit ₹
+                </th>
+                <th className="text-right py-4 px-4 border-b-2 border-gray-300 text-gray-700 font-medium uppercase">
+                  Credit ₹
+                </th>
+                <th className="text-right py-4 px-4 border-b-2 border-gray-300 text-gray-700 font-medium uppercase">
+                  Balance
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {[...transfers].map((item, index) => {
+                const UserDate = new Date(item.date);
+                const day = UserDate.getDate().toString().padStart(2, "0"); // Ensure two digits for the day
+                const month = (UserDate.getMonth() + 1)
+                  .toString()
+                  .padStart(2, "0"); // getMonth() is 0-indexed, so add 1
+                const year = UserDate.getFullYear();
+
+                // Combine them in the desired format
+                const formattedDate = `${day}-${month}-${year}`;
+                return (
+                  <tr
+                    key={item._id}
+                    className={`${
+                      index % 2 === 0 ? "bg-gray-50" : "bg-white"
+                    } hover:bg-gray-200`}
+                  >
+                    <td className="py-4 px-6 border-b border-gray-300 text-gray-800">
+                      {formattedDate}
+                    </td>
+                    <td className="py-4 px-6 border-b border-gray-300 text-gray-800">
+                      {item.time} {item.amPm}
+                    </td>
+                    <td className="py-4 px-6 border-b border-gray-300 text-gray-800">
+                      {item.description}
+                    </td>
+                    <td className="py-4 px-6 border-b border-gray-300 text-gray-800">
+                      {item.transactionType}
+                    </td>
+                    <td className="py-4 px-6 border-b border-gray-300 text-gray-800">
+                      {item.to}
+                    </td>
+                    <td className="py-4 px-6 border-b border-gray-300 text-gray-800">
+                      {item.bankName}
+                    </td>
+                    <td className="py-4 px-6 border-b border-gray-300 text-right font-semibold text-red-600">
+                      {item.bank === "Bank 1"
+                        ? `₹${item.amount.toFixed(2)}`
+                        : " "}
+                    </td>
+                    <td className="py-4 px-6 border-b border-gray-300 text-right font-semibold text-green-600">
+                      {item.bank === "Bank 2" &&
+                      item.transactionType === "Internal"
+                        ? `₹${item.amount.toFixed(2)}`
+                        : " "}
+                    </td>
+                    <td className="py-4 px-6 border-b border-gray-300 text-right text-gray-800">
+                      {item.transactionType === "Internal"
+                        ? item.bank === "Bank 2"
+                          ? // Bank 1 Internal: Reduce value
+                            `₹${(
+                              item.amount +
+                              (totalIncome - totalExpenses)
+                            ).toFixed(2)}`
+                          : item.bank === "Bank 1"
+                          ? // Bank 2 Internal: Add value
+                            `₹${(
+                              item.amount -
+                              (totalIncome - totalExpenses)
+                            ).toFixed(2)}`
+                          : // Default case for other banks
+                            `₹${item.amount.toFixed(2)}`
+                        : // External Transactions: Apply calculation
+                          `₹${(
+                            item.amount +
+                            (totalIncome - totalExpenses)
+                          ).toFixed(2)}`}
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div className="bg-white p-6 rounded-md pt-4 mt-2 shadow-md">
+        <h3 className="font-semibold text-xl mb-4">Transfer Bank 2</h3>
+        <div className="overflow-x-auto">
+          <table className="w-full table-auto border-collapse">
+            <thead>
+              <tr className="bg-gray-100">
+                <th className="text-left py-4 px-4 border-b-2 border-gray-300 text-gray-700 font-medium uppercase">
+                  Date
+                </th>
+                <th className="text-left py-4 px-4 border-b-2 border-gray-300 text-gray-700 font-medium uppercase">
+                  Time
+                </th>
+                <th className="text-left py-4 px-4 border-b-2 border-gray-300 text-gray-700 font-medium uppercase">
+                  Description
+                </th>
+                <th className="text-left py-4 px-4 border-b-2 border-gray-300 text-gray-700 font-medium uppercase">
+                  Transaction Type
+                </th>
+                <th className="text-left py-4 px-4 border-b-2 border-gray-300 text-gray-700 font-medium uppercase">
+                  To
+                </th>
+                <th className="text-left py-4 px-4 border-b-2 border-gray-300 text-gray-700 font-medium uppercase">
+                  Bank Name
+                </th>
+                <th className="text-right py-4 px-4 border-b-2 border-gray-300 text-gray-700 font-medium uppercase">
+                  Debit ₹
+                </th>
+                <th className="text-right py-4 px-4 border-b-2 border-gray-300 text-gray-700 font-medium uppercase">
+                  Credit ₹
+                </th>
+                <th className="text-right py-4 px-4 border-b-2 border-gray-300 text-gray-700 font-medium uppercase">
+                  Balance
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {[...transferBanks].map((item, index) => {
+                const UserDate = new Date(item.date);
+                const day = UserDate.getDate().toString().padStart(2, "0"); // Ensure two digits for the day
+                const month = (UserDate.getMonth() + 1)
+                  .toString()
+                  .padStart(2, "0"); // getMonth() is 0-indexed, so add 1
+                const year = UserDate.getFullYear();
+
+                // Combine them in the desired format
+                const formattedDate = `${day}-${month}-${year}`;
+
+                // Calculate the modified balance for Bank 2 dynamically
+                // const updatedBank2Balance =
+                //   item.type === "External"
+                // ? lastModifiedBalances.bank2ModifiedOB - item.amount
+                // : lastModifiedBalances.bank2ModifiedOB + item.amount;
+
+                return (
+                  <tr
+                    key={item._id}
+                    className={`${
+                      index % 2 === 0 ? "bg-gray-50" : "bg-white"
+                    } hover:bg-gray-200`}
+                  >
+                    <td className="py-4 px-6 border-b border-gray-300 text-gray-800">
+                      {formattedDate}
+                    </td>
+                    <td className="py-4 px-6 border-b border-gray-300 text-gray-800">
+                      {item.time} {item.amPm}
+                    </td>
+                    <td className="py-4 px-6 border-b border-gray-300 text-gray-800">
+                      {item.description}
+                    </td>
+                    <td className="py-4 px-6 border-b border-gray-300 text-gray-800">
+                      {item.transactionType}
+                    </td>
+                    <td className="py-4 px-6 border-b border-gray-300 text-gray-800">
+                      {item.to}
+                    </td>
+                    <td className="py-4 px-6 border-b border-gray-300 text-gray-800">
+                      {item.bankName}
+                    </td>
+                    <td className="py-4 px-6 border-b border-gray-300 text-right font-semibold text-red-600">
+                      {item.bank === "Bank 2"
+                        ? `₹${item.amount.toFixed(2)}`
+                        : " "}
+                    </td>
+                    <td className="py-4 px-6 border-b border-gray-300 text-right font-semibold text-green-600">
+                      {item.bank === "Bank 1"
+                        ? `₹${item.amount.toFixed(2)}`
+                        : " "}
+                    </td>
+                    <td className="py-4 px-6 border-b border-gray-300 text-right text-gray-800">
+                      {item.transactionType === "Internal"
+                        ? item.bank === "Bank 1"
+                          ? // Bank 1 Internal: Reduce value
+                            `₹${(
+                              item.amount -
+                              (totalIncome - totalExpenses)
+                            ).toFixed(2)}`
+                          : item.bank === "Bank 2"
+                          ? // Bank 2 Internal: Add value
+                            `₹${(
+                              item.amount +
+                              (totalIncome - totalExpenses)
+                            ).toFixed(2)}`
+                          : // Default case for other banks
+                            `₹${item.amount.toFixed(2)}`
+                        : // External Transactions: Apply calculation
+                          `₹${(
+                            item.amount -
+                            (totalIncome - totalExpenses)
+                          ).toFixed(2)}`}
+                    </td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         </div>

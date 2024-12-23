@@ -107,12 +107,12 @@ const Profit_Loss = () => {
   return (
     <div className="bg-gray-50 min-h-screen mt-10 p-8">
       {/* Header */}
-      <div className="mb-8 flex justify-between items-center space-x-8">
+      <div className="mb-8 flex flex-col sm:flex-row justify-between items-center space-x-8">
         <div>
           <h2 className="text-4xl font-bold text-gray-900">Income, Expenses & Profit</h2>
           <p className="text-xl text-gray-600">A detailed breakdown for the current month</p>
         </div>
-        <div className="flex space-x-6">
+        <div className="flex space-x-6 mt-4 sm:mt-0">
           {/* Month Selector */}
           <select
             value={selectedMonth}

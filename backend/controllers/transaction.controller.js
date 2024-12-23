@@ -3,7 +3,7 @@ import Transaction from "../models/transaction.model.js";
 // Create a new transaction
 export const createTransaction = async (req, res) => {
   try {
-    const { type, date, time, amPm, amount, category, account, from, to, note } = req.body;
+    const { type, date, time, amPm, amount,voucherType, voucherNo, category, account, description } = req.body;
 
     // Create a new transaction with the authenticated user's ID
     const transaction = new Transaction({
@@ -13,11 +13,11 @@ export const createTransaction = async (req, res) => {
       time,
       amPm,
       amount,
+      voucherType,
+      voucherNo,
       category,
       account,
-      from,
-      to,
-      note,
+      description,
     });
 
     await transaction.save();
