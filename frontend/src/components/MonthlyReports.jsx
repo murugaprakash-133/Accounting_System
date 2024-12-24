@@ -410,12 +410,6 @@ const MonthlyReport = () => {
                 <th className="text-left py-4 px-4 border-b-2 border-gray-300 text-gray-700 font-medium uppercase">
                   Transaction Type
                 </th>
-                <th className="text-left py-4 px-4 border-b-2 border-gray-300 text-gray-700 font-medium uppercase">
-                  From
-                </th>
-                <th className="text-left py-4 px-4 border-b-2 border-gray-300 text-gray-700 font-medium uppercase">
-                  To
-                </th>
                 <th className="text-right py-4 px-4 border-b-2 border-gray-300 text-gray-700 font-medium uppercase">
                   Debit ₹
                 </th>
@@ -456,14 +450,6 @@ const MonthlyReport = () => {
                     </td>
                     <td className="py-4 px-6 border-b border-gray-300 text-gray-800">
                       {item.transactionType}
-                    </td>
-                    <td className="py-4 px-6 border-b border-gray-300 text-gray-800">
-                      {item.from === "Bank 1"
-                      ? item.from : item.to}
-                    </td>
-                    <td className="py-4 px-6 border-b border-gray-300 text-gray-800">
-                    {item.from === "Bank 1"
-                      ? item.to : item.from}
                     </td>
                     <td className="py-4 px-6 border-b border-gray-300 text-right font-semibold text-red-600">
                       {item.from === "Bank 1"
@@ -522,12 +508,6 @@ const MonthlyReport = () => {
                 <th className="text-left py-4 px-4 border-b-2 border-gray-300 text-gray-700 font-medium uppercase">
                   Transaction Type
                 </th>
-                <th className="text-left py-4 px-4 border-b-2 border-gray-300 text-gray-700 font-medium uppercase">
-                  From
-                </th>
-                <th className="text-left py-4 px-4 border-b-2 border-gray-300 text-gray-700 font-medium uppercase">
-                  To
-                </th>
                 <th className="text-right py-4 px-4 border-b-2 border-gray-300 text-gray-700 font-medium uppercase">
                   Debit ₹
                 </th>
@@ -569,14 +549,6 @@ const MonthlyReport = () => {
                     </td>
                     <td className="py-4 px-6 border-b border-gray-300 text-gray-800">
                       {item.transactionType}
-                    </td>
-                    <td className="py-4 px-6 border-b border-gray-300 text-gray-800">
-                    {item.from === "Bank 1"
-                      ? item.to : item.from}
-                    </td>
-                    <td className="py-4 px-6 border-b border-gray-300 text-gray-800">
-                    {item.to === "Bank 2"
-                      ? item.from : item.to}
                     </td>
                     <td className="py-4 px-6 border-b border-gray-300 text-right font-semibold text-red-600">
                       {item.from === "Bank 2"
