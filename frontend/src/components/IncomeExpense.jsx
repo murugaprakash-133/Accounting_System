@@ -18,9 +18,8 @@ export default function Transactions() {
     account: "",
     description: "",
     to: "",
+    from: "",
     transactionType: "",
-    bank: "",
-    bankName: "",
   });
 
   const [userId, setUserId] = useState(null); // Store the user ID here
@@ -54,11 +53,9 @@ export default function Transactions() {
     "Credit Card",
   ]);
   const [transferOptions, setTransferOptions] = useState([
-    "Cash",
-    "Bank Account",
-    "Credit Card",
+    "Bank 1",
+    "Bank 2",
   ]);
-  const [bankNames, setBankNames] = useState(["HDFC", "IOB", "SBI"]);
 
   function getCurrentTime() {
     const now = new Date();
@@ -111,12 +108,11 @@ export default function Transactions() {
     } else if (activeTab === "transfer") {
       if (
         !formData.to ||
-        !formData.transactionType ||
-        !formData.bankName ||
-        !formData.bank
+        !formData.from ||
+        !formData.transactionType
       ) {
         alert(
-          "Please select both 'trasantionType' and 'To' and 'bankName' and 'bank' accounts."
+          "Please select both 'trasantionType' and 'To' and 'from' accounts."
         );
         return;
       }
@@ -128,6 +124,7 @@ export default function Transactions() {
         amPm: formData.amPm,
         amount: formData.amount,
         description: formData.description,
+        transactionType: formData.transactionType
       };
     }
 
@@ -144,8 +141,7 @@ export default function Transactions() {
     } else if (activeTab === "transfer") {
       transactionData.to = formData.to;
       transactionData.transactionType = formData.transactionType;
-      transactionData.bankName = formData.bankName;
-      transactionData.bank = formData.bank;
+      transactionData.from = formData.from;
     }
 
     // Now use transactionData for the API call or further processing
@@ -174,15 +170,10 @@ export default function Transactions() {
           category: "",
           account: "",
           description: "",
-          to: "",
-          transactionType: "",
-          bankName: "",
-          bank: "",
         });
       } else if (activeTab === "transfer") {
         if (
-          formData.bank === "Bank 1" ||
-          formData.transactionType === "Internal"
+          formData.from === "Bank 1" || formData.from === "Bank 2"
         ) {
           const response = await axios.post(
             "http://localhost:5000/api/transfers",
@@ -200,17 +191,14 @@ export default function Transactions() {
             time: "",
             amPm: "",
             amount: "",
-            account: "",
             description: "",
             to: "",
+            from: "",
             transactionType: "",
-            bankName: "",
-            bank: "",
           });
         }
         if (
-          formData.bank === "Bank 2" ||
-          formData.transactionType === "Internal"
+          formData.from === "Bank 2" || formData.from === "Bank 1"
         ) {
           const response = await axios.post(
             "http://localhost:5000/api/transferBanks",
@@ -228,12 +216,10 @@ export default function Transactions() {
             time: "",
             amPm: "",
             amount: "",
-            account: "",
             description: "",
             to: "",
+            from: "",
             transactionType: "",
-            bankName: "",
-            bank: "",
           });
         }
       }
@@ -273,12 +259,6 @@ export default function Transactions() {
       setTransferOptions((prevOptions) => [...prevOptions, newOption]);
     }
   };
-  const handleBankName = (field) => {
-    const newBankName = prompt(`Enter new ${field}:`);
-    if (newBankName && !bankNames.includes(newBankName)) {
-      setBankNames((prevBankNames) => [...prevBankNames, newBankName]);
-    }
-  };
 
   return (
     <div className="p-6 bg-gray-50 min-h-screen mt-20">
@@ -286,13 +266,6 @@ export default function Transactions() {
         <h1 className="text-3xl font-semibold capitalize text-gray-800">
           {activeTab.charAt(0).toUpperCase() + activeTab.slice(1)} Transactions
         </h1>
-        {/* <button
-          type="button"
-          onClick={() => navigate("/modify-ob")}
-          className="px-4 py-2 bg-green-500 text-white rounded-lg mr-2"
-        >
-          Modify Open Balance
-        </button> */}
       </div>
 
       <div className="grid grid-cols-3 gap-4 mb-8">
@@ -351,6 +324,7 @@ export default function Transactions() {
                     onChange={handleChange}
                     className="w-full border border-gray-300 rounded px-3 py-2 text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
                   >
+                    <option value="">Am|Pm</option>
                     <option value="AM">AM</option>
                     <option value="PM">PM</option>
                   </select>
@@ -372,18 +346,6 @@ export default function Transactions() {
             <>
               <div>
                 <select
-                  name="bank"
-                  value={formData.bank}
-                  onChange={handleChange}
-                  className="w-full px-4 py-2 bg-gray-50 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                >
-                  <option value="">Bank</option>
-                  <option value="Bank 1">Bank 1</option>
-                  <option value="Bank 2">Bank 2</option>
-                </select>
-              </div>
-              <div>
-                <select
                   name="transactionType"
                   value={formData.transactionType}
                   onChange={handleChange}
@@ -394,7 +356,30 @@ export default function Transactions() {
                   <option value="External">External</option>
                 </select>
               </div>
-
+              <div>
+                <select
+                  name="from"
+                  value={formData.from}
+                  onChange={handleChange}
+                  className="w-full px-4 py-2 bg-gray-50 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                  <option value="">From</option>
+                  {transferOptions.map((option) => (
+                    <option key={option} value={option}>
+                      {option}
+                    </option>
+                  ))}
+                </select>
+                <div className="mt-2">
+                  <button
+                    type="button"
+                    onClick={() => handleAddTransferOption("to")}
+                    className="px-4 py-2 bg-green-500 text-white rounded-lg mr-2"
+                  >
+                    Add From
+                  </button>
+                </div>
+              </div>
               <div>
                 <select
                   name="to"
@@ -416,30 +401,6 @@ export default function Transactions() {
                     className="px-4 py-2 bg-green-500 text-white rounded-lg mr-2"
                   >
                     Add To
-                  </button>
-                </div>
-              </div>
-              <div>
-                <select
-                  name="bankName"
-                  value={formData.bankName}
-                  onChange={handleChange}
-                  className="w-full px-4 py-2 bg-gray-50 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                >
-                  <option value="">Bank Name</option>
-                  {bankNames.map((option) => (
-                    <option key={option} value={option}>
-                      {option}
-                    </option>
-                  ))}
-                </select>
-                <div className="mt-2">
-                  <button
-                    type="button"
-                    onClick={() => handleBankName("bankName")}
-                    className="px-4 py-2 bg-green-500 text-white rounded-lg mr-2"
-                  >
-                    Bank
                   </button>
                 </div>
               </div>
@@ -502,15 +463,15 @@ export default function Transactions() {
                   </button>
                 </div>
               </div>
-
+              {activeTab === "income" ? (
               <div>
                 <select
                   name="account"
                   value={formData.account}
                   onChange={handleChange}
                   className="w-full px-4 py-2 bg-gray-50 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                >
-                  <option value="">Select Account</option>
+                  >
+                  <option value="">Towards</option>
                   {accounts.map((account) => (
                     <option key={account} value={account}>
                       {account}
@@ -522,11 +483,37 @@ export default function Transactions() {
                     type="button"
                     onClick={handleAddAccount}
                     className="px-4 py-2 bg-green-500 text-white rounded-lg mr-2"
+                    >
+                    Add Towards
+                  </button>
+                </div>
+              </div> ) : (
+              <div>
+                <select
+                  name="account"
+                  value={formData.account}
+                  onChange={handleChange}
+                  className="w-full px-4 py-2 bg-gray-50 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                   >
-                    Add Account
+                  <option value="">Spends From</option>
+                  {accounts.map((account) => (
+                    <option key={account} value={account}>
+                      {account}
+                    </option>
+                  ))}
+                </select>
+                <div className="mt-2">
+                  <button
+                    type="button"
+                    onClick={handleAddAccount}
+                    className="px-4 py-2 bg-green-500 text-white rounded-lg mr-2"
+                    >
+                    Add Spend From
                   </button>
                 </div>
               </div>
+                )
+              } 
             </>
           )}
 

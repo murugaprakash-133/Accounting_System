@@ -17,13 +17,13 @@ const transferBankSchema = new mongoose.Schema(
       type: Number,
       required: true,
     },
-    transactionType: {
+    to: {
       type: String,
       required: function () {
         return this.type === "transfer";
       },
     },
-    to: {
+    transactionType: {
       type: String,
       required: function () {
         return this.type === "transfer";
@@ -46,14 +46,9 @@ const transferBankSchema = new mongoose.Schema(
       type: String,
       default: "",
     },
-    bankName: {
+    from: {
       type: String,
-      required: function () {
-        return this.type === "transfer";
-      },
-    },
-    bank: {
-      type: String,
+      enum: ["Bank 1", "Bank 2"],
       required: function () {
         return this.type === "transfer";
       },

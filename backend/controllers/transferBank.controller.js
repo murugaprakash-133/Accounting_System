@@ -3,7 +3,7 @@ import TransferBank from "../models/transferBank.model.js";
 // Create a new transaction
 export const createTransferBank = async (req, res) => {
   try {
-    const { type, date, time, amPm, amount, to, description, transactionType, bankName, bank } = req.body;
+    const { type, date, time, amPm, amount, to, description, from, transactionType } = req.body;
 
     // Validate date
     const validDate = new Date(date);
@@ -21,9 +21,8 @@ export const createTransferBank = async (req, res) => {
       amount,
       to,
       description,
+      from,
       transactionType,
-      bankName,
-      bank,
     });
     // console.log(transferBank);
 
