@@ -12,8 +12,7 @@ export const createTransferBank = async (req, res) => {
       to,
       description,
       transactionType,
-      bankName,
-      bank,
+      from,
       balance
     } = req.body;
 
@@ -34,8 +33,7 @@ export const createTransferBank = async (req, res) => {
       to,
       description,
       transactionType,
-      bankName,
-      bank,
+      from,
       balance
     });
     // console.log(transferBank);
@@ -156,7 +154,7 @@ export const getMonthlyCashFlowData = async (req, res) => {
 
     const daysInMonth = new Date(parsedYear, parsedMonth, 0).getDate();
     const cashFlowData = Array.from({ length: daysInMonth }, (_, i) => ({
-      day: `Day ${i + 1}`,
+      day: Day `${i + 1}`,
       cashIn: groupedByDay[i + 1]?.cashIn || 0,
       cashOut: groupedByDay[i + 1]?.cashOut || 0,
       netCashFlow:
@@ -192,8 +190,7 @@ export const updateTransferBank = async (req, res) => {
       "to",
       "description",
       "transactionType",
-      "bankName",
-      "bank",
+      "from",
     ];
     const updatesKeys = Object.keys(updates);
     const isValidOperation = updatesKeys.every((key) =>

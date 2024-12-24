@@ -5,7 +5,6 @@ import generateTokenandSetCookie from "../utils/generateToken.js";
 export const signup = async (req, res) => {
   try {
     const { email, name, password, confirmPassword } = req.body;
-    // console.log("Request Body:", req.body); // Debugging
     // Validate required fields
     if (!email || !name || !password || !confirmPassword) {
       return res.status(400).json({ error: "All fields are required" });
@@ -38,10 +37,10 @@ export const signup = async (req, res) => {
 
     // Generate JWT token and set cookie
     try {
-        generateTokenandSetCookie(newUser._id, res);
+      generateTokenandSetCookie(newUser._id, res);
     } catch (error) {
-        console.error("Token generation error:", error.message);
-        res.status(500).json({ error: "Token generation failed" });
+      console.error("Token generation error:", error.message);
+      res.status(500).json({ error: "Token generation failed" });
     }
 
     // generateTokenandSetCookie(newUser._id, res);

@@ -47,13 +47,7 @@ const transferSchema = new mongoose.Schema(
       type: String,
       default: "",
     },
-    bankName: {
-      type: String,
-      required: function () {
-        return this.type === "transfer";
-      },
-    },
-    bank: {
+    from: {
       type: String,
       required: function () {
         return this.type === "transfer";
@@ -78,15 +72,19 @@ transferSchema.pre("save", async function (next) {
 
     const lastBalance = lastTransaction?.balance || 0; // Default to 0 if no previous balance
 
-    // Update balance based on transaction type
+    // Update balance based on transaction type and from/to fields
     if (this.transactionType === "Internal") {
-      this.balance = lastBalance + this.amount; // Add for Internal
+      if (this.from === "Bank 1" && this.to === "Bank 2") {
+        this.balance = lastBalance - this.amount; // Subtract for Bank 1 to Bank 2
+      } else if (this.from === "Bank 2" && this.to === "Bank 1") {
+        this.balance = lastBalance + this.amount; // Add for Bank 2 to Bank 1
+      }
     } else if (this.transactionType === "External") {
-      this.balance = lastBalance - this.amount; // Subtract for External
-    } else if (this.type === "income") {
-      this.balance = lastBalance + this.amount; // Add for income
-    } else if (this.type === "expense") {
-      this.balance = lastBalance - this.amount; // Subtract for expense
+      this.balance = lastBalance - this.amount;
+    } else if (this.transactionType === "income") {
+      this.balance = lastBalance + this.amount;
+    } else if (this.transactionType === "expense") {
+      this.balance = lastBalance - this.amount;
     }
 
     next();

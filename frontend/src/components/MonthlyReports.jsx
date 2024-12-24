@@ -12,12 +12,6 @@ const MonthlyReport = () => {
   const [totalExpenses, setTotalExpenses] = useState(0);
   const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth());
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
-  // const [lastModifiedBalances, setLastModifiedBalances] = useState({
-  //   bank1ModifiedOB: 0,
-  //   bank2ModifiedOB: 0,
-  // });
-  // const [error, setError] = useState("");
-  // const [success, setSuccess] = useState("");
 
   const months = [
     "January",
@@ -51,39 +45,6 @@ const MonthlyReport = () => {
   useEffect(() => {
     fetchTransferBanks();
   }, [selectedMonth, selectedYear]);
-
-  // useEffect(() => {
-  //   // Fetch the last modified balances for both banks when the component mounts
-  //   const fetchLastModifiedBalances = async () => {
-  //     try {
-  //       const response = await axios.get(
-  //         "http://localhost:5000/api/modifyOb/lastModifiedBalancesForBothBanks",
-  //         {
-  //           withCredentials: true, // Include cookies if authentication is required
-  //         }
-  //       );
-
-  //       // Extract the bank balances
-  //       const { bank1ModifiedOB, bank2ModifiedOB } = response.data;
-
-  //       // Set the balances in the state
-  //       setLastModifiedBalances({
-  //         bank1ModifiedOB,
-  //         bank2ModifiedOB,
-  //       });
-
-  //       setSuccess("Balances fetched successfully.");
-  //       setError("");
-  //     } catch (err) {
-  //       setError(
-  //         err.response?.data?.message || "Failed to fetch last modified balances."
-  //       );
-  //       setSuccess("");
-  //     }
-  //   };
-
-  //   fetchLastModifiedBalances();
-  // }, []);
 
   const fetchTransactions = async () => {
     try {
@@ -209,12 +170,15 @@ const MonthlyReport = () => {
       To: transfer.to || "N/A",
       "Bank Name": transfer.bankName || "N/A",
       "Debit(₹)":
-        transfer.transactionType === "Internal"
+        transfer.transactionType === "Internal" ||
+        transfer.transactionType === "expense"
           ? transfer.amount.toFixed(2)
           : "",
       "Credit(₹)":
-        transfer.type === "External" ? transfer.amount.toFixed(2) : "",
-      "Balance(₹)": (transfer.balance).toFixed(2),
+        transfer.type === "External" || transfer.transactionType === "income"
+          ? transfer.amount.toFixed(2)
+          : "",
+      "Balance(₹)": transfer.balance.toFixed(2),
     }));
 
     const formattedTransferBanks = filteredTransferBanks.map(
@@ -227,14 +191,16 @@ const MonthlyReport = () => {
         To: transferBank.to || "N/A",
         "Bank Name": transferBank.bankName || "N/A",
         "Debit(₹)":
-          transferBank.transactionType === "Internal"
+          transferBank.transactionType === "Internal" ||
+          transferBank.transactionType === "expense"
             ? transferBank.amount.toFixed(2)
             : "",
         "Credit(₹)":
-          transferBank.type === "External"
+          transferBank.type === "External" ||
+          transferBank.transactionType === "income"
             ? transferBank.amount.toFixed(2)
             : "",
-        "Balance(₹)": (transferBank.balance).toFixed(2),
+        "Balance(₹)": transferBank.balance.toFixed(2),
       })
     );
 
@@ -423,7 +389,7 @@ const MonthlyReport = () => {
                         : " "}
                     </td>
                     <td className="py-4 px-6 border-b border-gray-300 text-right text-gray-800">
-                      ₹{(totalIncome - totalExpenses).toFixed(2)}
+                      ₹{transaction.balance}
                     </td>
                   </tr>
                 );
@@ -449,12 +415,6 @@ const MonthlyReport = () => {
                 </th>
                 <th className="text-left py-4 px-4 border-b-2 border-gray-300 text-gray-700 font-medium uppercase">
                   Transaction Type
-                </th>
-                <th className="text-left py-4 px-4 border-b-2 border-gray-300 text-gray-700 font-medium uppercase">
-                  To
-                </th>
-                <th className="text-left py-4 px-4 border-b-2 border-gray-300 text-gray-700 font-medium uppercase">
-                  Bank Name
                 </th>
                 <th className="text-right py-4 px-4 border-b-2 border-gray-300 text-gray-700 font-medium uppercase">
                   Debit ₹
@@ -497,25 +457,20 @@ const MonthlyReport = () => {
                     <td className="py-4 px-6 border-b border-gray-300 text-gray-800">
                       {item.transactionType}
                     </td>
-                    <td className="py-4 px-6 border-b border-gray-300 text-gray-800">
-                      {item.to}
-                    </td>
-                    <td className="py-4 px-6 border-b border-gray-300 text-gray-800">
-                      {item.bankName}
-                    </td>
                     <td className="py-4 px-6 border-b border-gray-300 text-right font-semibold text-red-600">
-                      {item.bank === "Bank 1"
+                      {item.transactionType === "expense" ||
+                      item.from === "Bank 1"
                         ? `₹${item.amount.toFixed(2)}`
                         : " "}
                     </td>
                     <td className="py-4 px-6 border-b border-gray-300 text-right font-semibold text-green-600">
-                      {item.bank === "Bank 2" &&
-                      item.transactionType === "Internal"
+                      {item.transactionType === "income" ||
+                      item.from === "Bank 2"
                         ? `₹${item.amount.toFixed(2)}`
                         : " "}
                     </td>
                     <td className="py-4 px-6 border-b border-gray-300 text-right text-gray-800">
-                      ₹{item.balance.toFixed(2)}
+                      ₹{item.balance}
                     </td>
                   </tr>
                 );
@@ -542,12 +497,6 @@ const MonthlyReport = () => {
                 <th className="text-left py-4 px-4 border-b-2 border-gray-300 text-gray-700 font-medium uppercase">
                   Transaction Type
                 </th>
-                <th className="text-left py-4 px-4 border-b-2 border-gray-300 text-gray-700 font-medium uppercase">
-                  To
-                </th>
-                <th className="text-left py-4 px-4 border-b-2 border-gray-300 text-gray-700 font-medium uppercase">
-                  Bank Name
-                </th>
                 <th className="text-right py-4 px-4 border-b-2 border-gray-300 text-gray-700 font-medium uppercase">
                   Debit ₹
                 </th>
@@ -571,12 +520,6 @@ const MonthlyReport = () => {
                 // Combine them in the desired format
                 const formattedDate = `${day}-${month}-${year}`;
 
-                // Calculate the modified balance for Bank 2 dynamically
-                // const updatedBank2Balance =
-                //   item.type === "External"
-                // ? lastModifiedBalances.bank2ModifiedOB - item.amount
-                // : lastModifiedBalances.bank2ModifiedOB + item.amount;
-
                 return (
                   <tr
                     key={item._id}
@@ -596,24 +539,20 @@ const MonthlyReport = () => {
                     <td className="py-4 px-6 border-b border-gray-300 text-gray-800">
                       {item.transactionType}
                     </td>
-                    <td className="py-4 px-6 border-b border-gray-300 text-gray-800">
-                      {item.to}
-                    </td>
-                    <td className="py-4 px-6 border-b border-gray-300 text-gray-800">
-                      {item.bankName}
-                    </td>
                     <td className="py-4 px-6 border-b border-gray-300 text-right font-semibold text-red-600">
-                      {item.bank === "Bank 2"
+                      {item.transactionType === "expense" ||
+                      item.from === "Bank 2"
                         ? `₹${item.amount.toFixed(2)}`
                         : " "}
                     </td>
                     <td className="py-4 px-6 border-b border-gray-300 text-right font-semibold text-green-600">
-                      {item.bank === "Bank 1"
+                      {item.transactionType === "income" ||
+                      item.from === "Bank 1"
                         ? `₹${item.amount.toFixed(2)}`
                         : " "}
                     </td>
                     <td className="py-4 px-6 border-b border-gray-300 text-right text-gray-800">
-                      ₹{item.balance.toFixed(2)}
+                      ₹{item.balance}
                     </td>
                   </tr>
                 );

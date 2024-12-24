@@ -18,9 +18,8 @@ export default function Transactions() {
     account: "",
     description: "",
     to: "",
+    from: "",
     transactionType: "",
-    bank: "",
-    bankName: "",
   });
 
   const [userId, setUserId] = useState(null); // Store the user ID here
@@ -41,9 +40,7 @@ export default function Transactions() {
     fetchUser();
   }, []);
 
-  const [voucherTypes, setVoucherTypes] = useState([
-    "DD", "Check", "salan"
-  ]);
+  const [voucherTypes, setVoucherTypes] = useState(["DD", "Check", "Challan"]);
   const [categories, setCategories] = useState([
     "Food",
     "Education",
@@ -51,16 +48,10 @@ export default function Transactions() {
     "Transport",
   ]);
   const [accounts, setAccounts] = useState([
-    "Cash",
-    "Bank Account",
-    "Credit Card",
+    "Bank 1",
+    "Bank 2",
   ]);
-  const [transferOptions, setTransferOptions] = useState([
-    "Cash",
-    "Bank Account",
-    "Credit Card",
-  ]);
-  const [bankNames, setBankNames] = useState(["HDFC", "IOB", "SBI"]);
+  const [transferOptions, setTransferOptions] = useState(["Bank 1", "Bank 2"]);
 
   function getCurrentTime() {
     const now = new Date();
@@ -111,14 +102,9 @@ export default function Transactions() {
         // voucherTypes: formData.voucherType,
       };
     } else if (activeTab === "transfer") {
-      if (
-        !formData.to ||
-        !formData.transactionType ||
-        !formData.bankName ||
-        !formData.bank
-      ) {
+      if (!formData.to || !formData.from || !formData.transactionType) {
         alert(
-          "Please select both 'trasantionType' and 'To' and 'bankName' and 'bank' accounts."
+          "Please select both 'trasantionType' and 'To' and 'from' accounts."
         );
         return;
       }
@@ -130,6 +116,7 @@ export default function Transactions() {
         amPm: formData.amPm,
         amount: formData.amount,
         description: formData.description,
+        transactionType: formData.transactionType,
       };
     }
 
@@ -146,8 +133,7 @@ export default function Transactions() {
     } else if (activeTab === "transfer") {
       transactionData.to = formData.to;
       transactionData.transactionType = formData.transactionType;
-      transactionData.bankName = formData.bankName;
-      transactionData.bank = formData.bank;
+      transactionData.from = formData.from;
     }
 
     // Now use transactionData for the API call or further processing
@@ -155,15 +141,53 @@ export default function Transactions() {
 
     try {
       if (activeTab === "income" || activeTab === "expense") {
-        const response = await axios.post(
+        const response1 = await axios.post(
           "http://localhost:5000/api/transactions",
           transactionData,
           {
             withCredentials: true, // Ensure the JWT token is sent in the request
           }
         );
-        console.log("Transaction saved:", response.data);
+        console.log("Transaction saved:", response1.data);
         alert("Transaction successfully saved!");
+
+        const Account = transactionData.account;
+        const Amount = transactionData.amount;
+
+        transactionData = {
+          userId: userId, // Use the user ID obtained from the backend
+          type: "transfer", // Your logic for activeTab
+          date: formData.date,
+          time: formData.time,
+          amPm: formData.amPm,
+          amount: Amount,
+          description: formData.description,
+          to: "ToEmpty",
+          transactionType: activeTab,
+          from: "FromEmpty"
+        };
+
+        if(Account === "Bank 1") {
+          const response = await axios.post(
+            "http://localhost:5000/api/transfers",
+            transactionData,
+            {
+              withCredentials: true, // Ensure the JWT token is sent in the request
+            }
+          );
+          console.log("Transaction saved:", response.data);
+          alert("Transaction successfully saved!");
+        } else if(Account === "Bank 2") {
+          const response = await axios.post(
+            "http://localhost:5000/api/transferBanks",
+            transactionData,
+            {
+              withCredentials: true, // Ensure the JWT token is sent in the request
+            }
+          );
+          console.log("Transaction saved:", response.data);
+          alert("Transaction successfully saved!");
+        }
 
         // Reset form after submission
         setFormData({
@@ -176,16 +200,21 @@ export default function Transactions() {
           category: "",
           account: "",
           description: "",
-          to: "",
-          transactionType: "",
-          bankName: "",
-          bank: "",
         });
+
+        setFormData({
+          date: new Date().toISOString().split("T")[0],
+          time: "",
+          amPm: "",
+          amount: "",
+          description: "",
+          to: "",
+          from: "",
+          transactionType: "",
+        });
+        
       } else if (activeTab === "transfer") {
-        if (
-          formData.bank === "Bank 1" ||
-          formData.transactionType === "Internal"
-        ) {
+        if (formData.from === "Bank 1" || formData.transactionType === "Internal") {
           const response = await axios.post(
             "http://localhost:5000/api/transfers",
             transactionData,
@@ -202,18 +231,13 @@ export default function Transactions() {
             time: "",
             amPm: "",
             amount: "",
-            account: "",
             description: "",
             to: "",
+            from: "",
             transactionType: "",
-            bankName: "",
-            bank: "",
           });
         }
-        if (
-          formData.bank === "Bank 2" ||
-          formData.transactionType === "Internal"
-        ) {
+        if (formData.from === "Bank 2" || formData.transactionType === "Internal") {
           const response = await axios.post(
             "http://localhost:5000/api/transferBanks",
             transactionData,
@@ -230,12 +254,10 @@ export default function Transactions() {
             time: "",
             amPm: "",
             amount: "",
-            account: "",
             description: "",
             to: "",
+            from: "",
             transactionType: "",
-            bankName: "",
-            bank: "",
           });
         }
       }
@@ -261,6 +283,30 @@ export default function Transactions() {
       ]);
     }
   };
+  const filteredOptions = (field) => {
+    if (formData.transactionType === "Internal") {
+      if (field === "from") {
+        // "From" can include all banks
+        return transferOptions;
+      }
+      if (field === "to") {
+        // "To" should exclude the selected "From"
+        return transferOptions.filter((option) => option !== formData.from);
+      }
+    }
+  
+    if (formData.transactionType === "External") {
+      if (field === "from") {
+        // "From" can include all banks
+        return transferOptions;
+      }
+      // For "External", exclude "Bank 1" and "Bank 2" from both "From" and "To"
+      return transferOptions.filter((option) => !["Bank 1", "Bank 2"].includes(option));
+    }
+  
+    // Default to all options if no transactionType is selected
+    return transferOptions;
+  };
 
   const handleAddAccount = () => {
     const newAccount = prompt("Enter new account:");
@@ -275,12 +321,6 @@ export default function Transactions() {
       setTransferOptions((prevOptions) => [...prevOptions, newOption]);
     }
   };
-  const handleBankName = (field) => {
-    const newBankName = prompt(`Enter new ${field}:`);
-    if (newBankName && !bankNames.includes(newBankName)) {
-      setBankNames((prevBankNames) => [...prevBankNames, newBankName]);
-    }
-  };
 
   return (
     <div className="p-6 bg-gray-50 min-h-screen mt-20">
@@ -288,13 +328,6 @@ export default function Transactions() {
         <h1 className="text-3xl font-semibold capitalize text-gray-800">
           {activeTab.charAt(0).toUpperCase() + activeTab.slice(1)} Transactions
         </h1>
-        {/* <button
-          type="button"
-          onClick={() => navigate("/modify-ob")}
-          className="px-4 py-2 bg-green-500 text-white rounded-lg mr-2"
-        >
-          Modify Open Balance
-        </button> */}
       </div>
 
       <div className="grid grid-cols-3 gap-4 mb-8">
@@ -353,6 +386,7 @@ export default function Transactions() {
                     onChange={handleChange}
                     className="w-full border border-gray-300 rounded px-3 py-2 text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
                   >
+                    <option value="">Am|Pm</option>
                     <option value="AM">AM</option>
                     <option value="PM">PM</option>
                   </select>
@@ -374,18 +408,6 @@ export default function Transactions() {
             <>
               <div>
                 <select
-                  name="bank"
-                  value={formData.bank}
-                  onChange={handleChange}
-                  className="w-full px-4 py-2 bg-gray-50 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                >
-                  <option value="">Bank</option>
-                  <option value="Bank 1">Bank 1</option>
-                  <option value="Bank 2">Bank 2</option>
-                </select>
-              </div>
-              <div>
-                <select
                   name="transactionType"
                   value={formData.transactionType}
                   onChange={handleChange}
@@ -396,7 +418,30 @@ export default function Transactions() {
                   <option value="External">External</option>
                 </select>
               </div>
-
+              <div>
+                <select
+                  name="from"
+                  value={formData.from}
+                  onChange={handleChange}
+                  className="w-full px-4 py-2 bg-gray-50 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                  <option value="">From</option>
+                  {filteredOptions("from").map((option) => (
+                    <option key={option} value={option}>
+                      {option}
+                    </option>
+                  ))}
+                </select>
+                <div className="mt-2">
+                  <button
+                    type="button"
+                    onClick={() => handleAddTransferOption("from")}
+                    className="px-4 py-2 bg-green-500 text-white rounded-lg mr-2"
+                  >
+                    Add From
+                  </button>
+                </div>
+              </div>
               <div>
                 <select
                   name="to"
@@ -405,7 +450,7 @@ export default function Transactions() {
                   className="w-full px-4 py-2 bg-gray-50 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
                   <option value="">To</option>
-                  {transferOptions.map((option) => (
+                  {filteredOptions("to").map((option) => (
                     <option key={option} value={option}>
                       {option}
                     </option>
@@ -418,30 +463,6 @@ export default function Transactions() {
                     className="px-4 py-2 bg-green-500 text-white rounded-lg mr-2"
                   >
                     Add To
-                  </button>
-                </div>
-              </div>
-              <div>
-                <select
-                  name="bankName"
-                  value={formData.bankName}
-                  onChange={handleChange}
-                  className="w-full px-4 py-2 bg-gray-50 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                >
-                  <option value="">Bank Name</option>
-                  {bankNames.map((option) => (
-                    <option key={option} value={option}>
-                      {option}
-                    </option>
-                  ))}
-                </select>
-                <div className="mt-2">
-                  <button
-                    type="button"
-                    onClick={() => handleBankName("bankName")}
-                    className="px-4 py-2 bg-green-500 text-white rounded-lg mr-2"
-                  >
-                    Bank
                   </button>
                 </div>
               </div>
@@ -504,31 +525,57 @@ export default function Transactions() {
                   </button>
                 </div>
               </div>
-
-              <div>
-                <select
-                  name="account"
-                  value={formData.account}
-                  onChange={handleChange}
-                  className="w-full px-4 py-2 bg-gray-50 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                >
-                  <option value="">Select Account</option>
-                  {accounts.map((account) => (
-                    <option key={account} value={account}>
-                      {account}
-                    </option>
-                  ))}
-                </select>
-                <div className="mt-2">
-                  <button
-                    type="button"
-                    onClick={handleAddAccount}
-                    className="px-4 py-2 bg-green-500 text-white rounded-lg mr-2"
+              {activeTab === "income" ? (
+                <div>
+                  <select
+                    name="account"
+                    value={formData.account}
+                    onChange={handleChange}
+                    className="w-full px-4 py-2 bg-gray-50 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                   >
-                    Add Account
-                  </button>
+                    <option value="">Towards</option>
+                    {accounts.map((account) => (
+                      <option key={account} value={account}>
+                        {account}
+                      </option>
+                    ))}
+                  </select>
+                  <div className="mt-2">
+                    <button
+                      type="button"
+                      onClick={handleAddAccount}
+                      className="px-4 py-2 bg-green-500 text-white rounded-lg mr-2"
+                    >
+                      Add Towards
+                    </button>
+                  </div>
                 </div>
-              </div>
+              ) : (
+                <div>
+                  <select
+                    name="account"
+                    value={formData.account}
+                    onChange={handleChange}
+                    className="w-full px-4 py-2 bg-gray-50 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  >
+                    <option value="">Spends From</option>
+                    {accounts.map((account) => (
+                      <option key={account} value={account}>
+                        {account}
+                      </option>
+                    ))}
+                  </select>
+                  <div className="mt-2">
+                    <button
+                      type="button"
+                      onClick={handleAddAccount}
+                      className="px-4 py-2 bg-green-500 text-white rounded-lg mr-2"
+                    >
+                      Add Spend From
+                    </button>
+                  </div>
+                </div>
+              )}
             </>
           )}
 

@@ -3,19 +3,7 @@ import Transfer from "../models/transfer.model.js";
 // Create a new transaction
 export const createTransfer = async (req, res) => {
   try {
-    const {
-      type,
-      date,
-      time,
-      amPm,
-      amount,
-      to,
-      description,
-      transactionType,
-      bankName,
-      bank,
-      balance,
-    } = req.body;
+    const { type, date, time, amPm, amount, to, description, from, transactionType, balance } = req.body;
 
     // Validate date
     const validDate = new Date(date);
@@ -33,10 +21,9 @@ export const createTransfer = async (req, res) => {
       amount,
       to,
       description,
+      from,
       transactionType,
-      bankName,
-      bank,
-      balance,
+      balance
     });
 
     await transfer.save();
