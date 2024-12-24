@@ -155,7 +155,7 @@ const MonthlyReport = () => {
           transaction.type === "expense" ? transaction.amount.toFixed(2) : "",
         "Credit(₹)":
           transaction.type === "income" ? transaction.amount.toFixed(2) : "",
-        "Balance(₹)": (totalIncome - totalExpenses).toFixed(2),
+        "Balance(₹)": transaction.balance.toFixed(2),
       })
     );
 
@@ -377,7 +377,7 @@ const MonthlyReport = () => {
                       {transaction.voucherNo}
                     </td>
                     <td className="py-4 px-6 border-b border-gray-300 text-right font-semibold text-red-600">
-                      {transaction.type === "expense"
+                      {transaction.type === "expense" || transaction.type === "transfer"
                         ? `₹${transaction.amount.toFixed(2)}`
                         : " "}
                     </td>
@@ -387,7 +387,7 @@ const MonthlyReport = () => {
                         : " "}
                     </td>
                     <td className="py-4 px-6 border-b border-gray-300 text-right text-gray-800">
-                      ₹{transaction.balance}
+                      ₹{transaction.balance.toFixed(2)}
                     </td>
                   </tr>
                 );
@@ -468,7 +468,7 @@ const MonthlyReport = () => {
                         : " "}
                     </td>
                     <td className="py-4 px-6 border-b border-gray-300 text-right text-gray-800">
-                      ₹{item.balance}
+                      ₹{item.balance.toFixed(2)}
                     </td>
                   </tr>
                 );
@@ -550,7 +550,7 @@ const MonthlyReport = () => {
                         : " "}
                     </td>
                     <td className="py-4 px-6 border-b border-gray-300 text-right text-gray-800">
-                      ₹{item.balance}
+                      ₹{item.balance.toFixed(2)}
                     </td>
                   </tr>
                 );

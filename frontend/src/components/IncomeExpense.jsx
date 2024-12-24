@@ -47,10 +47,7 @@ export default function Transactions() {
     "Household",
     "Transport",
   ]);
-  const [accounts, setAccounts] = useState([
-    "Bank 1",
-    "Bank 2",
-  ]);
+  const [accounts, setAccounts] = useState(["Bank 1", "Bank 2"]);
   const [transferOptions, setTransferOptions] = useState(["Bank 1", "Bank 2"]);
 
   function getCurrentTime() {
@@ -74,50 +71,14 @@ export default function Transactions() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Validate fields based on the active tab
+    // Validate fields
     if (!formData.amount) {
       alert("Please fill in all required fields.");
       return;
     }
     if (!formData.time) {
-      formData.time = getCurrentTime(); // Use the helper function to get the current time
-      formData.amPm = getCurrentPeriod(); // Use the helper function to get AM/PM
-    }
-    let transactionData;
-
-    if (activeTab === "income" || activeTab === "expense") {
-      if (!formData.category || !formData.account || !formData.voucherType) {
-        alert("Please fill in all required fields.");
-        return;
-      }
-      transactionData = {
-        userId: userId, // Use the user ID obtained from the backend
-        type: activeTab, // Your logic for activeTab
-        date: formData.date,
-        time: formData.time,
-        amPm: formData.amPm,
-        amount: formData.amount,
-        description: formData.description,
-        voucherNo: formData.voucherNo,
-        // voucherTypes: formData.voucherType,
-      };
-    } else if (activeTab === "transfer") {
-      if (!formData.to || !formData.from || !formData.transactionType) {
-        alert(
-          "Please select both 'trasantionType' and 'To' and 'from' accounts."
-        );
-        return;
-      }
-      transactionData = {
-        userId: userId, // Use the user ID obtained from the backend
-        type: activeTab, // Your logic for activeTab
-        date: formData.date,
-        time: formData.time,
-        amPm: formData.amPm,
-        amount: formData.amount,
-        description: formData.description,
-        transactionType: formData.transactionType,
-      };
+      formData.time = getCurrentTime();
+      formData.amPm = getCurrentPeriod();
     }
 
     if (!userId) {
@@ -125,146 +86,133 @@ export default function Transactions() {
       return;
     }
 
-    // Add fields based on the activeTab
-    if (activeTab === "income" || activeTab === "expense") {
-      transactionData.category = formData.category;
-      transactionData.account = formData.account;
-      transactionData.voucherType = formData.voucherType;
-    } else if (activeTab === "transfer") {
-      transactionData.to = formData.to;
-      transactionData.transactionType = formData.transactionType;
-      transactionData.from = formData.from;
-    }
+    let transactionData = {
+      userId: userId,
+      type: activeTab,
+      date: formData.date,
+      time: formData.time,
+      amPm: formData.amPm,
+      amount: formData.amount,
+      description: formData.description,
+    };
 
-    // Now use transactionData for the API call or further processing
-    console.log(transactionData);
+    if (activeTab === "income" || activeTab === "expense") {
+      if (!formData.category || !formData.account || !formData.voucherType) {
+        alert("Please fill in all required fields.");
+        return;
+      }
+      transactionData = {
+        ...transactionData,
+        category: formData.category,
+        account: formData.account,
+        voucherType: formData.voucherType,
+        voucherNo: formData.voucherNo,
+      };
+    } else if (activeTab === "transfer") {
+      if (!formData.to || !formData.from || !formData.transactionType) {
+        alert("Please select 'Transaction Type', 'To', and 'From' accounts.");
+        return;
+      }
+      transactionData = {
+        ...transactionData,
+        to: formData.to,
+        from: formData.from,
+        transactionType: formData.transactionType,
+      };
+    }
 
     try {
       if (activeTab === "income" || activeTab === "expense") {
-        const response1 = await axios.post(
+        await axios.post(
           "http://localhost:5000/api/transactions",
           transactionData,
           {
-            withCredentials: true, // Ensure the JWT token is sent in the request
+            withCredentials: true,
           }
         );
-        console.log("Transaction saved:", response1.data);
+        console.log("Transaction saved:", transactionData);
         alert("Transaction successfully saved!");
 
-        const Account = transactionData.account;
-        const Amount = transactionData.amount;
+        if (formData.account === "Bank 1" || formData.account === "Bank 2") {
+          const transferEndpoint =
+            formData.account === "Bank 1"
+              ? "/api/transfers"
+              : "/api/transferBanks";
+          const transferData = {
+            ...transactionData,
+            transactionType: activeTab,
+            type: "transfer",
+            to: "ToEmpty",
+            from: "FromEmpty",
+          };
 
-        transactionData = {
-          userId: userId, // Use the user ID obtained from the backend
-          type: "transfer", // Your logic for activeTab
-          date: formData.date,
-          time: formData.time,
-          amPm: formData.amPm,
-          amount: Amount,
-          description: formData.description,
-          to: "ToEmpty",
-          transactionType: activeTab,
-          from: "FromEmpty"
-        };
-
-        if(Account === "Bank 1") {
-          const response = await axios.post(
-            "http://localhost:5000/api/transfers",
-            transactionData,
+          await axios.post(
+            `http://localhost:5000${transferEndpoint}`,
+            transferData,
             {
-              withCredentials: true, // Ensure the JWT token is sent in the request
+              withCredentials: true,
             }
           );
-          console.log("Transaction saved:", response.data);
-          alert("Transaction successfully saved!");
-        } else if(Account === "Bank 2") {
-          const response = await axios.post(
-            "http://localhost:5000/api/transferBanks",
-            transactionData,
-            {
-              withCredentials: true, // Ensure the JWT token is sent in the request
-            }
-          );
-          console.log("Transaction saved:", response.data);
-          alert("Transaction successfully saved!");
         }
-
-        // Reset form after submission
-        setFormData({
-          date: new Date().toISOString().split("T")[0],
-          time: "",
-          amPm: "",
-          amount: "",
-          voucherType: "",
-          voucherNo: "",
-          category: "",
-          account: "",
-          description: "",
-        });
-
-        setFormData({
-          date: new Date().toISOString().split("T")[0],
-          time: "",
-          amPm: "",
-          amount: "",
-          description: "",
-          to: "",
-          from: "",
-          transactionType: "",
-        });
-        
       } else if (activeTab === "transfer") {
-        if (formData.from === "Bank 1" || formData.transactionType === "Internal") {
-          const response = await axios.post(
-            "http://localhost:5000/api/transfers",
+        const transferEndpoint =
+          formData.from === "Bank 1"
+            ? "/api/transfers"
+            : formData.from === "Bank 2"
+            ? "/api/transferBanks"
+            : null;
+
+        if (transferEndpoint) {
+          await axios.post(
+            `http://localhost:5000${transferEndpoint}`,
             transactionData,
             {
-              withCredentials: true, // Ensure the JWT token is sent in the request
+              withCredentials: true,
             }
           );
-          console.log("Transaction saved:", response.data);
-          alert("Transaction successfully saved!");
-
-          // Reset form after submission
-          setFormData({
-            date: new Date().toISOString().split("T")[0],
-            time: "",
-            amPm: "",
-            amount: "",
-            description: "",
-            to: "",
-            from: "",
-            transactionType: "",
-          });
-        }
-        if (formData.from === "Bank 2" || formData.transactionType === "Internal") {
-          const response = await axios.post(
-            "http://localhost:5000/api/transferBanks",
-            transactionData,
-            {
-              withCredentials: true, // Ensure the JWT token is sent in the request
-            }
-          );
-          console.log("Transaction saved:", response.data);
-          alert("Transaction successfully saved!");
-
-          // Reset form after submission
-          setFormData({
-            date: new Date().toISOString().split("T")[0],
-            time: "",
-            amPm: "",
-            amount: "",
-            description: "",
-            to: "",
-            from: "",
-            transactionType: "",
-          });
+          console.log(transactionData);
+          if (formData.transactionType === "External") {
+            const transactionFormatData = {
+              ...transactionData,
+              category: formData.category || "",
+              account: formData.account || "",
+              voucherType: formData.voucherType || "",
+              voucherNo: formData.voucherNo || "",
+            };
+            console.log(transactionFormatData);
+            await axios.post(
+              "http://localhost:5000/api/transactions",
+              transactionFormatData,
+              {
+                withCredentials: true,
+              }
+            );
+          }
         }
       }
+      alert("Transaction successfully saved!");
+      resetForm();
     } catch (error) {
       console.error("Error saving transaction:", error);
       alert("Error saving transaction. Please try again.");
     }
+  };
+
+  const resetForm = () => {
+    setFormData({
+      date: new Date().toISOString().split("T")[0],
+      time: "",
+      amPm: "",
+      amount: "",
+      voucherType: "",
+      voucherNo: "",
+      category: "",
+      account: "",
+      description: "",
+      to: "",
+      from: "",
+      transactionType: "",
+    });
   };
 
   const handleAddCategory = () => {
@@ -294,16 +242,18 @@ export default function Transactions() {
         return transferOptions.filter((option) => option !== formData.from);
       }
     }
-  
+
     if (formData.transactionType === "External") {
       if (field === "from") {
         // "From" can include all banks
         return transferOptions;
       }
       // For "External", exclude "Bank 1" and "Bank 2" from both "From" and "To"
-      return transferOptions.filter((option) => !["Bank 1", "Bank 2"].includes(option));
+      return transferOptions.filter(
+        (option) => !["Bank 1", "Bank 2"].includes(option)
+      );
     }
-  
+
     // Default to all options if no transactionType is selected
     return transferOptions;
   };
