@@ -52,10 +52,7 @@ export default function Transactions() {
     "Bank Account",
     "Credit Card",
   ]);
-  const [transferOptions, setTransferOptions] = useState([
-    "Bank 1",
-    "Bank 2",
-  ]);
+  const [transferOptions, setTransferOptions] = useState(["Bank 1", "Bank 2"]);
 
   function getCurrentTime() {
     const now = new Date();
@@ -106,11 +103,7 @@ export default function Transactions() {
         // voucherTypes: formData.voucherType,
       };
     } else if (activeTab === "transfer") {
-      if (
-        !formData.to ||
-        !formData.from ||
-        !formData.transactionType
-      ) {
+      if (!formData.to || !formData.from || !formData.transactionType) {
         alert(
           "Please select both 'trasantionType' and 'To' and 'from' accounts."
         );
@@ -124,7 +117,7 @@ export default function Transactions() {
         amPm: formData.amPm,
         amount: formData.amount,
         description: formData.description,
-        transactionType: formData.transactionType
+        transactionType: formData.transactionType,
       };
     }
 
@@ -172,9 +165,7 @@ export default function Transactions() {
           description: "",
         });
       } else if (activeTab === "transfer") {
-        if (
-          formData.from === "Bank 1" || formData.from === "Bank 2"
-        ) {
+        if (formData.from === "Bank 1" || formData.transactionType === "Internal") {
           const response = await axios.post(
             "http://localhost:5000/api/transfers",
             transactionData,
@@ -197,9 +188,7 @@ export default function Transactions() {
             transactionType: "",
           });
         }
-        if (
-          formData.from === "Bank 2" || formData.from === "Bank 1"
-        ) {
+        if (formData.from === "Bank 2" || formData.transactionType === "Internal") {
           const response = await axios.post(
             "http://localhost:5000/api/transferBanks",
             transactionData,
@@ -244,6 +233,30 @@ export default function Transactions() {
         newVoucherType,
       ]);
     }
+  };
+  const filteredOptions = (field) => {
+    if (formData.transactionType === "Internal") {
+      if (field === "from") {
+        // "From" can include all banks
+        return transferOptions;
+      }
+      if (field === "to") {
+        // "To" should exclude the selected "From"
+        return transferOptions.filter((option) => option !== formData.from);
+      }
+    }
+  
+    if (formData.transactionType === "External") {
+      if (field === "from") {
+        // "From" can include all banks
+        return transferOptions;
+      }
+      // For "External", exclude "Bank 1" and "Bank 2" from both "From" and "To"
+      return transferOptions.filter((option) => !["Bank 1", "Bank 2"].includes(option));
+    }
+  
+    // Default to all options if no transactionType is selected
+    return transferOptions;
   };
 
   const handleAddAccount = () => {
@@ -364,7 +377,7 @@ export default function Transactions() {
                   className="w-full px-4 py-2 bg-gray-50 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
                   <option value="">From</option>
-                  {transferOptions.map((option) => (
+                  {filteredOptions("from").map((option) => (
                     <option key={option} value={option}>
                       {option}
                     </option>
@@ -373,7 +386,7 @@ export default function Transactions() {
                 <div className="mt-2">
                   <button
                     type="button"
-                    onClick={() => handleAddTransferOption("to")}
+                    onClick={() => handleAddTransferOption("from")}
                     className="px-4 py-2 bg-green-500 text-white rounded-lg mr-2"
                   >
                     Add From
@@ -388,7 +401,7 @@ export default function Transactions() {
                   className="w-full px-4 py-2 bg-gray-50 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
                   <option value="">To</option>
-                  {transferOptions.map((option) => (
+                  {filteredOptions("to").map((option) => (
                     <option key={option} value={option}>
                       {option}
                     </option>
@@ -464,56 +477,56 @@ export default function Transactions() {
                 </div>
               </div>
               {activeTab === "income" ? (
-              <div>
-                <select
-                  name="account"
-                  value={formData.account}
-                  onChange={handleChange}
-                  className="w-full px-4 py-2 bg-gray-50 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                <div>
+                  <select
+                    name="account"
+                    value={formData.account}
+                    onChange={handleChange}
+                    className="w-full px-4 py-2 bg-gray-50 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                   >
-                  <option value="">Towards</option>
-                  {accounts.map((account) => (
-                    <option key={account} value={account}>
-                      {account}
-                    </option>
-                  ))}
-                </select>
-                <div className="mt-2">
-                  <button
-                    type="button"
-                    onClick={handleAddAccount}
-                    className="px-4 py-2 bg-green-500 text-white rounded-lg mr-2"
+                    <option value="">Towards</option>
+                    {accounts.map((account) => (
+                      <option key={account} value={account}>
+                        {account}
+                      </option>
+                    ))}
+                  </select>
+                  <div className="mt-2">
+                    <button
+                      type="button"
+                      onClick={handleAddAccount}
+                      className="px-4 py-2 bg-green-500 text-white rounded-lg mr-2"
                     >
-                    Add Towards
-                  </button>
+                      Add Towards
+                    </button>
+                  </div>
                 </div>
-              </div> ) : (
-              <div>
-                <select
-                  name="account"
-                  value={formData.account}
-                  onChange={handleChange}
-                  className="w-full px-4 py-2 bg-gray-50 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              ) : (
+                <div>
+                  <select
+                    name="account"
+                    value={formData.account}
+                    onChange={handleChange}
+                    className="w-full px-4 py-2 bg-gray-50 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                   >
-                  <option value="">Spends From</option>
-                  {accounts.map((account) => (
-                    <option key={account} value={account}>
-                      {account}
-                    </option>
-                  ))}
-                </select>
-                <div className="mt-2">
-                  <button
-                    type="button"
-                    onClick={handleAddAccount}
-                    className="px-4 py-2 bg-green-500 text-white rounded-lg mr-2"
+                    <option value="">Spends From</option>
+                    {accounts.map((account) => (
+                      <option key={account} value={account}>
+                        {account}
+                      </option>
+                    ))}
+                  </select>
+                  <div className="mt-2">
+                    <button
+                      type="button"
+                      onClick={handleAddAccount}
+                      className="px-4 py-2 bg-green-500 text-white rounded-lg mr-2"
                     >
-                    Add Spend From
-                  </button>
+                      Add Spend From
+                    </button>
+                  </div>
                 </div>
-              </div>
-                )
-              } 
+              )}
             </>
           )}
 
