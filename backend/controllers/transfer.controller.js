@@ -3,7 +3,7 @@ import Transfer from "../models/transfer.model.js";
 // Create a new transaction
 export const createTransfer = async (req, res) => {
   try {
-    const { type, date, time, amPm, amount, to, description, from, transactionType } = req.body;
+    const { type, date, time, amPm, amount, to, description, from, transactionType, balance } = req.body;
 
     // Validate date
     const validDate = new Date(date);
@@ -23,6 +23,7 @@ export const createTransfer = async (req, res) => {
       description,
       from,
       transactionType,
+      balance
     });
 
     await transfer.save();
@@ -65,7 +66,8 @@ export const getTransfers = async (req, res) => {
     const transfers = await Transfer.find(query)
       .sort({ createdAt: -1 })
       .skip((page - 1) * limit)
-      .limit(parseInt(limit, 10));
+      .limit(parseInt(limit, 10))
+      .select("+balance"); // Include the balance field
 
     const totalTransfers = await Transfer.countDocuments(query);
 
