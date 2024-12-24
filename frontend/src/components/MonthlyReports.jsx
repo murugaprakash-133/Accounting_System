@@ -46,7 +46,6 @@ const MonthlyReport = () => {
     fetchTransferBanks();
   }, [selectedMonth, selectedYear]);
 
-
   const fetchTransactions = async () => {
     try {
       const response = await axios.get(
@@ -462,26 +461,7 @@ const MonthlyReport = () => {
                         : " "}
                     </td>
                     <td className="py-4 px-6 border-b border-gray-300 text-right text-gray-800">
-                      {item.transactionType === "Internal"
-                        ? item.bank === "Bank 2"
-                          ? // Bank 1 Internal: Reduce value
-                            `₹${(
-                              item.amount +
-                              (totalIncome - totalExpenses)
-                            ).toFixed(2)}`
-                          : item.bank === "Bank 1"
-                          ? // Bank 2 Internal: Add value
-                            `₹${(
-                              item.amount -
-                              (totalIncome - totalExpenses)
-                            ).toFixed(2)}`
-                          : // Default case for other banks
-                            `₹${item.amount.toFixed(2)}`
-                        : // External Transactions: Apply calculation
-                          `₹${(
-                            item.amount +
-                            (totalIncome - totalExpenses)
-                          ).toFixed(2)}`}
+                      ₹{item.balance.toFixed(2)}
                     </td>
                   </tr>
                 );
@@ -561,26 +541,7 @@ const MonthlyReport = () => {
                         : " "}
                     </td>
                     <td className="py-4 px-6 border-b border-gray-300 text-right text-gray-800">
-                      {item.transactionType === "Internal"
-                        ? item.fo === "Bank 1"
-                          ? // Bank 1 Internal: Reduce value
-                            `₹${(
-                              item.amount -
-                              (totalIncome - totalExpenses)
-                            ).toFixed(2)}`
-                          : item.bank === "Bank 2"
-                          ? // Bank 2 Internal: Add value
-                            `₹${(
-                              item.amount +
-                              (totalIncome - totalExpenses)
-                            ).toFixed(2)}`
-                          : // Default case for other banks
-                            `₹${item.amount.toFixed(2)}`
-                        : // External Transactions: Apply calculation
-                          `₹${(
-                            item.amount -
-                            (totalIncome - totalExpenses)
-                          ).toFixed(2)}`}
+                      ₹{item.balance.toFixed(2)}
                     </td>
                   </tr>
                 );
