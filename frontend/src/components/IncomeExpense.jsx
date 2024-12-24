@@ -40,7 +40,7 @@ export default function Transactions() {
     fetchUser();
   }, []);
 
-  const [voucherTypes, setVoucherTypes] = useState(["DD", "Check", "salan"]);
+  const [voucherTypes, setVoucherTypes] = useState(["DD", "Check", "Challan"]);
   const [categories, setCategories] = useState([
     "Food",
     "Education",
@@ -48,9 +48,8 @@ export default function Transactions() {
     "Transport",
   ]);
   const [accounts, setAccounts] = useState([
-    "Cash",
-    "Bank Account",
-    "Credit Card",
+    "Bank 1",
+    "Bank 2",
   ]);
   const [transferOptions, setTransferOptions] = useState(["Bank 1", "Bank 2"]);
 
@@ -142,15 +141,53 @@ export default function Transactions() {
 
     try {
       if (activeTab === "income" || activeTab === "expense") {
-        const response = await axios.post(
+        const response1 = await axios.post(
           "http://localhost:5000/api/transactions",
           transactionData,
           {
             withCredentials: true, // Ensure the JWT token is sent in the request
           }
         );
-        console.log("Transaction saved:", response.data);
+        console.log("Transaction saved:", response1.data);
         alert("Transaction successfully saved!");
+
+        const Account = transactionData.account;
+        const Amount = transactionData.amount;
+
+        transactionData = {
+          userId: userId, // Use the user ID obtained from the backend
+          type: "transfer", // Your logic for activeTab
+          date: formData.date,
+          time: formData.time,
+          amPm: formData.amPm,
+          amount: Amount,
+          description: formData.description,
+          to: "ToEmpty",
+          transactionType: activeTab,
+          from: "FromEmpty"
+        };
+
+        if(Account === "Bank 1") {
+          const response = await axios.post(
+            "http://localhost:5000/api/transfers",
+            transactionData,
+            {
+              withCredentials: true, // Ensure the JWT token is sent in the request
+            }
+          );
+          console.log("Transaction saved:", response.data);
+          alert("Transaction successfully saved!");
+        } else if(Account === "Bank 2") {
+          const response = await axios.post(
+            "http://localhost:5000/api/transferBanks",
+            transactionData,
+            {
+              withCredentials: true, // Ensure the JWT token is sent in the request
+            }
+          );
+          console.log("Transaction saved:", response.data);
+          alert("Transaction successfully saved!");
+        }
 
         // Reset form after submission
         setFormData({
@@ -164,6 +201,18 @@ export default function Transactions() {
           account: "",
           description: "",
         });
+
+        setFormData({
+          date: new Date().toISOString().split("T")[0],
+          time: "",
+          amPm: "",
+          amount: "",
+          description: "",
+          to: "",
+          from: "",
+          transactionType: "",
+        });
+        
       } else if (activeTab === "transfer") {
         if (formData.from === "Bank 1" || formData.transactionType === "Internal") {
           const response = await axios.post(

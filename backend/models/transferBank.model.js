@@ -80,6 +80,10 @@ transferBankSchema.pre("save", async function (next) {
       }
     } else if (this.transactionType === "External") {
       this.balance = lastBalance - this.amount;
+    } else if (this.transactionType === "income") {
+      this.balance = lastBalance + this.amount;
+    } else if (this.transactionType === "expense") {
+      this.balance = lastBalance - this.amount;
     }
 
     next();

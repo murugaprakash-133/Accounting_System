@@ -168,12 +168,15 @@ const MonthlyReport = () => {
       To: transfer.to || "N/A",
       "Bank Name": transfer.bankName || "N/A",
       "Debit(₹)":
-        transfer.transactionType === "Internal"
+        transfer.transactionType === "Internal" ||
+        transfer.transactionType === "expense"
           ? transfer.amount.toFixed(2)
           : "",
       "Credit(₹)":
-        transfer.type === "External" ? transfer.amount.toFixed(2) : "",
-      "Balance(₹)": (totalIncome - totalExpenses).toFixed(2),
+        transfer.type === "External" || transfer.transactionType === "income"
+          ? transfer.amount.toFixed(2)
+          : "",
+      "Balance(₹)": transfer.balance.toFixed(2),
     }));
 
     const formattedTransferBanks = filteredTransferBanks.map(
@@ -186,14 +189,16 @@ const MonthlyReport = () => {
         To: transferBank.to || "N/A",
         "Bank Name": transferBank.bankName || "N/A",
         "Debit(₹)":
-          transferBank.transactionType === "Internal"
+          transferBank.transactionType === "Internal" ||
+          transferBank.transactionType === "expense"
             ? transferBank.amount.toFixed(2)
             : "",
         "Credit(₹)":
-          transferBank.type === "External"
+          transferBank.type === "External" ||
+          transferBank.transactionType === "income"
             ? transferBank.amount.toFixed(2)
             : "",
-        "Balance(₹)": (totalIncome - totalExpenses).toFixed(2),
+        "Balance(₹)": transferBank.balance.toFixed(2),
       })
     );
 
@@ -382,7 +387,7 @@ const MonthlyReport = () => {
                         : " "}
                     </td>
                     <td className="py-4 px-6 border-b border-gray-300 text-right text-gray-800">
-                      ₹{(totalIncome - totalExpenses).toFixed(2)}
+                      ₹{transaction.balance}
                     </td>
                   </tr>
                 );
@@ -451,17 +456,19 @@ const MonthlyReport = () => {
                       {item.transactionType}
                     </td>
                     <td className="py-4 px-6 border-b border-gray-300 text-right font-semibold text-red-600">
-                      {item.from === "Bank 1"
+                      {item.transactionType === "expense" ||
+                      item.from === "Bank 1"
                         ? `₹${item.amount.toFixed(2)}`
                         : " "}
                     </td>
                     <td className="py-4 px-6 border-b border-gray-300 text-right font-semibold text-green-600">
-                      {item.from === "Bank 2"
+                      {item.transactionType === "income" ||
+                      item.from === "Bank 2"
                         ? `₹${item.amount.toFixed(2)}`
                         : " "}
                     </td>
                     <td className="py-4 px-6 border-b border-gray-300 text-right text-gray-800">
-                      ₹{item.balance.toFixed(2)}
+                      ₹{item.balance}
                     </td>
                   </tr>
                 );
@@ -531,17 +538,19 @@ const MonthlyReport = () => {
                       {item.transactionType}
                     </td>
                     <td className="py-4 px-6 border-b border-gray-300 text-right font-semibold text-red-600">
-                      {item.from === "Bank 2"
+                      {item.transactionType === "expense" ||
+                      item.from === "Bank 2"
                         ? `₹${item.amount.toFixed(2)}`
                         : " "}
                     </td>
                     <td className="py-4 px-6 border-b border-gray-300 text-right font-semibold text-green-600">
-                      {item.from === "Bank 1"
+                      {item.transactionType === "income" ||
+                      item.from === "Bank 1"
                         ? `₹${item.amount.toFixed(2)}`
                         : " "}
                     </td>
                     <td className="py-4 px-6 border-b border-gray-300 text-right text-gray-800">
-                      ₹{item.balance.toFixed(2)}
+                      ₹{item.balance}
                     </td>
                   </tr>
                 );

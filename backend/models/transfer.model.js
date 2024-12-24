@@ -19,7 +19,6 @@ const transferSchema = new mongoose.Schema(
     },
     transactionType: {
       type: String,
-      enum: ["Internal", "External"],
       required: function () {
         return this.type === "transfer";
       },
@@ -80,6 +79,10 @@ transferSchema.pre("save", async function (next) {
         this.balance = lastBalance + this.amount; // Add for Bank 2 to Bank 1
       }
     } else if (this.transactionType === "External") {
+      this.balance = lastBalance - this.amount;
+    } else if (this.transactionType === "income") {
+      this.balance = lastBalance + this.amount;
+    } else if (this.transactionType === "expense") {
       this.balance = lastBalance - this.amount;
     }
 
