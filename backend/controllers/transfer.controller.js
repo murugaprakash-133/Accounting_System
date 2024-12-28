@@ -30,9 +30,7 @@ export const createTransfer = async (req, res) => {
     res.status(201).json(transfer);
   } catch (error) {
     console.error("Error creating transaction:", error);
-    res
-      .status(500)
-      .json({ message: error.message || "Error creating transaction" });
+    res.status(500).json({ message: error.message || "Error creating transaction" });
   }
 };
 
@@ -49,9 +47,7 @@ export const getTransfers = async (req, res) => {
       const parsedYear = parseInt(year, 10);
 
       if (isNaN(parsedMonth) || isNaN(parsedYear)) {
-        return res
-          .status(400)
-          .json({ message: "Invalid month or year format" });
+        return res.status(400).json({ message: "Invalid month or year format" });
       }
 
       const startOfMonth = new Date(parsedYear, parsedMonth - 1, 1);
@@ -67,7 +63,6 @@ export const getTransfers = async (req, res) => {
       query.type = type;
     }
 
-    // Fetch transactions with balance included
     const transfers = await Transfer.find(query)
       .sort({ createdAt: -1 })
       .skip((page - 1) * limit)
@@ -76,17 +71,26 @@ export const getTransfers = async (req, res) => {
 
     const totalTransfers = await Transfer.countDocuments(query);
 
+    // Calculate total income and expenses
+    const totalIncome = transfers
+      .filter(transfer => transfer.type === "income")
+      .reduce((acc, curr) => acc + curr.amount, 0);
+
+    const totalExpenses = transfers
+      .filter(transfer => transfer.type === "expense")
+      .reduce((acc, curr) => acc + curr.amount, 0);
+
     res.status(200).json({
       transfers,
       totalTransfers,
       totalPages: Math.ceil(totalTransfers / limit),
       currentPage: page,
+      totalIncome,
+      totalExpenses,
     });
   } catch (error) {
     console.error("Error fetching transactions:", error);
-    res
-      .status(500)
-      .json({ message: error.message || "Error fetching transactions" });
+    res.status(500).json({ message: error.message || "Error fetching transactions" });
   }
 };
 
@@ -130,11 +134,11 @@ export const getMonthlyCashFlowData = async (req, res) => {
     }, {});
 
     const totalCashIn = transfers
-      .filter((t) => t.type === "income")
+      .filter(t => t.type === "income")
       .reduce((sum, t) => sum + t.amount, 0);
 
     const totalCashOut = transfers
-      .filter((t) => t.type === "expense")
+      .filter(t => t.type === "expense")
       .reduce((sum, t) => sum + t.amount, 0);
 
     const netCashFlow = totalCashIn - totalCashOut;
@@ -144,9 +148,7 @@ export const getMonthlyCashFlowData = async (req, res) => {
       day: `Day ${i + 1}`,
       cashIn: groupedByDay[i + 1]?.cashIn || 0,
       cashOut: groupedByDay[i + 1]?.cashOut || 0,
-      netCashFlow:
-        (groupedByDay[i + 1]?.cashIn || 0) -
-        (groupedByDay[i + 1]?.cashOut || 0),
+      netCashFlow: (groupedByDay[i + 1]?.cashIn || 0) - (groupedByDay[i + 1]?.cashOut || 0),
     }));
 
     res.status(200).json({
@@ -157,9 +159,7 @@ export const getMonthlyCashFlowData = async (req, res) => {
     });
   } catch (error) {
     console.error("Error fetching monthly cash flow data:", error);
-    res.status(500).json({
-      message: error.message || "Error fetching monthly cash flow data.",
-    });
+    res.status(500).json({ message: error.message || "Error fetching monthly cash flow data." });
   }
 };
 
@@ -169,21 +169,9 @@ export const updateTransfer = async (req, res) => {
     const { transferId } = req.params;
     const updates = req.body;
 
-    const allowedUpdates = [
-      "type",
-      "date",
-      "time",
-      "amount",
-      "to",
-      "description",
-      "transactionType",
-      "bankName",
-      "bank",
-    ];
+    const allowedUpdates = ["type", "date", "time", "amount", "to", "description", "transactionType", "bankName", "bank"];
     const updatesKeys = Object.keys(updates);
-    const isValidOperation = updatesKeys.every((key) =>
-      allowedUpdates.includes(key)
-    );
+    const isValidOperation = updatesKeys.every(key => allowedUpdates.includes(key));
 
     if (!isValidOperation) {
       return res.status(400).json({ message: "Invalid updates" });
@@ -202,9 +190,7 @@ export const updateTransfer = async (req, res) => {
     res.status(200).json(transfer);
   } catch (error) {
     console.error("Error updating transaction:", error);
-    res
-      .status(500)
-      .json({ message: error.message || "Error updating transaction" });
+    res.status(500).json({ message: error.message || "Error updating transaction" });
   }
 };
 
@@ -225,8 +211,6 @@ export const deleteTransfer = async (req, res) => {
     res.status(200).json({ message: "Transaction deleted successfully" });
   } catch (error) {
     console.error("Error deleting transaction:", error);
-    res
-      .status(500)
-      .json({ message: error.message || "Error deleting transaction" });
+    res.status(500).json({ message: error.message || "Error deleting transaction" });
   }
 };

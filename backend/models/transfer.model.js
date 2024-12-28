@@ -19,7 +19,6 @@ const transferSchema = new mongoose.Schema(
     },
     transactionType: {
       type: String,
-      enum: ["Internal", "External"],
       required: function () {
         return this.type === "transfer";
       },

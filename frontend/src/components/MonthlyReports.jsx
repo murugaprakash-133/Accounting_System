@@ -60,8 +60,8 @@ const MonthlyReport = () => {
       );
       const { transactions, totalIncome, totalExpenses } = response.data;
       setTransactions(transactions);
-      // setTotalIncome(totalIncome);
-      // setTotalExpenses(totalExpenses);
+      setTotalIncome(totalIncome);
+      setTotalExpenses(totalExpenses);
     } catch (error) {
       console.error("Error fetching transactions:", error);
     }
@@ -76,15 +76,14 @@ const MonthlyReport = () => {
         },
         withCredentials: true, // Ensure cookies are sent with the request
       });
-      const { transfers } = response.data;
-
+      const { transfers, totalIncome, totalExpenses } = response.data;
       setTransfers(transfers);
-
+      // setTotalIncome(totalIncome);
+      // setTotalExpenses(totalExpenses);
     } catch (error) {
       console.error("Error fetching transactions:", error);
     }
   };
-
   const fetchTransferBanks = async () => {
     try {
       const response = await axios.get(
@@ -97,11 +96,10 @@ const MonthlyReport = () => {
           withCredentials: true, // Ensure cookies are sent with the request
         }
       );
-
-      const { transferBanks } = response.data;
-
-      setTransferBanks(transferBanks); // Update transaction list
-
+      const { transferBanks, totalIncome, totalExpenses } = response.data;
+      setTransferBanks(transferBanks);
+      // setTotalIncome(totalIncome);
+      // setTotalExpenses(totalExpenses);
     } catch (error) {
       console.error("Error fetching transactions:", error);
     }

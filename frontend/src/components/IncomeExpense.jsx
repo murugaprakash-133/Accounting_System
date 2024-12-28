@@ -170,7 +170,7 @@ export default function Transactions() {
               withCredentials: true,
             }
           );
-          console.log(transactionData);
+
           if (formData.transactionType === "External") {
             const transactionFormatData = {
               ...transactionData,
@@ -183,6 +183,14 @@ export default function Transactions() {
             await axios.post(
               "http://localhost:5000/api/transactions",
               transactionFormatData,
+              {
+                withCredentials: true,
+              }
+            );
+          } else if(formData.transactionType === "Internal") {
+            await axios.post(
+              `http://localhost:5000${transferEndpoint === "/api/transfers" ? "/api/transferBanks" : "/api/transfers"}`,
+              transactionData,
               {
                 withCredentials: true,
               }
