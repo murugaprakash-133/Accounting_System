@@ -28,6 +28,31 @@ const MonthlyReport = () => {
     "December",
   ];
 
+  const handleDelete = async (id) => {
+    const confirmDelete = window.confirm(
+      "Are you sure you want to delete this transaction?"
+    );
+    if (!confirmDelete) return;
+
+    try {
+      // Call the delete API
+      const response = await axios.delete(`/api/transactions/${id}`, {
+        withCredentials: true,
+      });
+
+      if (response.status === 200) {
+        alert("Transaction deleted successfully.");
+        // Remove the transaction from state
+        setTransactions((prev) =>
+          prev.filter((transaction) => transaction._id !== id)
+        );
+      }
+    } catch (error) {
+      console.error("Error deleting transaction:", error);
+      alert("Error deleting transaction. Please try again.");
+    }
+  };
+
   const years = Array.from(
     { length: 50 },
     (_, i) => new Date().getFullYear() - 25 + i
@@ -339,20 +364,20 @@ const MonthlyReport = () => {
                 <th className="text-right py-4 px-4 border-b-2 border-gray-300 text-gray-700 font-medium uppercase">
                   Balance
                 </th>
+                <th className="text-right py-4 px-4 border-b-2 border-gray-300 text-gray-700 font-medium uppercase">
+                  Action
+                </th>
               </tr>
             </thead>
             <tbody>
               {transactions.map((transaction, index) => {
-                // Parse the date properly from the MongoDB date string
-                const UserDate = new Date(transaction.date);
-                const day = UserDate.getDate().toString().padStart(2, "0"); // Ensure two digits for the day
-                const month = (UserDate.getMonth() + 1)
+                const date = new Date(transaction.date);
+                const formattedDate = `${date
+                  .getDate()
                   .toString()
-                  .padStart(2, "0"); // getMonth() is 0-indexed, so add 1
-                const year = UserDate.getFullYear();
-
-                // Combine them in the desired format
-                const formattedDate = `${day}-${month}-${year}`;
+                  .padStart(2, "0")}-${(date.getMonth() + 1)
+                  .toString()
+                  .padStart(2, "0")}-${date.getFullYear()}`;
 
                 return (
                   <tr
@@ -377,7 +402,8 @@ const MonthlyReport = () => {
                       {transaction.voucherNo}
                     </td>
                     <td className="py-4 px-6 border-b border-gray-300 text-right font-semibold text-red-600">
-                      {transaction.type === "expense" || transaction.type === "transfer"
+                      {transaction.type === "expense" ||
+                      transaction.type === "transfer"
                         ? `₹${transaction.amount.toFixed(2)}`
                         : " "}
                     </td>
@@ -388,6 +414,14 @@ const MonthlyReport = () => {
                     </td>
                     <td className="py-4 px-6 border-b border-gray-300 text-right text-gray-800">
                       ₹{transaction.balance.toFixed(2)}
+                    </td>
+                    <td className="py-4 px-6 border-b border-gray-300 text-right">
+                      <button
+                        onClick={() => handleDelete(transaction._id)}
+                        className="bg-red-500 text-white px-4 py-2 rounded-full hover:bg-red-600 transition-transform transform hover:scale-110"
+                      >
+                        Delete
+                      </button>
                     </td>
                   </tr>
                 );
