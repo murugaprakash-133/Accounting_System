@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import * as XLSX from "xlsx";
+import { FaTrash } from "react-icons/fa";
 
 const MonthlyReport = () => {
   const [transactions, setTransactions] = useState([]);
@@ -28,30 +29,77 @@ const MonthlyReport = () => {
     "December",
   ];
 
-  const handleDelete = async (id) => {
+  const handleDelete = async (id, type, account) => {
+    console.log(id, type, account);
     const confirmDelete = window.confirm(
-      "Are you sure you want to delete this transaction?"
+      `Are you sure you want to delete this ${type} for ${account}? This action cannot be undone.`
     );
     if (!confirmDelete) return;
 
     try {
-      // Call the delete API
-      const response = await axios.delete(`/api/transactions/${id}`, {
-        withCredentials: true,
-      });
+      let response;
 
-      if (response.status === 200) {
-        alert("Transaction deleted successfully.");
-        // Remove the transaction from state
-        setTransactions((prev) =>
-          prev.filter((transaction) => transaction._id !== id)
-        );
+      // Handle deletion based on type and account
+      if (type === "income" || type === "transfer" && account === "Bank 1") {
+        // Delete from transactions
+        response = await axios.delete(`/api/transactions/${id}`, { withCredentials: true });
+        if (response.status === 200) {
+          setTransactions((prev) => prev.filter((item) => item._id !== id));
+        }
+
+        // Delete from transfers
+        response = await axios.delete(`/api/transfers/${id}`, { withCredentials: true });
+        if (response.status === 200) {
+          setTransfers((prev) => prev.filter((item) => item._id !== id));
+        }
+      } else if (type === "income" || type === "transfer" && account === "Bank 2") {
+        // Delete from transactions
+        response = await axios.delete(`/api/transactions/${id}`, { withCredentials: true });
+        if (response.status === 200) {
+          setTransactions((prev) => prev.filter((item) => item._id !== id));
+        }
+
+        // Delete from transferBanks
+        response = await axios.delete(`/api/transferBanks/${id}`, { withCredentials: true });
+        if (response.status === 200) {
+          setTransferBanks((prev) => prev.filter((item) => item._id !== id));
+        }
+      } else if (type === "expense" || type === "transfer" && account === "Bank 1") {
+        // Delete from transactions
+        response = await axios.delete(`/api/transactions/${id}`, { withCredentials: true });
+        if (response.status === 200) {
+          setTransactions((prev) => prev.filter((item) => item._id !== id));
+        }
+
+        // Delete from transfers
+        response = await axios.delete(`/api/transfers/${id}`, { withCredentials: true });
+        if (response.status === 200) {
+          setTransfers((prev) => prev.filter((item) => item._id !== id));
+        }
+      } else if (type === "expense" || type === "transfer" && account === "Bank 2") {
+        // Delete from transactions
+        response = await axios.delete(`/api/transactions/${id}`, { withCredentials: true });
+        if (response.status === 200) {
+          setTransactions((prev) => prev.filter((item) => item._id !== id));
+        }
+
+        // Delete from transferBanks
+        response = await axios.delete(`/api/transferBanks/${id}`, { withCredentials: true });
+        if (response.status === 200) {
+          setTransferBanks((prev) => prev.filter((item) => item._id !== id));
+        }
+      } else {
+        alert("Invalid type or account specified.");
+        return;
       }
+
+      alert(`${type.charAt(0).toUpperCase() + type.slice(1)} for ${account} deleted successfully.`);
     } catch (error) {
-      console.error("Error deleting transaction:", error);
-      alert("Error deleting transaction. Please try again.");
+      console.error(`Error deleting ${type} for ${account}:`, error);
+      alert(`Failed to delete ${type} for ${account}. Please try again.`);
     }
   };
+
 
   const years = Array.from(
     { length: 50 },
@@ -415,13 +463,14 @@ const MonthlyReport = () => {
                     <td className="py-4 px-6 border-b border-gray-300 text-right text-gray-800">
                       ₹{transaction.balance.toFixed(2)}
                     </td>
-                    <td className="py-4 px-6 border-b border-gray-300 text-right">
-                      <button
-                        onClick={() => handleDelete(transaction._id)}
-                        className="bg-red-500 text-white px-4 py-2 rounded-full hover:bg-red-600 transition-transform transform hover:scale-110"
-                      >
-                        Delete
-                      </button>
+                    <td className="py-4 px-6 border-b border-gray-300">
+                      <FaTrash
+                        onClick={() => 
+                          console.log(transaction) }
+                          // handleDelete(transaction._id, transaction.type, transaction.account)}
+                        className="text-red-500 cursor-pointer hover:text-red-600 transition-transform transform hover:scale-110"
+                        size={20} // You can adjust the size as needed
+                      />
                     </td>
                   </tr>
                 );
@@ -456,6 +505,9 @@ const MonthlyReport = () => {
                 </th>
                 <th className="text-right py-4 px-4 border-b-2 border-gray-300 text-gray-700 font-medium uppercase">
                   Balance
+                </th>
+                <th className="text-right py-4 px-4 border-b-2 border-gray-300 text-gray-700 font-medium uppercase">
+                  Action
                 </th>
               </tr>
             </thead>
@@ -504,6 +556,15 @@ const MonthlyReport = () => {
                     <td className="py-4 px-6 border-b border-gray-300 text-right text-gray-800">
                       ₹{item.balance.toFixed(2)}
                     </td>
+                    <td className="py-4 px-6 border-b border-gray-300">
+                      <FaTrash
+                        onClick={() => 
+                          console.log(item)}
+                          // handleDelete(item._id, item.transactionType, item.account)}
+                        className="text-red-500 cursor-pointer hover:text-red-600 transition-transform transform hover:scale-110"
+                        size={20} // You can adjust the size as needed
+                      />
+                    </td>
                   </tr>
                 );
               })}
@@ -537,6 +598,9 @@ const MonthlyReport = () => {
                 </th>
                 <th className="text-right py-4 px-4 border-b-2 border-gray-300 text-gray-700 font-medium uppercase">
                   Balance
+                </th>
+                <th className="text-right py-4 px-4 border-b-2 border-gray-300 text-gray-700 font-medium uppercase">
+                  Action
                 </th>
               </tr>
             </thead>
@@ -585,6 +649,15 @@ const MonthlyReport = () => {
                     </td>
                     <td className="py-4 px-6 border-b border-gray-300 text-right text-gray-800">
                       ₹{item.balance.toFixed(2)}
+                    </td>
+                    <td className="py-4 px-6 border-b border-gray-300">
+                      <FaTrash
+                        onClick={() =>
+                          console.log(item)}
+                          //  handleDelete(item._id, "transaction")}
+                        className="text-red-500 cursor-pointer hover:text-red-600 transition-transform transform hover:scale-110"
+                        size={20} // You can adjust the size as needed
+                      />
                     </td>
                   </tr>
                 );
