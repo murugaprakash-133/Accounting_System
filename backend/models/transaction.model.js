@@ -5,6 +5,11 @@ import TransferBank from "./transferBank.model.js"; // Adjust import path as nec
 // Transaction Schema
 const transactionSchema = new mongoose.Schema(
   {
+    transactionId: {
+      type: String,
+      unique: true,
+      required: true, // Ensure every transaction has a unique ID
+    },
     userId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
@@ -66,9 +71,16 @@ const transactionSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-// Pre-save middleware to calculate balance
+// Middleware to set custom transactionId
 transactionSchema.pre("save", async function (next) {
   try {
+    // Check if transactionId already exists
+    if (!this.transactionId) {
+      // Generate a unique transactionId (e.g., use a prefix + timestamp)
+      const timestamp = Date.now().toString();
+      this.transactionId = `TXN-${this.userId}-${timestamp}`;
+    }
+
     // Fetch the most recent balance from Transfer and TransferBank schemas
     const [lastTransfer, lastTransferBank] = await Promise.all([
       Transfer.findOne({ userId: this.userId })
@@ -79,20 +91,17 @@ transactionSchema.pre("save", async function (next) {
         .select("+balance"),
     ]);
 
-    // Get the last balances from both schemas, default to 0 if none exist
     const lastTransferBalance = lastTransfer?.balance || 0;
     const lastTransferBankBalance = lastTransferBank?.balance || 0;
 
-    // Calculate the combined last balance
     const combinedLastBalance = lastTransferBalance + lastTransferBankBalance;
 
-    // Update the balance based on the transaction type
     if (this.type === "income") {
       this.balance = combinedLastBalance + this.amount;
     } else if (this.type === "expense") {
       this.balance = combinedLastBalance - this.amount;
     } else if (this.type === "transfer") {
-      this.balance = combinedLastBalance; // Assume no balance change for transfer
+      this.balance = combinedLastBalance; // No change for transfer
     }
 
     next();
@@ -100,7 +109,3 @@ transactionSchema.pre("save", async function (next) {
     next(err);
   }
 });
-
-const Transaction = mongoose.model("Transaction", transactionSchema);
-
-export default Transaction;

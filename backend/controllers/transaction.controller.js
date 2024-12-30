@@ -31,12 +31,16 @@ export const createTransaction = async (req, res) => {
     // Calculate the combined balance
     const transferBalance = lastTransfer?.balance || 0; // Default to 0 if no last transfer balance
     const transferBankBalance = lastTransferBank?.balance || 0; // Default to 0 if no last transfer bank balance
-
     const calculatedBalance = transferBalance + transferBankBalance;
 
-    // Create a new transaction with the calculated balance
+    // Generate a unique transactionId
+    const timestamp = Date.now().toString(); // Use current timestamp
+    const transactionId = `TXN-${req.user._id}-${timestamp}`; // Combine user ID and timestamp for uniqueness
+
+    // Create a new transaction with the calculated balance and transactionId
     const transaction = new Transaction({
       userId: req.user._id, // Extracted from middleware
+      transactionId, // Custom transaction ID
       type,
       date,
       time,
