@@ -26,6 +26,7 @@ const transactionSchema = new mongoose.Schema(
     },
     voucherType: {
       type: String,
+      default: "N/A",
       required: function () {
         return this.type !== "transfer";
       },

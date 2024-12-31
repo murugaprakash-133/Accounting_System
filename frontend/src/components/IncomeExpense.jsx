@@ -205,6 +205,27 @@ export default function Transactions() {
             );
 
             console.log("Linked internal transfer saved.");
+          } else if (formData.transactionType === "External") {
+            const externalTransactionData = {
+              ...transactionData,
+              type: "expense", // Mark as expense for external transfer
+              category: "External Transfer",
+              account: formData.from, // Account it originates from
+            };
+
+            // Save the external transfer in the Transaction schema
+            await axios.post(
+              "http://localhost:5000/api/transactions",
+              externalTransactionData,
+              {
+                withCredentials: true,
+              }
+            );
+
+            console.log(
+              "External transaction saved in Transaction schema:",
+              externalTransactionData
+            );
           }
         }
       }

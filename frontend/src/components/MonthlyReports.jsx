@@ -106,45 +106,52 @@ const MonthlyReport = () => {
   const deleteEntry = async (url, id, setter) => {
     const response = await axios.delete(url, { withCredentials: true });
     if (response.status === 200) {
-      setter((prev) => prev.filter((item) => item._id !== id));
-      console.log(`Deleted successfully from ${url}`);
+        setter((prev) => prev.filter((item) => item._id !== id));
+        console.log(`Deleted successfully from ${url}`);
     }
-  };
+};
 
-  const handleDelete = async (id, type, account, transactionType) => {
+const handleDelete = async (id, type, account, transactionType) => {
     const confirmDelete = window.confirm(
-      `Are you sure you want to delete this ${type} for ${account}? This action cannot be undone.`
+        `Are you sure you want to delete this ${type} for ${account}? This action cannot be undone.`
     );
     if (!confirmDelete) return;
 
     try {
-      if (type === "income" || type === "expense") {
-        await deleteEntry(`/api/transactions/${id}`, id, setTransactions);
-      } else if (type === "transfer") {
-        if (transactionType === "External") {
-          const url = account === "Bank 1" ? `/api/transfers/${id}` : `/api/transferBanks/${id}`;
-          const setter = account === "Bank 1" ? setTransfers : setTransferBanks;
-          await deleteEntry(url, id, setter);
-        } else if (transactionType === "Internal") {
-          if (account === "Bank 1") {
-            await deleteEntry(`/api/transfers/${id}`, id, setTransfers);
-            const linkedId = id.replace("Bank1", "Bank2");
-            await deleteEntry(`/api/transferBanks/${linkedId}`, linkedId, setTransferBanks);
-          } else if (account === "Bank 2") {
-            await deleteEntry(`/api/transferBanks/${id}`, id, setTransferBanks);
-            const linkedId = id.replace("Bank2", "Bank1");
-            await deleteEntry(`/api/transfers/${linkedId}`, linkedId, setTransfers);
-          }
-        }
-      }
+        if (type === "income" || type === "expense") {
+            await deleteEntry(`/api/transactions/${id}`, id, setTransactions);
+        } else if (type === "transfer") {
+            if (transactionType === "External") {
+                const url = account === "Bank 1" ? `/api/transfers/${id}` : `/api/transferBanks/${id}`;
+                const setter = account === "Bank 1" ? setTransfers : setTransferBanks;
 
-      await fetchData();
-      alert(`${type.charAt(0).toUpperCase() + type.slice(1)} deleted successfully.`);
+                // Delete from transfers or transferBanks
+                await deleteEntry(url, id, setter);
+
+                // Additionally, delete the corresponding transaction
+                await deleteEntry(`/api/transactions/${id}`, id, setTransactions);
+            } else if (transactionType === "Internal") {
+                if (account === "Bank 1") {
+                    await deleteEntry(`/api/transfers/${id}`, id, setTransfers);
+                    const linkedId = id.replace("Bank1", "Bank2");
+                    await deleteEntry(`/api/transferBanks/${linkedId}`, linkedId, setTransferBanks);
+                } else if (account === "Bank 2") {
+                    await deleteEntry(`/api/transferBanks/${id}`, id, setTransferBanks);
+                    const linkedId = id.replace("Bank2", "Bank1");
+                    await deleteEntry(`/api/transfers/${linkedId}`, linkedId, setTransfers);
+                }
+            }
+        }
+
+        // Fetch updated data after deletion
+        await fetchData();
+        alert(`${type.charAt(0).toUpperCase() + type.slice(1)} deleted successfully.`);
     } catch (error) {
-      console.error("Error details:", error.response?.data || error.message);
-      alert(`Failed to delete ${type}. Please try again.`);
+        console.error("Error details:", error.response?.data || error.message);
+        alert(`Failed to delete ${type}. Please try again.`);
     }
-  };
+};
+
 
   const downloadExcel = () => {
     const formatData = (data, type) => {
