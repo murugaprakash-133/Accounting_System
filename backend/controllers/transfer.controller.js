@@ -222,7 +222,7 @@ export const deleteTransfer = async (req, res) => {
 
     // Find and delete the transfer
     const transfer = await Transfer.findOneAndDelete({
-      _id: transactionId,
+      transactionId: transactionId,
       userId: req.user._id, // Ensure the user owns the record
     });
 

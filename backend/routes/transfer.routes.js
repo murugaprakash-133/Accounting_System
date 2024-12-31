@@ -11,7 +11,7 @@ const router = express.Router();
 
 router.post("/", protectRoute, createTransfer);
 router.get("/", protectRoute, getTransfers);
-router.put("/:transferId", protectRoute, updateTransfer);
-router.delete("/:transferId", protectRoute, deleteTransfer);
+router.put("/:transactionId", protectRoute, updateTransfer);
+router.delete("/:transactionId", protectRoute, deleteTransfer);
 
 export default router;

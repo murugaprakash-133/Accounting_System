@@ -237,7 +237,7 @@ export const deleteTransferBank = async (req, res) => {
 
     // Find and delete the transferBank
     const transferBank = await TransferBank.findOneAndDelete({
-      _id: transactionId,
+      transactionId: transactionId,
       userId: req.user._id, // Ensure the user owns the record
     });
 
