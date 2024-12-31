@@ -29,8 +29,8 @@ const MonthlyReport = () => {
     "December",
   ];
 
-  const handleDelete = async (id, type, account) => {
-    console.log(`Deleting ${type} for ${account} with ID: ${id}`);
+  const handleDelete = async (id, type, account, transactionType) => {
+    console.log(id, type, account, transactionType);
     const confirmDelete = window.confirm(
       `Are you sure you want to delete this ${type} for ${account}? This action cannot be undone.`
     );
@@ -53,34 +53,82 @@ const MonthlyReport = () => {
   
       // Delete from transfers or transferBanks based on account
       if (type === "transfer") {
-        if (account === "Bank 1") {
-          response = await axios.delete(`/api/transfers/${id}`, {
-            withCredentials: true,
-          });
+        if (transactionType === "External") {
+          // External transfers: Delete only the related schema (no relation)
+          if (account === "Bank 1") {
+            response = await axios.delete(`/api/transfers/${id}`, {
+              withCredentials: true,
+            });
   
-          if (response.status === 200) {
-            setTransfers((prev) => prev.filter((item) => item._id !== id));
-            console.log("Deleted transfer (Bank 1)");
+            if (response.status === 200) {
+              setTransfers((prev) => prev.filter((item) => item._id !== id));
+              console.log("Deleted external transfer (Bank 1)");
+            }
+          } else if (account === "Bank 2") {
+            response = await axios.delete(`/api/transferBanks/${id}`, {
+              withCredentials: true,
+            });
+  
+            if (response.status === 200) {
+              setTransferBanks((prev) => prev.filter((item) => item._id !== id));
+              console.log("Deleted external transferBank (Bank 2)");
+            }
           }
-        } else if (account === "Bank 2") {
-          response = await axios.delete(`/api/transferBanks/${id}`, {
-            withCredentials: true,
-          });
+        } else if (transactionType === "Internal") {
+          // Internal transfers: Delete both Transfer and TransferBank records
+          if (account === "Bank 1") {
+            // Delete from Bank 1 (Transfer)
+            response = await axios.delete(`/api/transfers/${id}`, {
+              withCredentials: true,
+            });
   
-          if (response.status === 200) {
-            setTransferBanks((prev) => prev.filter((item) => item._id !== id));
-            console.log("Deleted transferBank (Bank 2)");
+            if (response.status === 200) {
+              setTransfers((prev) => prev.filter((item) => item._id !== id));
+              console.log("Deleted internal transfer (Bank 1)");
+            }
+  
+            // Delete corresponding record in Bank 2 (TransferBank)
+            response = await axios.delete(`/api/transferBanks/${id}`, {
+              withCredentials: true,
+            });
+  
+            if (response.status === 200) {
+              setTransferBanks((prev) => prev.filter((item) => item._id !== linkedTransferBankId));
+              console.log("Deleted internal transferBank (Bank 2)");
+            }
+          } else if (account === "Bank 2") {
+            // Delete from Bank 2 (TransferBank)
+            response = await axios.delete(`/api/transferBanks/${id}`, {
+              withCredentials: true,
+            });
+  
+            if (response.status === 200) {
+              setTransferBanks((prev) => prev.filter((item) => item._id !== id));
+              console.log("Deleted internal transferBank (Bank 2)");
+            }
+  
+            // Delete corresponding record in Bank 1 (Transfer)
+            response = await axios.delete(`/api/transfers/${id}`, {
+              withCredentials: true,
+            });
+  
+            if (response.status === 200) {
+              setTransfers((prev) => prev.filter((item) => item._id !== linkedTransferId));
+              console.log("Deleted internal transfer (Bank 1)");
+            }
           }
         }
       }
   
-      alert(`${type.charAt(0).toUpperCase() + type.slice(1)} for ${account} deleted successfully.`);
+      // Fetch updated data after deletion
       await Promise.all([fetchTransactions(), fetchTransfers(), fetchTransferBanks()]);
+      alert(`${type.charAt(0).toUpperCase() + type.slice(1)} for ${account} deleted successfully.`);
     } catch (error) {
       console.error("Error details:", error.response?.data || error.message);
       alert(`Failed to delete ${type} for ${account}. Please try again.`);
     }
-  };  
+  };
+  
 
   const years = Array.from(
     { length: 50 },
@@ -538,7 +586,7 @@ const MonthlyReport = () => {
                     <td className="py-4 px-6 border-b border-gray-300">
                       <FaTrash
                         onClick={() => 
-                          handleDelete(item.transactionId, item.transactionType, item.to)}
+                          handleDelete(item.transactionId, (item.transactionType === "income" || item.transactionType === "expense") ? item.transactionType : item.type, (item.transactionType === "External" || item.transactionType === "Internal") ? item.from : item.to, item.transactionType)}
                         className="text-red-500 cursor-pointer hover:text-red-600 transition-transform transform hover:scale-110"
                         size={20} // You can adjust the size as needed
                       />
@@ -631,7 +679,7 @@ const MonthlyReport = () => {
                     <td className="py-4 px-6 border-b border-gray-300">
                       <FaTrash
                         onClick={() =>
-                          handleDelete(item.transactionId, item.transactionType, item.to)}
+                          handleDelete(item.transactionId, (item.transactionType === "income" || item.transactionType === "expense") ? item.transactionType : item.type, (item.transactionType === "External" || item.transactionType === "Internal") ? item.from : item.to, item.transactionType)}
                         className="text-red-500 cursor-pointer hover:text-red-600 transition-transform transform hover:scale-110"
                         size={20} // You can adjust the size as needed
                       />

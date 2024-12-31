@@ -211,9 +211,9 @@ export const updateTransfer = async (req, res) => {
 
 export const deleteTransfer = async (req, res) => {
   try {
-    const { transferId } = req.params;
+    const { transactionId } = req.params;
 
-    console.log("Attempting to delete transfer with ID:", transferId);
+    console.log("Attempting to delete transfer with ID:", transactionId);
 
     // Validate transactionId (custom validation for your format)
     if (!transactionId || !transactionId.startsWith("TXN-")) {
@@ -222,7 +222,7 @@ export const deleteTransfer = async (req, res) => {
 
     // Find and delete the transfer
     const transfer = await Transfer.findOneAndDelete({
-      _id: transferId,
+      _id: transactionId,
       userId: req.user._id, // Ensure the user owns the record
     });
 
@@ -230,7 +230,7 @@ export const deleteTransfer = async (req, res) => {
       return res.status(404).json({ message: "Transfer not found" });
     }
 
-    console.log("Successfully deleted transfer with ID:", transferId);
+    console.log("Successfully deleted transfer with ID:", transactionId);
 
     // Delete the corresponding transaction if linked
     const transaction = await Transaction.findOneAndDelete({
