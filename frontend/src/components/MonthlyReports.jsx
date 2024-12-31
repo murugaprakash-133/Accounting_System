@@ -75,6 +75,7 @@ const MonthlyReport = () => {
       }
   
       alert(`${type.charAt(0).toUpperCase() + type.slice(1)} for ${account} deleted successfully.`);
+      await Promise.all([fetchTransactions(), fetchTransfers(), fetchTransferBanks()]);
     } catch (error) {
       console.error("Error details:", error.response?.data || error.message);
       alert(`Failed to delete ${type} for ${account}. Please try again.`);
@@ -152,8 +153,6 @@ const MonthlyReport = () => {
       );
       const { transferBanks, totalIncome, totalExpenses } = response.data;
       setTransferBanks(transferBanks);
-      // setTotalIncome(totalIncome);
-      // setTotalExpenses(totalExpenses);
     } catch (error) {
       console.error("Error fetching transactions:", error);
     }
