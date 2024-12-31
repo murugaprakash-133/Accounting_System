@@ -1,5 +1,6 @@
 import Transaction from "../models/transaction.model.js";
 import Transfer from "../models/transfer.model.js";
+import { recalculateBalances } from "../utils/balanceUtils.js";
 import TransferBank from "../models/transferBank.model.js";
 
 // Create a new transaction
@@ -242,6 +243,7 @@ export const deleteTransfer = async (req, res) => {
       console.log("Linked transaction deleted:", transaction._id);
     }
 
+    await recalculateBalances(req.user._id);
     res.status(200).json({
       message: "Transfer and linked transaction deleted successfully.",
     });

@@ -87,9 +87,8 @@ const MonthlyReport = () => {
               console.log("Deleted internal transfer (Bank 1)");
             }
   
-            // Define linkedTransferBankId for Bank 2
-            const linkedTransferBankId = id.replace("Bank1", "Bank2"); // Adjust replacement logic as needed
-            response = await axios.delete(`/api/transferBanks/${linkedTransferBankId}`, {
+            // Delete corresponding record in Bank 2 (TransferBank)
+            response = await axios.delete(`/api/transferBanks/${id}`, {
               withCredentials: true,
             });
   
@@ -108,9 +107,8 @@ const MonthlyReport = () => {
               console.log("Deleted internal transferBank (Bank 2)");
             }
   
-            // Define linkedTransferId for Bank 1
-            const linkedTransferId = id.replace("Bank2", "Bank1"); // Adjust replacement logic as needed
-            response = await axios.delete(`/api/transfers/${linkedTransferId}`, {
+            // Delete corresponding record in Bank 1 (Transfer)
+            response = await axios.delete(`/api/transfers/${id}`, {
               withCredentials: true,
             });
   
@@ -120,7 +118,7 @@ const MonthlyReport = () => {
             }
           }
         }
-      }
+      } 
   
       // Fetch updated data after deletion
       await Promise.all([fetchTransactions(), fetchTransfers(), fetchTransferBanks()]);
@@ -130,7 +128,6 @@ const MonthlyReport = () => {
       alert(`Failed to delete ${type} for ${account}. Please try again.`);
     }
   };
-  
   
 
   const years = Array.from(
