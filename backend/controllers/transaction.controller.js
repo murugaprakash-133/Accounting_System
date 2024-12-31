@@ -16,31 +16,26 @@ export const createTransaction = async (req, res) => {
       category,
       account,
       description,
+      transactionId, // Accept transactionId from the request
     } = req.body;
 
-    // Fetch the latest balance from Transfer schema
+    // Fetch the latest balances
     const lastTransfer = await Transfer.findOne({ userId: req.user._id })
-      .sort({ createdAt: -1 }) // Sort by latest transaction
-      .select("balance"); // Only select the balance field
+      .sort({ createdAt: -1 })
+      .select("balance");
 
-    // Fetch the latest balance from TransferBank schema
     const lastTransferBank = await TransferBank.findOne({ userId: req.user._id })
-      .sort({ createdAt: -1 }) // Sort by latest transaction
-      .select("balance"); // Only select the balance field
+      .sort({ createdAt: -1 })
+      .select("balance");
 
-    // Calculate the combined balance
-    const transferBalance = lastTransfer?.balance || 0; // Default to 0 if no last transfer balance
-    const transferBankBalance = lastTransferBank?.balance || 0; // Default to 0 if no last transfer bank balance
+    const transferBalance = lastTransfer?.balance || 0;
+    const transferBankBalance = lastTransferBank?.balance || 0;
     const calculatedBalance = transferBalance + transferBankBalance;
 
-    // Generate a unique transactionId
-    const timestamp = Date.now().toString(); // Use current timestamp
-    const transactionId = `TXN-${req.user._id}-${timestamp}`; // Combine user ID and timestamp for uniqueness
-
-    // Create a new transaction with the calculated balance and transactionId
+    // Create a new transaction
     const transaction = new Transaction({
-      userId: req.user._id, // Extracted from middleware
-      transactionId, // Custom transaction ID
+      userId: req.user._id,
+      transactionId, // Use the provided transactionId
       type,
       date,
       time,
@@ -54,7 +49,6 @@ export const createTransaction = async (req, res) => {
       balance: calculatedBalance,
     });
 
-    // Save the new transaction
     await transaction.save();
     res.status(201).json(transaction);
   } catch (error) {
@@ -62,6 +56,7 @@ export const createTransaction = async (req, res) => {
     res.status(500).json({ message: "Error creating transaction" });
   }
 };
+
 
 
 // Get all transactions for the authenticated user with optional filters
@@ -186,28 +181,54 @@ export const updateTransaction = async (req, res) => {
   }
 };
 
-// Delete a transaction
 export const deleteTransaction = async (req, res) => {
   try {
     const { transactionId } = req.params;
 
+    console.log("Attempting to delete transaction with ID:", transactionId);
+
+    // Validate transactionId (custom validation for your format)
+    if (!transactionId || !transactionId.startsWith("TXN-")) {
+      return res.status(400).json({ message: "Invalid transaction ID format" });
+    }
+
     // Find and delete the transaction
     const transaction = await Transaction.findOneAndDelete({
-      _id: transactionId,
-      userId: req.user._id,
+      transactionId: transactionId, // Match by transactionId
+      userId: req.user._id, // Ensure the user owns the record
     });
 
     if (!transaction) {
       return res.status(404).json({ message: "Transaction not found" });
     }
 
-    // Cascade delete related data
-    await Transfer.deleteMany({ transactionId: transactionId });
-    await TransferBank.deleteMany({ transactionId: transactionId });
+    console.log("Successfully deleted transaction with ID:", transactionId);
 
-    res.status(200).json({ message: "Transaction and related data deleted successfully" });
+    // Delete the corresponding entry in Transfer or TransferBank schema
+    const transfer = await Transfer.findOneAndDelete({
+      transactionId: transactionId, // Match by transactionId
+      userId: req.user._id,
+    });
+
+    if (transfer) {
+      console.log("Linked transfer deleted:", transfer._id);
+    }
+
+    const transferBank = await TransferBank.findOneAndDelete({
+      transactionId: transactionId, // Match by transactionId
+      userId: req.user._id,
+    });
+
+    if (transferBank) {
+      console.log("Linked transferBank deleted:", transferBank._id);
+    }
+
+    res.status(200).json({
+      message: "Transaction and linked records deleted successfully.",
+    });
   } catch (error) {
-    console.error("Error deleting transaction:", error);
-    res.status(500).json({ message: "Error deleting transaction" });
+    console.error("Error deleting transaction and linked records:", error);
+    res.status(500).json({ message: "Internal server error." });
   }
 };
+

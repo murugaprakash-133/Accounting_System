@@ -30,76 +30,56 @@ const MonthlyReport = () => {
   ];
 
   const handleDelete = async (id, type, account) => {
-    console.log(id, type, account);
+    console.log(`Deleting ${type} for ${account} with ID: ${id}`);
     const confirmDelete = window.confirm(
       `Are you sure you want to delete this ${type} for ${account}? This action cannot be undone.`
     );
     if (!confirmDelete) return;
-
+  
     try {
       let response;
-
-      // Handle deletion based on type and account
-      if (type === "income" || type === "transfer" && account === "Bank 1") {
-        // Delete from transactions
-        response = await axios.delete(`/api/transactions/${id}`, { withCredentials: true });
+  
+      // Delete from transactions
+      if (type === "income" || type === "expense") {
+        response = await axios.delete(`/api/transactions/${id}`, {
+          withCredentials: true,
+        });
+  
         if (response.status === 200) {
           setTransactions((prev) => prev.filter((item) => item._id !== id));
+          console.log("Deleted from transactions");
         }
-
-        // Delete from transfers
-        response = await axios.delete(`/api/transfers/${id}`, { withCredentials: true });
-        if (response.status === 200) {
-          setTransfers((prev) => prev.filter((item) => item._id !== id));
-        }
-      } else if (type === "income" || type === "transfer" && account === "Bank 2") {
-        // Delete from transactions
-        response = await axios.delete(`/api/transactions/${id}`, { withCredentials: true });
-        if (response.status === 200) {
-          setTransactions((prev) => prev.filter((item) => item._id !== id));
-        }
-
-        // Delete from transferBanks
-        response = await axios.delete(`/api/transferBanks/${id}`, { withCredentials: true });
-        if (response.status === 200) {
-          setTransferBanks((prev) => prev.filter((item) => item._id !== id));
-        }
-      } else if (type === "expense" || type === "transfer" && account === "Bank 1") {
-        // Delete from transactions
-        response = await axios.delete(`/api/transactions/${id}`, { withCredentials: true });
-        if (response.status === 200) {
-          setTransactions((prev) => prev.filter((item) => item._id !== id));
-        }
-
-        // Delete from transfers
-        response = await axios.delete(`/api/transfers/${id}`, { withCredentials: true });
-        if (response.status === 200) {
-          setTransfers((prev) => prev.filter((item) => item._id !== id));
-        }
-      } else if (type === "expense" || type === "transfer" && account === "Bank 2") {
-        // Delete from transactions
-        response = await axios.delete(`/api/transactions/${id}`, { withCredentials: true });
-        if (response.status === 200) {
-          setTransactions((prev) => prev.filter((item) => item._id !== id));
-        }
-
-        // Delete from transferBanks
-        response = await axios.delete(`/api/transferBanks/${id}`, { withCredentials: true });
-        if (response.status === 200) {
-          setTransferBanks((prev) => prev.filter((item) => item._id !== id));
-        }
-      } else {
-        alert("Invalid type or account specified.");
-        return;
       }
-
+  
+      // Delete from transfers or transferBanks based on account
+      if (type === "transfer") {
+        if (account === "Bank 1") {
+          response = await axios.delete(`/api/transfers/${id}`, {
+            withCredentials: true,
+          });
+  
+          if (response.status === 200) {
+            setTransfers((prev) => prev.filter((item) => item._id !== id));
+            console.log("Deleted transfer (Bank 1)");
+          }
+        } else if (account === "Bank 2") {
+          response = await axios.delete(`/api/transferBanks/${id}`, {
+            withCredentials: true,
+          });
+  
+          if (response.status === 200) {
+            setTransferBanks((prev) => prev.filter((item) => item._id !== id));
+            console.log("Deleted transferBank (Bank 2)");
+          }
+        }
+      }
+  
       alert(`${type.charAt(0).toUpperCase() + type.slice(1)} for ${account} deleted successfully.`);
     } catch (error) {
-      console.error(`Error deleting ${type} for ${account}:`, error);
+      console.error("Error details:", error.response?.data || error.message);
       alert(`Failed to delete ${type} for ${account}. Please try again.`);
     }
-  };
-
+  };  
 
   const years = Array.from(
     { length: 50 },
@@ -157,6 +137,7 @@ const MonthlyReport = () => {
       console.error("Error fetching transactions:", error);
     }
   };
+
   const fetchTransferBanks = async () => {
     try {
       const response = await axios.get(
@@ -466,8 +447,7 @@ const MonthlyReport = () => {
                     <td className="py-4 px-6 border-b border-gray-300">
                       <FaTrash
                         onClick={() => 
-                          console.log(transaction) }
-                          // handleDelete(transaction._id, transaction.type, transaction.account)}
+                          handleDelete(transaction.transactionId, transaction.type, transaction.account) }
                         className="text-red-500 cursor-pointer hover:text-red-600 transition-transform transform hover:scale-110"
                         size={20} // You can adjust the size as needed
                       />
@@ -559,8 +539,7 @@ const MonthlyReport = () => {
                     <td className="py-4 px-6 border-b border-gray-300">
                       <FaTrash
                         onClick={() => 
-                          console.log(item)}
-                          // handleDelete(item._id, item.transactionType, item.account)}
+                          handleDelete(item.transactionId, item.transactionType, item.to)}
                         className="text-red-500 cursor-pointer hover:text-red-600 transition-transform transform hover:scale-110"
                         size={20} // You can adjust the size as needed
                       />
@@ -653,8 +632,7 @@ const MonthlyReport = () => {
                     <td className="py-4 px-6 border-b border-gray-300">
                       <FaTrash
                         onClick={() =>
-                          console.log(item)}
-                          //  handleDelete(item._id, "transaction")}
+                          handleDelete(item.transactionId, item.transactionType, item.to)}
                         className="text-red-500 cursor-pointer hover:text-red-600 transition-transform transform hover:scale-110"
                         size={20} // You can adjust the size as needed
                       />

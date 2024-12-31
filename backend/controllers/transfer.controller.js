@@ -1,19 +1,32 @@
+import Transaction from "../models/transaction.model.js";
 import Transfer from "../models/transfer.model.js";
+import TransferBank from "../models/transferBank.model.js";
 
 // Create a new transaction
 export const createTransfer = async (req, res) => {
   try {
-    const { type, date, time, amPm, amount, to, description, from, transactionType, balance } = req.body;
+    const {
+      transactionId, // Accept transactionId from the request
+      type,
+      date,
+      time,
+      amPm,
+      amount,
+      to,
+      description,
+      from,
+      transactionType,
+      balance,
+    } = req.body;
 
-    // Validate date
     const validDate = new Date(date);
     if (isNaN(validDate)) {
       return res.status(400).json({ message: "Invalid date format" });
     }
 
-    // Create a new transaction with the authenticated user's ID
     const transfer = new Transfer({
-      userId: req.user._id, // Extracted from the protectRoute middleware
+      userId: req.user._id,
+      transactionId, // Use the provided transactionId
       type,
       date: validDate,
       time,
@@ -23,16 +36,17 @@ export const createTransfer = async (req, res) => {
       description,
       from,
       transactionType,
-      balance
+      balance,
     });
 
     await transfer.save();
     res.status(201).json(transfer);
   } catch (error) {
-    console.error("Error creating transaction:", error);
-    res.status(500).json({ message: error.message || "Error creating transaction" });
+    console.error("Error creating transfer:", error);
+    res.status(500).json({ message: "Error creating transfer" });
   }
 };
+
 
 // Get all transactions for the authenticated user with optional filters
 export const getTransfers = async (req, res) => {
@@ -194,23 +208,45 @@ export const updateTransfer = async (req, res) => {
   }
 };
 
-// Delete a transaction
+
 export const deleteTransfer = async (req, res) => {
   try {
     const { transferId } = req.params;
 
+    console.log("Attempting to delete transfer with ID:", transferId);
+
+    // Validate transactionId (custom validation for your format)
+    if (!transactionId || !transactionId.startsWith("TXN-")) {
+      return res.status(400).json({ message: "Invalid transaction ID format" });
+    }
+
+    // Find and delete the transfer
     const transfer = await Transfer.findOneAndDelete({
       _id: transferId,
-      userId: req.user._id,
+      userId: req.user._id, // Ensure the user owns the record
     });
 
     if (!transfer) {
-      return res.status(404).json({ message: "Transaction not found" });
+      return res.status(404).json({ message: "Transfer not found" });
     }
 
-    res.status(200).json({ message: "Transaction deleted successfully" });
+    console.log("Successfully deleted transfer with ID:", transferId);
+
+    // Delete the corresponding transaction if linked
+    const transaction = await Transaction.findOneAndDelete({
+      transactionId: transfer.transactionId,
+      userId: req.user._id,
+    });
+
+    if (transaction) {
+      console.log("Linked transaction deleted:", transaction._id);
+    }
+
+    res.status(200).json({
+      message: "Transfer and linked transaction deleted successfully.",
+    });
   } catch (error) {
-    console.error("Error deleting transaction:", error);
-    res.status(500).json({ message: error.message || "Error deleting transaction" });
+    console.error("Error deleting transfer and linked transaction:", error);
+    res.status(500).json({ message: "Internal server error." });
   }
 };

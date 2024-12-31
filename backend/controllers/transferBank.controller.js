@@ -1,9 +1,13 @@
+import Transaction from "../models/transaction.model.js";
+import Transfer from "../models/transfer.model.js";
 import TransferBank from "../models/transferBank.model.js";
+
 
 // Create a new transaction
 export const createTransferBank = async (req, res) => {
   try {
     const {
+      transactionId, // Accept transactionId from the request
       type,
       date,
       time,
@@ -13,18 +17,17 @@ export const createTransferBank = async (req, res) => {
       description,
       transactionType,
       from,
-      balance
+      balance,
     } = req.body;
 
-    // Validate date
     const validDate = new Date(date);
     if (isNaN(validDate)) {
       return res.status(400).json({ message: "Invalid date format" });
     }
 
-    // Create a new transaction with the authenticated user's ID
     const transferBank = new TransferBank({
-      userId: req.user._id, // Extracted from the protectRoute middleware
+      userId: req.user._id,
+      transactionId, // Use the provided transactionId
       type,
       date: validDate,
       time,
@@ -34,19 +37,19 @@ export const createTransferBank = async (req, res) => {
       description,
       transactionType,
       from,
-      balance
+      balance,
     });
-    // console.log(transferBank);
 
     await transferBank.save();
     res.status(201).json(transferBank);
   } catch (error) {
-    console.error("Error creating transaction:", error);
+    console.error("Error creating transfer bank:", error);
     res
       .status(500)
-      .json({ message: error.message || "Error creating transaction" });
+      .json({ message: error.message || "Error creating transfer bank" });
   }
 };
+
 
 // Get all transactions for the authenticated user with optional filters and include balance
 export const getTransferBanks = async (req, res) => {
@@ -220,25 +223,45 @@ export const updateTransferBank = async (req, res) => {
   }
 };
 
-// Delete a transaction
+
 export const deleteTransferBank = async (req, res) => {
   try {
     const { transferBankId } = req.params;
 
+    console.log("Attempting to delete transferBank with ID:", transferBankId);
+
+    // Validate transactionId (custom validation for your format)
+    if (!transactionId || !transactionId.startsWith("TXN-")) {
+      return res.status(400).json({ message: "Invalid transaction ID format" });
+    }
+
+    // Find and delete the transferBank
     const transferBank = await TransferBank.findOneAndDelete({
       _id: transferBankId,
-      userId: req.user._id,
+      userId: req.user._id, // Ensure the user owns the record
     });
 
     if (!transferBank) {
-      return res.status(404).json({ message: "Transaction not found" });
+      return res.status(404).json({ message: "TransferBank not found" });
     }
 
-    res.status(200).json({ message: "Transaction deleted successfully" });
+    console.log("Successfully deleted transferBank with ID:", transferBankId);
+
+    // Delete the corresponding transaction if linked
+    const transaction = await Transaction.findOneAndDelete({
+      transactionId: transferBank.transactionId,
+      userId: req.user._id,
+    });
+
+    if (transaction) {
+      console.log("Linked transaction deleted:", transaction._id);
+    }
+
+    res.status(200).json({
+      message: "TransferBank and linked transaction deleted successfully.",
+    });
   } catch (error) {
-    console.error("Error deleting transaction:", error);
-    res
-      .status(500)
-      .json({ message: error.message || "Error deleting transaction" });
+    console.error("Error deleting transferBank and linked transaction:", error);
+    res.status(500).json({ message: "Internal server error." });
   }
 };

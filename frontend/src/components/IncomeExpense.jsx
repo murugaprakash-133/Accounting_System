@@ -76,6 +76,7 @@ export default function Transactions() {
       alert("Please fill in all required fields.");
       return;
     }
+
     if (!formData.time) {
       formData.time = getCurrentTime();
       formData.amPm = getCurrentPeriod();
@@ -86,8 +87,13 @@ export default function Transactions() {
       return;
     }
 
+    // Generate a unique transactionId
+    const timestamp = Date.now().toString();
+    const transactionId = `TXN-${userId}-${timestamp}`;
+
     let transactionData = {
-      userId: userId,
+      transactionId,
+      userId,
       type: activeTab,
       date: formData.date,
       time: formData.time,
@@ -96,33 +102,23 @@ export default function Transactions() {
       description: formData.description,
     };
 
-    if (activeTab === "income" || activeTab === "expense") {
-      if (!formData.category || !formData.account || !formData.voucherType) {
-        alert("Please fill in all required fields.");
-        return;
-      }
-      transactionData = {
-        ...transactionData,
-        category: formData.category,
-        account: formData.account,
-        voucherType: formData.voucherType,
-        voucherNo: formData.voucherNo,
-      };
-    } else if (activeTab === "transfer") {
-      if (!formData.to || !formData.from || !formData.transactionType) {
-        alert("Please select 'Transaction Type', 'To', and 'From' accounts.");
-        return;
-      }
-      transactionData = {
-        ...transactionData,
-        to: formData.to,
-        from: formData.from,
-        transactionType: formData.transactionType,
-      };
-    }
-
     try {
+      // Handle income or expense
       if (activeTab === "income" || activeTab === "expense") {
+        if (!formData.category || !formData.account || !formData.voucherType) {
+          alert("Please fill in all required fields.");
+          return;
+        }
+
+        transactionData = {
+          ...transactionData,
+          category: formData.category,
+          account: formData.account,
+          voucherType: formData.voucherType,
+          voucherNo: formData.voucherNo,
+        };
+
+        // Save the transaction in the Transaction schema
         await axios.post(
           "http://localhost:5000/api/transactions",
           transactionData,
@@ -130,20 +126,22 @@ export default function Transactions() {
             withCredentials: true,
           }
         );
-        console.log("Transaction saved:", transactionData);
-        alert("Transaction successfully saved!");
 
+        console.log("Transaction saved:", transactionData);
+
+        // Save the corresponding transfer in Transfer or TransferBank schema
         if (formData.account === "Bank 1" || formData.account === "Bank 2") {
           const transferEndpoint =
             formData.account === "Bank 1"
               ? "/api/transfers"
               : "/api/transferBanks";
+
           const transferData = {
             ...transactionData,
-            transactionType: activeTab,
-            type: "transfer",
-            to: "ToEmpty",
-            from: "FromEmpty",
+            transactionType: activeTab, // Keep transaction type
+            type: "transfer", // Ensure it's marked as a transfer
+            to: formData.account, // Store the account as 'to' for income
+            from: "External Source", // Indicate the source for income
           };
 
           await axios.post(
@@ -153,8 +151,25 @@ export default function Transactions() {
               withCredentials: true,
             }
           );
+
+          console.log("Linked transfer saved:", transferData);
         }
-      } else if (activeTab === "transfer") {
+      }
+
+      // Handle transfer
+      else if (activeTab === "transfer") {
+        if (!formData.to || !formData.from || !formData.transactionType) {
+          alert("Please select 'Transaction Type', 'To', and 'From' accounts.");
+          return;
+        }
+
+        transactionData = {
+          ...transactionData,
+          to: formData.to,
+          from: formData.from,
+          transactionType: formData.transactionType,
+        };
+
         const transferEndpoint =
           formData.from === "Bank 1"
             ? "/api/transfers"
@@ -163,6 +178,7 @@ export default function Transactions() {
             : null;
 
         if (transferEndpoint) {
+          // Save the transfer
           await axios.post(
             `http://localhost:5000${transferEndpoint}`,
             transactionData,
@@ -171,33 +187,28 @@ export default function Transactions() {
             }
           );
 
-          if (formData.transactionType === "External") {
-            const transactionFormatData = {
-              ...transactionData,
-              category: formData.category || "",
-              account: formData.account || "",
-              voucherType: formData.voucherType || "",
-              voucherNo: formData.voucherNo || "",
-            };
-            console.log(transactionFormatData);
+          console.log("Transfer saved:", transactionData);
+
+          // Handle linked Internal transfer
+          if (formData.transactionType === "Internal") {
+            const oppositeEndpoint =
+              transferEndpoint === "/api/transfers"
+                ? "/api/transferBanks"
+                : "/api/transfers";
+
             await axios.post(
-              "http://localhost:5000/api/transactions",
-              transactionFormatData,
-              {
-                withCredentials: true,
-              }
-            );
-          } else if(formData.transactionType === "Internal") {
-            await axios.post(
-              `http://localhost:5000${transferEndpoint === "/api/transfers" ? "/api/transferBanks" : "/api/transfers"}`,
+              `http://localhost:5000${oppositeEndpoint}`,
               transactionData,
               {
                 withCredentials: true,
               }
             );
+
+            console.log("Linked internal transfer saved.");
           }
         }
       }
+
       alert("Transaction successfully saved!");
       resetForm();
     } catch (error) {

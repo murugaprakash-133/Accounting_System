@@ -109,3 +109,8 @@ transactionSchema.pre("save", async function (next) {
     next(err);
   }
 });
+
+
+const Transaction = mongoose.model("Transaction", transactionSchema);
+
+export default Transaction;

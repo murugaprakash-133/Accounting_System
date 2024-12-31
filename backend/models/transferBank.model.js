@@ -3,6 +3,11 @@ import mongoose from "mongoose";
 // Transaction Schema
 const transferBankSchema = new mongoose.Schema(
   {
+    transactionId: {
+      type: String,
+      unique: true,
+      required: true,
+    },
     userId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
