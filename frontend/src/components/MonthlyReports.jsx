@@ -4,6 +4,8 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import * as XLSX from "xlsx";
 import { FaTrash } from "react-icons/fa";
+import { toast, ToastContainer } from "react-toastify";
+import Swal from "sweetalert2"
 
 const MonthlyReport = () => {
   const [transactions, setTransactions] = useState([]);
@@ -112,44 +114,48 @@ const MonthlyReport = () => {
 };
 
 const handleDelete = async (id, type, account, transactionType) => {
-    const confirmDelete = window.confirm(
-        `Are you sure you want to delete this ${type} for ${account}? This action cannot be undone.`
-    );
-    if (!confirmDelete) return;
+  const confirmDelete = await Swal.fire({
+    title: "Are you sure?",
+    text: `Are you sure you want to delete this ${type}? This action cannot be undone.`,
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonText: "Yes, delete it!",
+    cancelButtonText: "No, cancel!"
+  }).then(result => result.isConfirmed);
 
-    try {
-        if (type === "income" || type === "expense") {
-            await deleteEntry(`/api/transactions/${id}`, id, setTransactions);
-        } else if (type === "transfer") {
-            if (transactionType === "External") {
-                const url = account === "Bank 1" ? `/api/transfers/${id}` : `/api/transferBanks/${id}`;
-                const setter = account === "Bank 1" ? setTransfers : setTransferBanks;
+  if (!confirmDelete) return;
 
-                // Delete from transfers or transferBanks
-                await deleteEntry(url, id, setter);
+  try {
+    // Handle different types for deletion
+    if (type === "income" || type === "expense") {
+      await deleteEntry(`/api/transactions/${id}`, id, setTransactions);
+    } else if (type === "transfer") {
+      if (transactionType === "External") {
+        const url = account === "Bank 1" ? `/api/transfers/${id}` : `/api/transferBanks/${id}`;
+        const setter = account === "Bank 1" ? setTransfers : setTransferBanks;
 
-                // Additionally, delete the corresponding transaction
-                await deleteEntry(`/api/transactions/${id}`, id, setTransactions);
-            } else if (transactionType === "Internal") {
-                if (account === "Bank 1") {
-                    await deleteEntry(`/api/transfers/${id}`, id, setTransfers);
-                    const linkedId = id.replace("Bank1", "Bank2");
-                    await deleteEntry(`/api/transferBanks/${linkedId}`, linkedId, setTransferBanks);
-                } else if (account === "Bank 2") {
-                    await deleteEntry(`/api/transferBanks/${id}`, id, setTransferBanks);
-                    const linkedId = id.replace("Bank2", "Bank1");
-                    await deleteEntry(`/api/transfers/${linkedId}`, linkedId, setTransfers);
-                }
-            }
+        await deleteEntry(url, id, setter);
+        await deleteEntry(`/api/transactions/${id}`, id, setTransactions);
+      } else if (transactionType === "Internal") {
+        if (account === "Bank 1") {
+          await deleteEntry(`/api/transfers/${id}`, id, setTransfers);
+          const linkedId = id.replace("Bank1", "Bank2");
+          await deleteEntry(`/api/transferBanks/${linkedId}`, linkedId, setTransferBanks);
+        } else if (account === "Bank 2") {
+          await deleteEntry(`/api/transferBanks/${id}`, id, setTransferBanks);
+          const linkedId = id.replace("Bank2", "Bank1");
+          await deleteEntry(`/api/transfers/${linkedId}`, linkedId, setTransfers);
         }
-
-        // Fetch updated data after deletion
-        await fetchData();
-        alert(`${type.charAt(0).toUpperCase() + type.slice(1)} deleted successfully.`);
-    } catch (error) {
-        console.error("Error details:", error.response?.data || error.message);
-        alert(`Failed to delete ${type}. Please try again.`);
+      }
     }
+
+    // Fetch updated data
+    await fetchData();
+    toast.success(`${type.charAt(0).toUpperCase() + type.slice(1)} deleted successfully.`);
+  } catch (error) {
+    console.error("Error details:", error.response?.data || error.message);
+    toast.error(`Failed to delete ${type}. Please try again.`);
+  }
 };
 
 
@@ -350,6 +356,7 @@ const handleDelete = async (id, type, account, transactionType) => {
               })}
             </tbody>
           </table>
+          <ToastContainer/>
         </div>
       </div>
       <div className="bg-white p-6 rounded-md pt-4 mt-2 shadow-md">

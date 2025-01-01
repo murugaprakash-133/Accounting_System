@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import axios from "axios";
-import { toast } from "react-toastify";
+import { toast, ToastContainer } from "react-toastify";
 // import { useNavigate } from "react-router-dom";
 
 export default function Transactions() {
@@ -585,6 +585,7 @@ export default function Transactions() {
           >
             Add Transaction
           </button>
+          <ToastContainer/>
         </form>
       </div>
     </div>

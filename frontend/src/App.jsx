@@ -15,7 +15,7 @@ function App() {
   const { isLoggedIn, isInitialized } = useAuth();
 
   if (!isInitialized) {
-    return <p>Loading...</p>; // Show a loading state until auth is initialized
+    return <p>Loading...</p>;
   }
 
   return (
@@ -26,9 +26,11 @@ function App() {
           {isLoggedIn && <Sidebar />}
           <div className="flex-grow p-4">
             <Routes>
-              <Route path="/" element={isLoggedIn ? <Navigate to="/dashboard" /> : <Login />} />
+              <Route
+                path="/"
+                element={isLoggedIn ? <Navigate to="/dashboard" /> : <Login />}
+              />
               <Route path="/login" element={<Login />} />
-              <Route path="/signup" element={<Register />} />
               <Route path="/register" element={<Register />} />
               <Route path="/dashboard" element={isLoggedIn ? <Dashboard /> : <Navigate to="/" />} />
               <Route path="/income-expense" element={isLoggedIn ? <IncomeExpense /> : <Navigate to="/" />} />

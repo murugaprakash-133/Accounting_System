@@ -3,7 +3,7 @@ import { FaLock, FaEnvelope } from "react-icons/fa";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { useAuth } from "../context/AuthContext";
-import { toast } from "react-toastify";
+import { toast, ToastContainer } from "react-toastify";
 
 const Login = () => {
   const [formData, setFormData] = useState({ email: "", password: "" });
@@ -18,12 +18,12 @@ const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError(null);
-  
+
     if (!formData.email || !formData.password) {
       setError("Both fields are required.");
       return;
     }
-  
+
     try {
       const response = await axios.post(
         "http://localhost:5000/api/auth/login",
@@ -32,12 +32,12 @@ const Login = () => {
           withCredentials: true,
         }
       );
-  
+
       if (response.status === 200) {
         await refreshAuthStatus(); // Update the auth context only after login
+        toast.success("Login successfully!");
         navigate("/dashboard");
       }
-      toast.success("Login successfully!")
     } catch (err) {
       setError(
         err.response?.data?.error || "An error occurred. Please try again."
@@ -77,7 +77,7 @@ const Login = () => {
               value={formData.password}
               onChange={handleInputChange}
               required
-              autoComplete="off"
+              autoComplete="current-password"
               className="w-full h-full bg-transparent border border-gray-600 rounded-full text-black px-5 pr-12 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-400"
             />
             <FaLock className="absolute right-4 top-1/2 transform -translate-y-1/2 text-xl" />
@@ -90,6 +90,7 @@ const Login = () => {
             >
               Login
             </button>
+            <ToastContainer />
           </div>
 
           <div className="mt-6 text-center">

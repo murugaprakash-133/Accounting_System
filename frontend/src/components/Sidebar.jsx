@@ -42,6 +42,7 @@ const Sidebar = () => {
             alt="logo"
             className="cursor-pointer transform duration-500 rotate-[360deg] w-10 h-10"
           />
+          <span className="text-2xl font-bold gap-x-4 px-3 py-2 text-gray-200 rounded-md hover:text-white transition duration-300 ease-in-out w-full hidden md:inline-block">Accountify</span>
         </div>
 
         {/* Menu Items */}

@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { FaUserCircle, FaLock, FaEnvelope } from "react-icons/fa";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
+import { toast, ToastContainer } from "react-toastify";
 
 const Register = () => {
   const [formData, setFormData] = useState({
@@ -48,7 +49,7 @@ const Register = () => {
 
       // Handle success
       if (response.status === 201) {
-        alert("Registration successful!");
+        toast.success("Registration successful!");
         navigate("/login");
       }
     } catch (err) {
@@ -156,6 +157,7 @@ const Register = () => {
             >
               Register
             </button>
+            <ToastContainer/>
           </div>
 
           <div className="mt-6 text-center">

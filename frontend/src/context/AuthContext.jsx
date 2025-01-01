@@ -4,9 +4,11 @@ import axios from "axios";
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(
+    localStorage.getItem("isLoggedIn") === "true"
+  );
   const [userDetails, setUserDetails] = useState(null);
-  const [isInitialized, setIsInitialized] = useState(false); // New state
+  const [isInitialized, setIsInitialized] = useState(false);
 
   const refreshAuthStatus = async () => {
     try {
@@ -15,18 +17,36 @@ export const AuthProvider = ({ children }) => {
       });
       setIsLoggedIn(true);
       setUserDetails(response.data);
+      localStorage.setItem("isLoggedIn", "true");
     } catch (error) {
       setIsLoggedIn(false);
       setUserDetails(null);
+      localStorage.setItem("isLoggedIn", "false");
     } finally {
-      setIsInitialized(true); // Mark initialization as complete
+      setIsInitialized(true);
     }
   };
 
   useEffect(() => {
-    // Optionally, run this only if you want the app to check login status on mount.
-    setIsInitialized(true);
-  }, []); // No refreshAuthStatus call here
+    if (isLoggedIn) {
+      refreshAuthStatus();
+    } else {
+      setIsInitialized(true);
+    }
+  }, []);
+
+  const logout = async () => {
+    try {
+      await axios.post("http://localhost:5000/api/auth/logout", null, {
+        withCredentials: true,
+      });
+      setIsLoggedIn(false);
+      setUserDetails(null);
+      localStorage.setItem("isLoggedIn", "false");
+    } catch (error) {
+      console.error("Logout failed:", error);
+    }
+  };
 
   return (
     <AuthContext.Provider
@@ -35,6 +55,7 @@ export const AuthProvider = ({ children }) => {
         userDetails,
         refreshAuthStatus,
         isInitialized,
+        logout,
       }}
     >
       {children}
