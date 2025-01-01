@@ -15,6 +15,11 @@ const userSchema = new mongoose.Schema({
         type: String,
         required: true,
         minLength: 6 // Ensures a minimum length of 6 characters
+    },
+    role: {
+        type: String,
+        enum: ["Admin", "User"],
+        required: true
     }
 }, { timestamps: true }); // Adds createdAt and updatedAt fields
 

@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import axios from "axios";
+import { toast } from "react-toastify";
 // import { useNavigate } from "react-router-dom";
 
 export default function Transactions() {
@@ -73,7 +74,7 @@ export default function Transactions() {
 
     // Validate fields
     if (!formData.amount) {
-      alert("Please fill in all required fields.");
+      toast.warning("Please fill in all required fields.");
       return;
     }
 
@@ -83,7 +84,7 @@ export default function Transactions() {
     }
 
     if (!userId) {
-      alert("User not authenticated.");
+      toast.warning("User not authenticated.");
       return;
     }
 
@@ -106,7 +107,7 @@ export default function Transactions() {
       // Handle income or expense
       if (activeTab === "income" || activeTab === "expense") {
         if (!formData.category || !formData.account || !formData.voucherType) {
-          alert("Please fill in all required fields.");
+          toast.warning("Please fill in all required fields.");
           return;
         }
 
@@ -159,7 +160,7 @@ export default function Transactions() {
       // Handle transfer
       else if (activeTab === "transfer") {
         if (!formData.to || !formData.from || !formData.transactionType) {
-          alert("Please select 'Transaction Type', 'To', and 'From' accounts.");
+          toast.warning("Please select 'Transaction Type', 'To', and 'From' accounts.");
           return;
         }
 
@@ -230,11 +231,11 @@ export default function Transactions() {
         }
       }
 
-      alert("Transaction successfully saved!");
+      toast.success("Transaction successfully saved!");
       resetForm();
     } catch (error) {
       console.error("Error saving transaction:", error);
-      alert("Error saving transaction. Please try again.");
+      toast.error("Error saving transaction. Please try again.");
     }
   };
 

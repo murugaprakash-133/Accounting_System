@@ -4,7 +4,7 @@ import generateTokenandSetCookie from "../utils/generateToken.js";
 
 export const signup = async (req, res) => {
   try {
-    const { email, name, password, confirmPassword } = req.body;
+    const { email, name, password, confirmPassword, role } = req.body;
     // Validate required fields
     if (!email || !name || !password || !confirmPassword) {
       return res.status(400).json({ error: "All fields are required" });
@@ -30,6 +30,7 @@ export const signup = async (req, res) => {
       email,
       name,
       password: hashedPassword,
+      role,
     });
 
     // Save user to database
@@ -49,6 +50,7 @@ export const signup = async (req, res) => {
       _id: newUser._id,
       email: newUser.email,
       name: newUser.name,
+      role: newUser.role,
     });
   } catch (error) {
     console.error("Error in signup controller:", error.message);
@@ -59,32 +61,61 @@ export const signup = async (req, res) => {
 export const login = async (req, res) => {
   try {
     const { email, password } = req.body;
-    const user = await User.findOne({ email });
-    const isPassword = await bcrypt.compare(password, user?.password || "");
 
-    if (!user || !isPassword) {
+    // Check if email or password are missing
+    if (!email || !password) {
+      return res.status(400).json({ error: "Email and password are required" });
+    }
+
+    // Find the user by email
+    const user = await User.findOne({ email });
+
+    // If the user is not found, return an error
+    if (!user) {
       return res.status(400).json({ error: "Invalid username or password" });
     }
 
+    // Compare the provided password with the hashed password in the database
+    const isPassword = await bcrypt.compare(password, user.password);
+
+    // If the password is incorrect, return an error
+    if (!isPassword) {
+      return res.status(400).json({ error: "Invalid username or password" });
+    }
+
+    // Generate token and set cookie (make sure generateTokenandSetCookie is implemented correctly)
     generateTokenandSetCookie(user._id, res);
 
+    // Return the user data along with the status code 200 if login is successful
     res.status(200).json({
       _id: user._id,
       email: user.email,
       username: user.username,
+      role: user.role,
     });
   } catch (error) {
     console.log("Error in login controller", error.message);
+
+    // Return internal server error if something goes wrong
     res.status(500).json({ error: "Internal Server Error" });
   }
 };
 
 export const logout = async (req, res) => {
   try {
-    res.cookie("jwt", "", { maxAge: 0 });
-    res.status(200).json({ message: "Logged out successfully" });
+    // Clear the authentication cookie
+    res.clearCookie("jwt", {
+      httpOnly: true, // Ensures the cookie is only accessible via HTTP(S)
+      secure: process.env.NODE_ENV === "production", // Send only over HTTPS in production
+      sameSite: "strict", // Prevents CSRF by limiting cookie sharing
+    });
+
+    // Send a success response
+    return res.status(200).json({ message: "Logged out successfully" });
   } catch (error) {
-    console.log("Error in logout controller", error.message);
-    res.status(500).json({ error: "Internal Server Error" });
+    console.error("Error in logout controller:", error.message);
+
+    // Send an error response
+    return res.status(500).json({ error: "Internal Server Error" });
   }
 };

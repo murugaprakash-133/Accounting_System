@@ -1,14 +1,14 @@
-import React, { useState } from 'react';
-import { FaLock, FaEnvelope } from 'react-icons/fa';
-import { Link, useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import React, { useState } from "react";
+import { FaLock, FaEnvelope } from "react-icons/fa";
+import { Link, useNavigate } from "react-router-dom";
+import axios from "axios";
+import { useAuth } from "../context/AuthContext";
+import { toast } from "react-toastify";
 
-const Login = ({ onLoginSuccess }) => {
-  const [formData, setFormData] = useState({
-    email: "",
-    password: "",
-  });
+const Login = () => {
+  const [formData, setFormData] = useState({ email: "", password: "" });
   const [error, setError] = useState(null);
+  const { refreshAuthStatus } = useAuth();
   const navigate = useNavigate();
 
   const handleInputChange = (e) => {
@@ -18,22 +18,30 @@ const Login = ({ onLoginSuccess }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError(null);
-
+  
     if (!formData.email || !formData.password) {
       setError("Both fields are required.");
       return;
     }
-
+  
     try {
-      const response = await axios.post("http://localhost:5000/api/auth/login", formData);
-
+      const response = await axios.post(
+        "http://localhost:5000/api/auth/login",
+        formData,
+        {
+          withCredentials: true,
+        }
+      );
+  
       if (response.status === 200) {
-        localStorage.setItem("token", response.data.token);
-        onLoginSuccess(); // Call this function to update the parent state
+        await refreshAuthStatus(); // Update the auth context only after login
         navigate("/dashboard");
       }
+      toast.success("Login successfully!")
     } catch (err) {
-      setError(err.response?.data?.error || "An error occurred. Please try again.");
+      setError(
+        err.response?.data?.error || "An error occurred. Please try again."
+      );
     }
   };
 
@@ -41,7 +49,9 @@ const Login = ({ onLoginSuccess }) => {
     <div className="flex justify-center items-center min-h-screen bg-cover bg-center">
       <div className="w-96 bg-white/10 backdrop-blur-lg border border-white/20 shadow-lg rounded-lg p-8 text-white">
         <form onSubmit={handleSubmit}>
-          <h1 className="text-3xl text-center font-bold text-black mb-6">Login</h1>
+          <h1 className="text-3xl text-center font-bold text-black mb-6">
+            Login
+          </h1>
 
           {error && <p className="text-center text-red-500 mb-4">{error}</p>}
 
@@ -53,6 +63,7 @@ const Login = ({ onLoginSuccess }) => {
               value={formData.email}
               onChange={handleInputChange}
               required
+              autoComplete="current-email"
               className="w-full h-full bg-transparent border border-gray-600 rounded-full text-black px-5 pr-12 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-400"
             />
             <FaEnvelope className="absolute right-4 top-1/2 transform -translate-y-1/2 text-xl" />
@@ -66,6 +77,7 @@ const Login = ({ onLoginSuccess }) => {
               value={formData.password}
               onChange={handleInputChange}
               required
+              autoComplete="off"
               className="w-full h-full bg-transparent border border-gray-600 rounded-full text-black px-5 pr-12 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-400"
             />
             <FaLock className="absolute right-4 top-1/2 transform -translate-y-1/2 text-xl" />
@@ -82,8 +94,11 @@ const Login = ({ onLoginSuccess }) => {
 
           <div className="mt-6 text-center">
             <p className="text-sm text-gray-800">
-              Don't have an account?{' '}
-              <Link to="/register" className="font-semibold text-gray-800 hover:underline">
+              Don't have an account?{" "}
+              <Link
+                to="/register"
+                className="font-semibold text-gray-800 hover:underline"
+              >
                 Register
               </Link>
             </p>
@@ -95,4 +110,3 @@ const Login = ({ onLoginSuccess }) => {
 };
 
 export default Login;
-
