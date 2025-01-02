@@ -1,13 +1,12 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
-import { useAuth } from "../context/AuthContext"; // Import the AuthContext hook
+import { useAuth } from "../context/AuthContext";
 import logo from "../assets/logo.png";
 
 const Sidebar = () => {
-  const { isLoggedIn, userDetails } = useAuth(); // Get authentication details from AuthContext
+  const { isLoggedIn, userDetails } = useAuth();
   const [activeMenu, setActiveMenu] = useState("/");
 
-  // Define menus with role-based restrictions
   const Menus = [
     { title: "Dashboard", icon: "📊", path: "/" },
     { title: "Income & Expense Tracker", icon: "💸", path: "/income-expense" },
@@ -15,20 +14,20 @@ const Sidebar = () => {
       title: "Profit & Loss",
       icon: "📈",
       path: "/profit-loss",
-      restricted: true, // Only accessible by admin
+      restricted: true,
     },
     {
       title: "Cash Flow",
       icon: "💰",
       path: "/cash-flow",
-      restricted: true, // Only accessible by admin
+      restricted: true,
     },
     { title: "Monthly Reports", icon: "📅", path: "/monthly-reports" },
     {
       title: "Detailed Reports",
       icon: "📄",
       path: "/detailed-reports",
-      restricted: true, // Only accessible by admin
+      restricted: true,
     },
   ];
 
@@ -41,15 +40,16 @@ const Sidebar = () => {
           <img
             src={logo}
             alt="logo"
-            className="cursor-pointer transform duration-500 rotate-[360deg] w-10 h-10"
+            className="cursor-pointer w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 transition-transform duration-500 transform hover:rotate-[360deg]"
           />
-          <span className="text-2xl font-bold gap-x-4 px-3 py-2 text-gray-200 rounded-md hover:text-white transition duration-300 ease-in-out w-full hidden md:inline-block">Accountify</span>
+          <span className="text-2xl font-bold gap-x-4 px-3 py-2 text-gray-200 rounded-md hover:text-white transition duration-300 ease-in-out w-full hidden md:inline-block">
+            Accountify
+          </span>
         </div>
 
         {/* Menu Items */}
         <ul className="space-y-6 mt-10 flex flex-col items-center md:items-start">
           {Menus.map((menu, index) => {
-            // Hide restricted items for non-admin users
             if (menu.restricted && userDetails?.role !== "Admin") {
               return null;
             }
@@ -60,11 +60,12 @@ const Sidebar = () => {
                   to={menu.path}
                   onClick={() => setActiveMenu(menu.path)}
                   className={`flex items-center gap-x-4 px-3 py-2 text-gray-200 rounded-md hover:text-white transition duration-300 ease-in-out w-full justify-center md:justify-start ${
-                    activeMenu === menu.path ? "bg-gray-700" : "hover:bg-gray-700"
+                    activeMenu === menu.path
+                      ? "bg-gray-700"
+                      : "hover:bg-gray-700"
                   }`}
                 >
                   <span className="text-2xl">{menu.icon}</span>
-                  {/* Text only visible on desktop */}
                   <span className="hidden md:inline-block">{menu.title}</span>
                 </Link>
               </li>

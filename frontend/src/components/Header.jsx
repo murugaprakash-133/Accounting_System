@@ -68,7 +68,8 @@ const Header = () => {
             {isProfileOpen && (
               <div
                 ref={profileSidebarRef}
-                className="absolute right-0 mt-2 bg-white text-black rounded-md shadow-md p-4 w-64"
+                className="absolute right-0 mt-2 bg-white text-black rounded-md shadow-md p-4 w-64 sm:w-48 max-w-[90vw]"
+                style={{ zIndex: 100 }}
               >
                 <div className="space-y-2">
                   <p className="flex justify-between text-sm">
