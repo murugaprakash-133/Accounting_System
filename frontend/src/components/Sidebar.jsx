@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext"; // Import the AuthContext hook
+import logo from "../assets/logo.png";
 
 const Sidebar = () => {
   const { isLoggedIn, userDetails } = useAuth(); // Get authentication details from AuthContext
@@ -38,7 +39,7 @@ const Sidebar = () => {
         {/* Logo Section */}
         <div className="flex items-center justify-center md:justify-start mb-6">
           <img
-            src="frontend\src\assets\logo.png"
+            src={logo}
             alt="logo"
             className="cursor-pointer transform duration-500 rotate-[360deg] w-10 h-10"
           />
