@@ -3,6 +3,8 @@ import { useNavigate } from "react-router-dom";
 import { FiArrowLeft } from "react-icons/fi";
 import axios from "axios";
 
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
 function getCurrentTime() {
   const now = new Date();
   let hours = now.getHours();
@@ -37,7 +39,7 @@ const ModifyOB = () => {
       if (formData.bank) {
         try {
           const response = await axios.get(
-            "http://localhost:5000/api/modifyOb/lastModifiedBalancesForBothBanks",
+            `${API_BASE_URL}/api/modifyOb/lastModifiedBalancesForBothBanks`,
             {
               withCredentials: true, // Include cookies if authentication is required
             }
@@ -100,7 +102,7 @@ const ModifyOB = () => {
 
       // Send POST request to backend
       const response = await axios.post(
-        "http://localhost:5000/api/modifyOb", // Replace with your backend endpoint
+        `${API_BASE_URL}/api/modifyOb`, // Replace with your backend endpoint
         payload,
         {
           withCredentials: true, // Include cookies if authentication is required

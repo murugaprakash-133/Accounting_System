@@ -2,6 +2,8 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
 const Dashboard = () => {
   const [monthlyData, setMonthlyData] = useState([]);
   const [totalIncome, setTotalIncome] = useState(0);
@@ -17,7 +19,7 @@ const Dashboard = () => {
 
   const fetchDashboardData = async () => {
     try {
-      const response = await axios.get('http://localhost:5000/api/transactions', {
+      const response = await axios.get(`${API_BASE_URL}/api/transactions`, {
         params: { month: currentMonth, year: currentYear },
         withCredentials: true,
       });

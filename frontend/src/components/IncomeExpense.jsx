@@ -5,6 +5,8 @@ import axios from "axios";
 import { toast, ToastContainer } from "react-toastify";
 // import { useNavigate } from "react-router-dom";
 
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
 export default function Transactions() {
   // const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("income");
@@ -29,7 +31,7 @@ export default function Transactions() {
   useEffect(() => {
     const fetchUser = async () => {
       try {
-        const response = await axios.get("http://localhost:5000/api/users", {
+        const response = await axios.get(`${API_BASE_URL}/api/users`, {
           withCredentials: true,
         });
         setUserId(response.data._id); // Store userId from the backend response
@@ -121,7 +123,7 @@ export default function Transactions() {
 
         // Save the transaction in the Transaction schema
         await axios.post(
-          "http://localhost:5000/api/transactions",
+          `${API_BASE_URL}/api/transactions`,
           transactionData,
           {
             withCredentials: true,
@@ -146,7 +148,7 @@ export default function Transactions() {
           };
 
           await axios.post(
-            `http://localhost:5000${transferEndpoint}`,
+            `${API_BASE_URL}${transferEndpoint}`,
             transferData,
             {
               withCredentials: true,
@@ -181,7 +183,7 @@ export default function Transactions() {
         if (transferEndpoint) {
           // Save the transfer
           await axios.post(
-            `http://localhost:5000${transferEndpoint}`,
+            `${API_BASE_URL}${transferEndpoint}`,
             transactionData,
             {
               withCredentials: true,
@@ -198,7 +200,7 @@ export default function Transactions() {
                 : "/api/transfers";
 
             await axios.post(
-              `http://localhost:5000${oppositeEndpoint}`,
+              `${API_BASE_URL}${oppositeEndpoint}`,
               transactionData,
               {
                 withCredentials: true,
@@ -216,7 +218,7 @@ export default function Transactions() {
 
             // Save the external transfer in the Transaction schema
             await axios.post(
-              "http://localhost:5000/api/transactions",
+              `${API_BASE_URL}/api/transactions`,
               externalTransactionData,
               {
                 withCredentials: true,

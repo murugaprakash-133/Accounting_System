@@ -3,6 +3,8 @@ import axios from "axios";
 
 const AuthContext = createContext();
 
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
 export const AuthProvider = ({ children }) => {
   const [isLoggedIn, setIsLoggedIn] = useState(
     localStorage.getItem("isLoggedIn") === "true"
@@ -12,7 +14,7 @@ export const AuthProvider = ({ children }) => {
 
   const refreshAuthStatus = async () => {
     try {
-      const response = await axios.get("http://localhost:5000/api/users", {
+      const response = await axios.get(`${API_BASE_URL}/api/users`, {
         withCredentials: true,
       });
       setIsLoggedIn(true);
@@ -37,7 +39,7 @@ export const AuthProvider = ({ children }) => {
 
   const logout = async () => {
     try {
-      await axios.post("http://localhost:5000/api/auth/logout", null, {
+      await axios.post(`${API_BASE_URL}/api/auth/logout`, null, {
         withCredentials: true,
       });
       setIsLoggedIn(false);

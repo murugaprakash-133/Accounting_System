@@ -12,6 +12,8 @@ import {
   ResponsiveContainer,
 } from 'recharts';
 
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
 const CashFlow = () => {
   const [transactions, setTransactions] = useState([]);
   const [totalIncome, setTotalIncome] = useState(0);
@@ -33,7 +35,7 @@ const CashFlow = () => {
 
   const fetchCashFlowData = async () => {
     try {
-      const response = await axios.get('http://localhost:5000/api/transactions', {
+      const response = await axios.get(`${API_BASE_URL}/api/transactions`, {
         params: {
           month: selectedMonth + 1, // API expects month in 1-based index
           year: selectedYear,

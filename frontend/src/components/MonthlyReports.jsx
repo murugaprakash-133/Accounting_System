@@ -7,6 +7,8 @@ import { FaTrash } from "react-icons/fa";
 import { toast, ToastContainer } from "react-toastify";
 import Swal from "sweetalert2"
 
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
 const MonthlyReport = () => {
   const [transactions, setTransactions] = useState([]);
   const [transfers, setTransfers] = useState([]);
@@ -54,7 +56,7 @@ const MonthlyReport = () => {
   const fetchTransactions = async () => {
     try {
       const response = await axios.get(
-        "http://localhost:5000/api/transactions",
+        `${API_BASE_URL}/api/transactions`,
         {
           params: {
             month: selectedMonth + 1,
@@ -74,7 +76,7 @@ const MonthlyReport = () => {
 
   const fetchTransfers = async () => {
     try {
-      const response = await axios.get("http://localhost:5000/api/transfers", {
+      const response = await axios.get(`${API_BASE_URL}/api/transfers`, {
         params: {
           month: selectedMonth + 1,
           year: selectedYear,
@@ -90,7 +92,7 @@ const MonthlyReport = () => {
   const fetchTransferBanks = async () => {
     try {
       const response = await axios.get(
-        "http://localhost:5000/api/transferBanks",
+        `${API_BASE_URL}/api/transferBanks`,
         {
           params: {
             month: selectedMonth + 1,

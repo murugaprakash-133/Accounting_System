@@ -5,6 +5,8 @@ import { Pie } from 'react-chartjs-2';
 import axios from 'axios';
 import 'chart.js/auto';
 
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
 const DetailedReports = () => {
   const [transactions, setTransactions] = useState([]);
   const [selectedReport, setSelectedReport] = useState('Income by Category');
@@ -25,7 +27,7 @@ const DetailedReports = () => {
 
   const fetchMonthlyReportData = async () => {
     try {
-      const response = await axios.get('http://localhost:5000/api/transactions', {
+      const response = await axios.get(`${API_BASE_URL}/api/transactions`, {
         params: { month: selectedMonth + 1, year: selectedYear },
         withCredentials: true,
       });
