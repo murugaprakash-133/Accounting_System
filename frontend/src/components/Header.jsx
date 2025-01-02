@@ -27,7 +27,10 @@ const Header = () => {
     navigate("/login");
   };
 
-  const toggleProfile = () => setIsProfileOpen((prevState) => !prevState);
+  const toggleProfile = (e) => {
+    e.stopPropagation(); // Prevent triggering outside click handler
+    setIsProfileOpen((prevState) => !prevState);
+  };
 
   return (
     <header className="fixed top-0 left-0 right-0 bg-gradient-to-r from-gray-700 to-gray-500 text-white px-6 py-4 flex justify-between items-center shadow-md z-50">
@@ -72,24 +75,21 @@ const Header = () => {
             {isProfileOpen && (
               <div
                 ref={profileSidebarRef}
-                className="absolute right-0 mt-2 bg-white text-black rounded-md shadow-md p-4 w-64 sm:w-48 max-w-[90vw] origin-top-right transform scale-95 transition-transform duration-300 ease-in-out"
+                className="absolute right-0 mt-2 bg-white text-black rounded-md shadow-md p-4 w-[90%] sm:w-64 origin-top-right transform scale-100 transition-transform duration-300 ease-in-out"
                 style={{
                   zIndex: 100,
-                  transform: isProfileOpen
-                    ? "scale(1)"
-                    : "scale(0.95) translateY(-10px)",
                 }}
               >
                 <div className="space-y-2">
                   <p className="flex justify-between text-sm">
                     <strong className="text-gray-600">Name:</strong>
-                    <span className="text-right text-gray-800">
+                    <span className="text-right text-gray-800 truncate max-w-[120px] sm:max-w-none">
                       {userDetails.name}
                     </span>
                   </p>
                   <p className="flex justify-between text-sm">
                     <strong className="text-gray-600">Email:</strong>
-                    <span className="text-right text-gray-800">
+                    <span className="text-right text-gray-800 truncate max-w-[120px] sm:max-w-none">
                       {userDetails.email}
                     </span>
                   </p>

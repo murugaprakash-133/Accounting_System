@@ -40,7 +40,7 @@ const Sidebar = () => {
           <img
             src={logo}
             alt="logo"
-            className="cursor-pointer object-contain w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 transition-transform duration-500 transform hover:rotate-[360deg]"
+            className="cursor-pointer object-contain w-10 h-10 md:w-12 md:h-12 transition-transform duration-500 transform hover:rotate-[360deg]"
           />
           <span className="text-2xl font-bold gap-x-4 px-3 py-2 text-gray-200 rounded-md hover:text-white transition duration-300 ease-in-out w-full hidden md:inline-block">
             Accountify
