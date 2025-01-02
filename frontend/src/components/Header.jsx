@@ -31,12 +31,14 @@ const Header = () => {
 
   return (
     <header className="fixed top-0 left-0 right-0 bg-gradient-to-r from-gray-700 to-gray-500 text-white px-6 py-4 flex justify-between items-center shadow-md z-50">
-      <div
-        className="hidden sm:flex items-center text-2xl font-bold cursor-pointer"
-        onClick={() => navigate("/")}
-      >
-        Accountify
-      </div>
+      {!isLoggedIn && (
+        <div
+          className="flex items-center text-2xl font-bold cursor-pointer"
+          onClick={() => navigate("/")}
+        >
+          Accountify
+        </div>
+      )}
 
       <div className="flex items-center space-x-4">
         {!isLoggedIn && (
