@@ -1,8 +1,6 @@
-import axios from "axios";
 import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { FaUserCircle, FaChevronDown } from "react-icons/fa";
-import { toast } from "react-toastify";
 import { useAuth } from "../context/AuthContext";
 
 const Header = () => {
@@ -59,6 +57,10 @@ const Header = () => {
                   <p className="flex justify-between text-sm">
                     <strong className="text-gray-600">Email:</strong>
                     <span className="text-right text-gray-800">{userDetails.email}</span>
+                  </p>
+                  <p className="flex justify-between text-sm">
+                    <strong className="text-gray-600">Role:</strong>
+                    <span className="text-right text-gray-800">{userDetails.role}</span>
                   </p>
                 </div>
                 <button onClick={handleLogout} className="w-full bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600 mt-4 transition duration-300">
