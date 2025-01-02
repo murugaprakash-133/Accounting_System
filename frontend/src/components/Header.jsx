@@ -31,6 +31,7 @@ const Header = () => {
 
   return (
     <header className="fixed top-0 left-0 right-0 bg-gradient-to-r from-gray-700 to-gray-500 text-white px-6 py-4 flex justify-between items-center shadow-md z-50">
+      {/* Logo Section */}
       {!isLoggedIn && (
         <div
           className="flex items-center text-2xl font-bold cursor-pointer"
@@ -40,7 +41,8 @@ const Header = () => {
         </div>
       )}
 
-      <div className="flex items-center space-x-4">
+      {/* Profile or Login Section */}
+      <div className="ml-auto flex items-center space-x-4">
         {!isLoggedIn && (
           <button
             onClick={() => navigate("/login")}
@@ -70,8 +72,13 @@ const Header = () => {
             {isProfileOpen && (
               <div
                 ref={profileSidebarRef}
-                className="absolute right-0 mt-2 bg-white text-black rounded-md shadow-md p-4 w-64 sm:w-48 max-w-[90vw]"
-                style={{ zIndex: 100 }}
+                className="absolute right-0 mt-2 bg-white text-black rounded-md shadow-md p-4 w-64 sm:w-48 max-w-[90vw] origin-top-right transform scale-95 transition-transform duration-300 ease-in-out"
+                style={{
+                  zIndex: 100,
+                  transform: isProfileOpen
+                    ? "scale(1)"
+                    : "scale(0.95) translateY(-10px)",
+                }}
               >
                 <div className="space-y-2">
                   <p className="flex justify-between text-sm">
