@@ -130,7 +130,7 @@ export default function Transactions() {
           }
         );
 
-        console.log("Transaction saved:", transactionData);
+        // console.log("Transaction saved:", transactionData);
 
         // Save the corresponding transfer in Transfer or TransferBank schema
         if (formData.account === "Bank 1" || formData.account === "Bank 2") {
@@ -155,7 +155,7 @@ export default function Transactions() {
             }
           );
 
-          console.log("Linked transfer saved:", transferData);
+          // console.log("Linked transfer saved:", transferData);
         }
       }
 
@@ -190,7 +190,7 @@ export default function Transactions() {
             }
           );
 
-          console.log("Transfer saved:", transactionData);
+          // console.log("Transfer saved:", transactionData);
 
           // Handle linked Internal transfer
           if (formData.transactionType === "Internal") {
@@ -207,7 +207,7 @@ export default function Transactions() {
               }
             );
 
-            console.log("Linked internal transfer saved.");
+            // console.log("Linked internal transfer saved.");
           } else if (formData.transactionType === "External") {
             const externalTransactionData = {
               ...transactionData,
@@ -225,10 +225,10 @@ export default function Transactions() {
               }
             );
 
-            console.log(
-              "External transaction saved in Transaction schema:",
-              externalTransactionData
-            );
+            // console.log(
+            //   "External transaction saved in Transaction schema:",
+            //   externalTransactionData
+            // );
           }
         }
       }

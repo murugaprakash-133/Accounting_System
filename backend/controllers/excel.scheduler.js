@@ -24,7 +24,7 @@ const transporter = nodemailer.createTransport({
 // Function to generate Excel and send email
 const generateAndSendExcel = async () => {
   try {
-    console.log("Starting scheduled task to send email...");
+    // console.log("Starting scheduled task to send email...");
 
     const email = "laishunoffi@gmail.com"; // Replace with the auditor's email
     const currentDate = new Date();
@@ -92,7 +92,7 @@ const generateAndSendExcel = async () => {
 
     const filePath = path.join(uploadsPath, "financial_data.xlsx");
     XLSX.writeFile(workbook, filePath);
-    console.log("Excel file written to:", filePath);
+    // console.log("Excel file written to:", filePath);
 
     // Email options
     const mailOptions = {
@@ -110,11 +110,11 @@ const generateAndSendExcel = async () => {
 
     // Send email
     await transporter.sendMail(mailOptions);
-    console.log("Email sent successfully to:", email);
+    // console.log("Email sent successfully to:", email);
 
     // Clean up the temporary file
     fs.unlinkSync(filePath);
-    console.log("Temporary Excel file deleted:", filePath);
+    // console.log("Temporary Excel file deleted:", filePath);
   } catch (error) {
     console.error("Error in generateAndSendExcel:", error);
   }
@@ -136,4 +136,4 @@ schedule.scheduleJob("59 23 28-31 * *", async () => {
   }
 });
 
-console.log("Automatic email scheduler initialized.");
+// console.log("Automatic email scheduler initialized.");

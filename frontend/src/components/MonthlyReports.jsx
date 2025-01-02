@@ -111,7 +111,7 @@ const MonthlyReport = () => {
     const response = await axios.delete(url, { withCredentials: true });
     if (response.status === 200) {
         setter((prev) => prev.filter((item) => item._id !== id));
-        console.log(`Deleted successfully from ${url}`);
+        // console.log(`Deleted successfully from ${url}`);
     }
 };
 

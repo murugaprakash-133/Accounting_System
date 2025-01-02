@@ -49,8 +49,8 @@ export const getLastModifiedBalancesForBothBanks = async (req, res) => {
 
     // Send the modified OB values for both banks
     res.status(200).json({ bank1ModifiedOB: bank1Balance, bank2ModifiedOB: bank2Balance });
-    console.log(`Bank 1 Balance: ${bank1Balance}`);
-    console.log(`Bank 2 Balance: ${bank2Balance}`);
+    // console.log(`Bank 1 Balance: ${bank1Balance}`);
+    // console.log(`Bank 2 Balance: ${bank2Balance}`);
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Failed to fetch last modified balances." });

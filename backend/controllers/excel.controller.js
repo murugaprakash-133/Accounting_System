@@ -87,7 +87,7 @@ export const generateAndSendExcel = async (req, res) => {
 
     // Write Excel file to filePath
     XLSX.writeFile(workbook, filePath);
-    console.log("Excel file written to:", filePath);
+    // console.log("Excel file written to:", filePath);
 
     // Ensure the file exists
     if (!fs.existsSync(filePath)) {
@@ -124,11 +124,11 @@ export const generateAndSendExcel = async (req, res) => {
         return res.status(500).json({ message: "Failed to send email.", error });
       }
 
-      console.log("Email sent successfully:", info.response);
+      // console.log("Email sent successfully:", info.response);
 
       // Clean up the temporary file
       fs.unlinkSync(filePath);
-      console.log("Temporary Excel file deleted:", filePath);
+      // console.log("Temporary Excel file deleted:", filePath);
 
       return res
         .status(200)

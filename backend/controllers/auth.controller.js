@@ -94,7 +94,7 @@ export const login = async (req, res) => {
       role: user.role,
     });
   } catch (error) {
-    console.log("Error in login controller", error.message);
+    // console.log("Error in login controller", error.message);
 
     // Return internal server error if something goes wrong
     res.status(500).json({ error: "Internal Server Error" });

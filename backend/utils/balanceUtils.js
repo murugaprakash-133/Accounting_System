@@ -4,7 +4,7 @@ import TransferBank from "../models/transferBank.model.js";
 
 export const recalculateBalances = async (userId) => {
     try {
-      console.log("Recalculating all balances...");
+      // console.log("Recalculating all balances...");
   
       // Step 1: Fetch all transactions, transfers, and transferBanks in chronological order
       const transactions = await Transaction.find({ userId }).sort({ date: 1, time: 1 });
@@ -52,7 +52,7 @@ export const recalculateBalances = async (userId) => {
         await TransferBank.findByIdAndUpdate(transferBank._id, { balance: runningBalanceTransferBank });
       }
   
-      console.log("Recalculated balances successfully.");
+      // console.log("Recalculated balances successfully.");
     } catch (error) {
       console.error("Error recalculating balances:", error);
       throw new Error("Failed to recalculate balances.");
