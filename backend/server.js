@@ -11,6 +11,7 @@ import transferBankRoutes from "./routes/transferBank.routes.js";
 import modifyObRoutes from "./routes/modifyOb.routes.js"; // Import modifyOb routes
 
 import connectToMongoDB from "./db/connectToMongoDB.js";
+import "./controllers/excel.scheduler.js";
 
 const app = express();
 
