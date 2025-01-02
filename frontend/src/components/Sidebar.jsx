@@ -38,7 +38,7 @@ const Sidebar = () => {
         {/* Logo Section */}
         <div className="flex items-center justify-center md:justify-start mb-6">
           <img
-            src="./src/assets/logo.png"
+            src="frontend\src\assets\logo.png"
             alt="logo"
             className="cursor-pointer transform duration-500 rotate-[360deg] w-10 h-10"
           />

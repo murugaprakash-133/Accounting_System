@@ -2,6 +2,7 @@ import express from "express";
 import dotenv from "dotenv";
 import cookieParser from "cookie-parser";
 import cors from "cors";
+import path from "path";
 
 import authRoutes from "./routes/auth.routes.js";
 import userRoutes from "./routes/user.routes.js";
@@ -20,6 +21,8 @@ dotenv.config();
 
 // Get port from .env file or default to 5000
 const PORT = process.env.PORT || 5001;
+
+const __dirname = path.resolve();
 
 // Middleware to parse incoming JSON requests
 app.use(express.json());
@@ -43,8 +46,14 @@ app.use("/api/transactions", transactionRoutes);
 app.use("/api/transfers", transferRoutes);
 app.use("/api/transferBanks", transferBankRoutes);
 
+app.use(express.static(path.join(__dirname, "/frontend/dist")));
+
 // ModifyOpenBalance routes middleware
-app.use("/api/modifyOb", modifyObRoutes); // Add this route
+// app.use("/api/modifyOb", modifyObRoutes); // Add this route
+
+app.get("*", (req, res) => {
+  res.sendFile(path.join(__dirname, "frontend", "dist", "index.html"));
+});
 
 // Start the server
 app.listen(PORT, () => {
