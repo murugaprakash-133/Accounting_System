@@ -10,6 +10,7 @@ import DetailedReportslide from "./components/DetailedReports";
 import Header from "./components/Header";
 import Login from "./components/Login";
 import Register from "./components/Register";
+import ManageRecipients from "./components/ManageRecipients";
 
 function App() {
   const { isLoggedIn, isInitialized } = useAuth();
@@ -38,6 +39,7 @@ function App() {
               <Route path="/cash-flow" element={isLoggedIn ? <CashFlowPart /> : <Navigate to="/" />} />
               <Route path="/monthly-reports" element={isLoggedIn ? <MonthlyReport /> : <Navigate to="/" />} />
               <Route path="/detailed-reports" element={isLoggedIn ? <DetailedReportslide /> : <Navigate to="/" />} />
+              <Route path="/manage-recipients" element={isLoggedIn ? <ManageRecipients /> : <Navigate to="/" />} />
             </Routes>
           </div>
         </div>

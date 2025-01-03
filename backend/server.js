@@ -9,6 +9,8 @@ import userRoutes from "./routes/user.routes.js";
 import transactionRoutes from "./routes/transaction.routes.js";
 import transferRoutes from "./routes/transfer.routes.js";
 import transferBankRoutes from "./routes/transferBank.routes.js";
+import recipientRoutes from "./routes/recipient.routes.js";
+
 // import modifyObRoutes from "./routes/modifyOb.routes.js"; // Import modifyOb routes
 
 import connectToMongoDB from "./db/connectToMongoDB.js";
@@ -45,6 +47,7 @@ app.use("/api/users", userRoutes);
 app.use("/api/transactions", transactionRoutes);
 app.use("/api/transfers", transferRoutes);
 app.use("/api/transferBanks", transferBankRoutes);
+app.use("/api/recipients", recipientRoutes);
 
 app.use(express.static(path.join(__dirname, "/frontend/dist")));
 

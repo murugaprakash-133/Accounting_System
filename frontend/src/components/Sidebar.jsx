@@ -1,8 +1,3 @@
-import React, { useState } from "react";
-import { Link } from "react-router-dom";
-import { useAuth } from "../context/AuthContext";
-import logo from "../assets/logo.png";
-
 const Sidebar = () => {
   const { isLoggedIn, userDetails } = useAuth();
   const [activeMenu, setActiveMenu] = useState("/");
@@ -16,12 +11,7 @@ const Sidebar = () => {
       path: "/profit-loss",
       restricted: true,
     },
-    {
-      title: "Cash Flow",
-      icon: "💰",
-      path: "/cash-flow",
-      restricted: true,
-    },
+    { title: "Cash Flow", icon: "💰", path: "/cash-flow", restricted: true },
     { title: "Monthly Reports", icon: "📅", path: "/monthly-reports" },
     {
       title: "Detailed Reports",
@@ -29,6 +19,12 @@ const Sidebar = () => {
       path: "/detailed-reports",
       restricted: true,
     },
+    {
+      title: "Manage Recipients",
+      icon: "✉️",
+      path: "/manage-recipients",
+      restricted: true,
+    }, // New menu item
   ];
 
   return (

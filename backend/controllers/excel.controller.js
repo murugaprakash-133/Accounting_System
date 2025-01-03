@@ -6,21 +6,31 @@ import path from "path";
 import Transfer from "../models/transfer.model.js";
 import TransferBank from "../models/transferBank.model.js";
 import Transaction from "../models/transaction.model.js";
+import Recipient from "../models/recipient.model.js";
 
 // Define __dirname for ES6 modules
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// Generate and Send Excel
 export const generateAndSendExcel = async (req, res) => {
   try {
-    const { email, month, year } = req.body;
+    const { month, year } = req.body;
 
-    if (!email || !month || !year) {
+    if (!month || !year) {
       return res
         .status(400)
-        .json({ message: "Email, month, and year are required." });
+        .json({ message: "Month and year are required." });
     }
+
+    // Fetch all recipients
+    const recipients = await Recipient.find();
+    if (!recipients.length) {
+      return res
+        .status(400)
+        .json({ message: "No recipients found. Add recipients to send the report." });
+    }
+
+    const emails = recipients.map((recipient) => recipient.email);
 
     // Ensure the uploads folder exists
     const uploadsPath = path.join(__dirname, "../uploads");
@@ -35,21 +45,21 @@ export const generateAndSendExcel = async (req, res) => {
     const transactions = await Transaction.find({
       date: {
         $gte: new Date(`${year}-${month}-01`),
-        $lt: new Date(`${year}-${month + 1}-01`),
+        $lt: new Date(`${year}-${parseInt(month) + 1}-01`),
       },
     });
 
     const transfers = await Transfer.find({
       date: {
         $gte: new Date(`${year}-${month}-01`),
-        $lt: new Date(`${year}-${month + 1}-01`),
+        $lt: new Date(`${year}-${parseInt(month) + 1}-01`),
       },
     });
 
     const transferBanks = await TransferBank.find({
       date: {
         $gte: new Date(`${year}-${month}-01`),
-        $lt: new Date(`${year}-${month + 1}-01`),
+        $lt: new Date(`${year}-${parseInt(month) + 1}-01`),
       },
     });
 
@@ -87,55 +97,45 @@ export const generateAndSendExcel = async (req, res) => {
 
     // Write Excel file to filePath
     XLSX.writeFile(workbook, filePath);
-    // console.log("Excel file written to:", filePath);
-
-    // Ensure the file exists
-    if (!fs.existsSync(filePath)) {
-      throw new Error("Failed to create Excel file.");
-    }
 
     // Configure email transport
     const transporter = nodemailer.createTransport({
       service: "gmail",
       auth: {
-        user: "kalaiarasankaruppaiya@gmail.com",
-        pass: "essxbuwysdzqkedb", // App password
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS, // Use environment variables for security
       },
     });
 
-    // Email options with attachment
-    const mailOptions = {
-      from: "kalaiarasankaruppaiya@gmail.com",
-      to: "laishunoffi@gmail.com",
-      subject: "Monthly Financial Report",
-      text: "Please find the attached financial report for this month.",
-      attachments: [
-        {
-          filename: "financial_data.xlsx",
-          path: filePath, // Attach the generated Excel file
-        },
-      ],
+    // Send the email to each recipient
+    const sendEmail = async (email) => {
+      const mailOptions = {
+        from: process.env.EMAIL_USER,
+        to: email,
+        subject: "Monthly Financial Report",
+        text: "Please find the attached financial report for this month.",
+        attachments: [
+          {
+            filename: "financial_data.xlsx",
+            path: filePath, // Attach the generated Excel file
+          },
+        ],
+      };
+
+      return transporter.sendMail(mailOptions);
     };
 
-    // Send the email
-    transporter.sendMail(mailOptions, (error, info) => {
-      if (error) {
-        console.error("Error sending email:", error);
-        return res.status(500).json({ message: "Failed to send email.", error });
-      }
+    const emailPromises = emails.map((email) => sendEmail(email));
 
-      // console.log("Email sent successfully:", info.response);
+    // Wait for all emails to be sent
+    await Promise.all(emailPromises);
 
-      // Clean up the temporary file
-      fs.unlinkSync(filePath);
-      // console.log("Temporary Excel file deleted:", filePath);
+    // Clean up the temporary file
+    fs.unlinkSync(filePath);
 
-      return res
-        .status(200)
-        .json({ message: "Email sent successfully to the auditor." });
-    });
+    return res.status(200).json({ message: "Emails sent successfully to all recipients." });
   } catch (error) {
     console.error("Error:", error);
-    res.status(500).json({ message: "Failed to send email.", error });
+    res.status(500).json({ message: "Failed to send emails.", error });
   }
 };
