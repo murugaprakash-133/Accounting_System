@@ -1,3 +1,42 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+/* Override the SweetAlert2 Popup */
+.swal2-small-popup {
+    max-width: 280px !important; /* Force a smaller maximum width */
+    width: 90% !important;       /* Make it responsive to the screen */
+    padding: 15px !important;    /* Adjust padding for compact size */
+    border-radius: 8px !important; /* Smaller border radius for a compact look */
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Add a subtle shadow */
+  }
+  
+  /* Adjust Title for Small Modal */
+  .swal2-small-popup .swal2-title {
+    font-size: 16px !important; /* Reduce title font size */
+    margin-bottom: 10px !important; /* Adjust spacing */
+  }
+  
+  /* Adjust Input Field */
+  .swal2-small-popup .swal2-input {
+    font-size: 14px !important; /* Reduce input font size */
+    padding: 8px !important; /* Adjust input padding */
+  }
+  
+  /* Adjust Buttons */
+  .swal2-small-popup .swal2-actions button {
+    font-size: 14px !important; /* Reduce button font size */
+    padding: 6px 10px !important; /* Compact button padding */
+  }
+  
+  /* Ensure Responsiveness for Mobile */
+  @media (max-width: 768px) {
+    .swal2-small-popup {
+      max-width: 240px !important; /* Further reduce size for smaller screens */
+      padding: 10px !important;
+    }
+  
+    .swal2-small-popup .swal2-title {
+      font-size: 14px !important; /* Further reduce title font size */
+    }
+  }
+  

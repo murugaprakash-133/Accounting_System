@@ -12,7 +12,7 @@ import {
   ResponsiveContainer,
 } from 'recharts';
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+const API_BASE_URL = "http://localhost:5000";
 
 const CashFlow = () => {
   const [transactions, setTransactions] = useState([]);
@@ -90,69 +90,39 @@ const CashFlow = () => {
   };
 
   return (
-    <div className="p-6 bg-gray-50 min-h-screen mt-20">
-      {/* Header */}
-      <div className="mb-6 flex justify-between items-center">
-        <div>
-          <h2 className="text-3xl font-semibold text-gray-800">Cash Flow</h2>
-          <p className="text-gray-600">Overview of your cash flow</p>
-        </div>
-        <div className="flex items-center space-x-4">
-          {/* Month Selector */}
-          <select
-            value={selectedMonth}
-            onChange={handleMonthChange}
-            className="border px-4 py-2 rounded-md shadow-md focus:ring-2 focus:ring-blue-500 focus:outline-none"
-          >
-            {months.map((month, index) => (
-              <option key={index} value={index}>
-                {month}
-              </option>
-            ))}
-          </select>
+    <div className="min-h-screen bg-gray-100 py-10 px-8 mt-20">
+      <h1 className="text-4xl font-bold mb-6 text-gray-800">Cash Flow</h1>
 
-          {/* Year Selector */}
-          <select
-            value={selectedYear}
-            onChange={handleYearChange}
-            className="border px-4 py-2 rounded-md shadow-md focus:ring-2 focus:ring-blue-500 focus:outline-none"
-          >
-            {years.map((year) => (
-              <option key={year} value={year}>
-                {year}
-              </option>
-            ))}
-          </select>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+        <div className="bg-green-200 p-6 rounded-lg shadow-md hover:shadow-lg transition duration-300">
+          <h3 className="text-3xl font-semibold text-green-600">Total Income</h3>
+          <p className="text-sm text-gray-500">This Month</p>
+          <h3 className="text-3xl font-semibold text-green-600">{formatCurrency(totalIncome)}</h3>
+        </div>
+        <div className="bg-red-200 p-6 rounded-lg shadow-md hover:shadow-lg transition duration-300">
+          <h3 className="text-3xl font-semibold text-red-600">Total Expenses</h3>
+          <p className="text-sm text-gray-500">This Month</p>
+          <h3 className="text-3xl font-semibold text-red-600">{formatCurrency(totalExpenses)}</h3>
+        </div>
+        <div className="bg-blue-200 p-6 rounded-lg shadow-md hover:shadow-lg transition duration-300">
+          <h3 className="text-3xl font-semibold text-blue-600">Net Cash Flow</h3>
+          <p className="text-sm text-gray-500">This Month</p>
+          <h3 className="text-3xl font-semibold text-blue-600">
+            {formatCurrency(totalIncome - totalExpenses)}
+          </h3>
         </div>
       </div>
 
-      {/* Summary Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 mb-8">
-        <div className="bg-green-100 p-6 rounded-md shadow-lg hover:shadow-xl transition duration-300">
-          <h3 className="font-semibold text-xl text-green-800">Total Income</h3>
-          <p className="text-2xl font-bold text-green-600">{formatCurrency(totalIncome)}</p>
-        </div>
-        <div className="bg-red-100 p-6 rounded-md shadow-lg hover:shadow-xl transition duration-300">
-          <h3 className="font-semibold text-xl text-red-800">Total Expenses</h3>
-          <p className="text-2xl font-bold text-red-600">{formatCurrency(totalExpenses)}</p>
-        </div>
-        <div className="bg-blue-100 p-6 rounded-md shadow-lg hover:shadow-xl transition duration-300">
-          <h3 className="font-semibold text-xl text-blue-800">Net Cash Flow</h3>
-          <p className="text-2xl font-bold text-blue-600">{formatCurrency(totalIncome - totalExpenses)}</p>
-        </div>
-      </div>
-
-      {/* Chart Section */}
-      <div className="bg-white p-8 rounded-md shadow-lg">
-        <h3 className="font-semibold text-xl mb-4 text-gray-800">Daily Cash Flow</h3>
-        <ResponsiveContainer width="100%" height={400}>
+      <div className="bg-white p-8 rounded-lg shadow-xl">
+        <h2 className="text-3xl font-semibold mb-6 text-gray-800">Daily Cash Flow</h2>
+        <ResponsiveContainer width="100%" height={300}>
           <AreaChart data={monthlyData}>
             <CartesianGrid strokeDasharray="3 3" />
             <XAxis dataKey="day" />
             <YAxis />
             <Tooltip />
-            <Area type="monotone" dataKey="income" stroke="#3b82f6" fill="#3b82f6" name="Income" />
-            <Area type="monotone" dataKey="expenses" stroke="#ef4444" fill="#ef4444" name="Expenses" />
+            <Area type="monotone" dataKey="income" stroke="#2563eb" fill="#2563eb" name="Income" />
+            <Area type="monotone" dataKey="expenses" stroke="#8b5cf6" fill="#8b5cf6" name="Expenses" />
             <Area
               type="monotone"
               dataKey="netCashFlow"

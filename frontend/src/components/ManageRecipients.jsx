@@ -1,5 +1,9 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import { FaTrash } from "react-icons/fa";
+import { toast, ToastContainer } from "react-toastify";
+
+const API_BASE_URL = "http://localhost:5000";
 
 const ManageRecipients = () => {
   const [recipients, setRecipients] = useState([]);
@@ -11,7 +15,7 @@ const ManageRecipients = () => {
 
   const fetchRecipients = async () => {
     try {
-      const response = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/api/recipients`, {
+      const response = await axios.get(`${API_BASE_URL}/api/recipients`, {
         withCredentials: true, // For cookies
       });
       setRecipients(response.data);
@@ -24,12 +28,13 @@ const ManageRecipients = () => {
     try {
       if (!newEmail) return alert("Email is required.");
       await axios.post(
-        `${import.meta.env.VITE_API_BASE_URL}/api/recipients/add`,
+        `${API_BASE_URL}/api/recipients/add`,
         { email: newEmail },
         { withCredentials: true }
       );
       setNewEmail("");
       fetchRecipients();
+      toast.success("Add Email Successfully!");
     } catch (error) {
       console.error("Error adding recipient:", error);
     }
@@ -38,18 +43,19 @@ const ManageRecipients = () => {
   const deleteRecipient = async (id) => {
     try {
       await axios.delete(
-        `${import.meta.env.VITE_API_BASE_URL}/api/recipients/delete/${id}`,
+        `${API_BASE_URL}/api/recipients/delete/${id}`,
         { withCredentials: true }
       );
       fetchRecipients();
+      toast.error("Delete Email Successfully!");
     } catch (error) {
       console.error("Error deleting recipient:", error);
     }
   };
 
   return (
-    <div className="p-5">
-      <h2 className="text-xl font-bold mb-5">Manage Recipients</h2>
+    <div className="min-h-screen bg-gray-100 py-10 px-8 mt-20">
+      <h2 className="text-4xl font-bold mb-6 text-gray-800">Manage Recipients</h2>
       <div className="mb-5">
         <input
           type="email"
@@ -76,18 +82,17 @@ const ManageRecipients = () => {
           {recipients.map((recipient) => (
             <tr key={recipient._id}>
               <td className="border p-2">{recipient.email}</td>
-              <td className="border p-2">
-                <button
+              <td className="flex justify-center items-center border p-3">
+                <FaTrash
                   onClick={() => deleteRecipient(recipient._id)}
-                  className="px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600"
-                >
-                  Delete
-                </button>
+                  className="text-red-500  cursor-pointer hover:text-red-600 transition-transform transform hover:scale-110" 
+                />
               </td>
             </tr>
           ))}
         </tbody>
       </table>
+        <ToastContainer/>
     </div>
   );
 };

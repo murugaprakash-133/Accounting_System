@@ -7,7 +7,7 @@ export default defineConfig({
   server: {
     proxy: {
         '/api': {
-            target: 'https://accounting-system-2z2w.onrender.com',
+            target: 'http://localhost:5000',
             changeOrigin: true,
             secure: false
         }

@@ -3,10 +3,14 @@ import XLSX from "xlsx";
 import fs from "fs";
 import { fileURLToPath } from "url";
 import path from "path";
+import dotenv from "dotenv";
 import Transfer from "../models/transfer.model.js";
 import TransferBank from "../models/transferBank.model.js";
 import Transaction from "../models/transaction.model.js";
 import Recipient from "../models/recipient.model.js";
+
+// Load environment variables
+dotenv.config();
 
 // Define __dirname for ES6 modules
 const __filename = fileURLToPath(import.meta.url);

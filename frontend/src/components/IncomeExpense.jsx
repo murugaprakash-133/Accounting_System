@@ -3,6 +3,8 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
 import { toast, ToastContainer } from "react-toastify";
+import Swal from "sweetalert2";
+import "../index.css";
 // import { useNavigate } from "react-router-dom";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
@@ -122,13 +124,9 @@ export default function Transactions() {
         };
 
         // Save the transaction in the Transaction schema
-        await axios.post(
-          `${API_BASE_URL}/api/transactions`,
-          transactionData,
-          {
-            withCredentials: true,
-          }
-        );
+        await axios.post(`${API_BASE_URL}/api/transactions`, transactionData, {
+          withCredentials: true,
+        });
 
         // console.log("Transaction saved:", transactionData);
 
@@ -147,13 +145,9 @@ export default function Transactions() {
             from: "External Source", // Indicate the source for income
           };
 
-          await axios.post(
-            `${API_BASE_URL}${transferEndpoint}`,
-            transferData,
-            {
-              withCredentials: true,
-            }
-          );
+          await axios.post(`${API_BASE_URL}${transferEndpoint}`, transferData, {
+            withCredentials: true,
+          });
 
           // console.log("Linked transfer saved:", transferData);
         }
@@ -162,7 +156,9 @@ export default function Transactions() {
       // Handle transfer
       else if (activeTab === "transfer") {
         if (!formData.to || !formData.from || !formData.transactionType) {
-          toast.warning("Please select 'Transaction Type', 'To', and 'From' accounts.");
+          toast.warning(
+            "Please select 'Transaction Type', 'To', and 'From' accounts."
+          );
           return;
         }
 
@@ -259,21 +255,67 @@ export default function Transactions() {
   };
 
   const handleAddCategory = () => {
-    const newCategory = prompt("Enter new category:");
-    if (newCategory && !categories.includes(newCategory)) {
-      setCategories((prevCategories) => [...prevCategories, newCategory]);
-    }
+    Swal.fire({
+      title: "Add New Category",
+      input: "text",
+      inputPlaceholder: "Enter new Category",
+      showCancelButton: true,
+      confirmButtonText: "Add",
+      cancelButtonText: "Cancel",
+      customClass: {
+      popup: "swal2-small-popup", // Add a custom class
+    },
+      inputValidator: (value) => {
+        if (!value) {
+          return "You need to enter a value!";
+        }
+        if (voucherTypes.includes(value)) {
+          return "This Category already exists!";
+        }
+      },
+    }).then((result) => {
+      if (result.isConfirmed) {
+        const newVoucherType = result.value;
+        setCategories((prevVoucherTypes) => [
+          ...prevVoucherTypes,
+          newVoucherType,
+        ]);
+        Swal.fire("Added!", `New Category "${newVoucherType}" added.`, "success");
+      }
+    });
   };
 
   const handleAddVoucherType = () => {
-    const newVoucherType = prompt("Enter new category:");
-    if (newVoucherType && !voucherTypes.includes(newVoucherType)) {
-      setVoucherTypes((prevVoucherTypes) => [
-        ...prevVoucherTypes,
-        newVoucherType,
-      ]);
-    }
+    Swal.fire({
+      title: "Add New Voucher Type",
+      input: "text",
+      inputPlaceholder: "Enter new voucher type",
+      showCancelButton: true,
+      confirmButtonText: "Add",
+      cancelButtonText: "Cancel",
+      customClass: {
+      popup: "swal2-small-popup", // Add a custom class
+    },
+      inputValidator: (value) => {
+        if (!value) {
+          return "You need to enter a value!";
+        }
+        if (voucherTypes.includes(value)) {
+          return "This voucher type already exists!";
+        }
+      },
+    }).then((result) => {
+      if (result.isConfirmed) {
+        const newVoucherType = result.value;
+        setVoucherTypes((prevVoucherTypes) => [
+          ...prevVoucherTypes,
+          newVoucherType,
+        ]);
+        Swal.fire("Added!", `New voucher type "${newVoucherType}" added.`, "success");
+      }
+    });
   };
+
   const filteredOptions = (field) => {
     if (formData.transactionType === "Internal") {
       if (field === "from") {
@@ -300,19 +342,65 @@ export default function Transactions() {
     // Default to all options if no transactionType is selected
     return transferOptions;
   };
-
   const handleAddAccount = () => {
-    const newAccount = prompt("Enter new account:");
-    if (newAccount && !accounts.includes(newAccount)) {
-      setAccounts((prevAccounts) => [...prevAccounts, newAccount]);
-    }
+    Swal.fire({
+      title: "Add New account",
+      input: "text",
+      inputPlaceholder: "Enter new account",
+      showCancelButton: true,
+      confirmButtonText: "Add",
+      cancelButtonText: "Cancel",
+      customClass: {
+      popup: "swal2-small-popup", // Add a custom class
+    },
+      inputValidator: (value) => {
+        if (!value) {
+          return "You need to enter a value!";
+        }
+        if (voucherTypes.includes(value)) {
+          return "This account already exists!";
+        }
+      },
+    }).then((result) => {
+      if (result.isConfirmed) {
+        const newVoucherType = result.value;
+        setAccounts((prevVoucherTypes) => [
+          ...prevVoucherTypes,
+          newVoucherType,
+        ]);
+        Swal.fire("Added!", `New Account "${newVoucherType}" added.`, "success");
+      }
+    });
   };
-
   const handleAddTransferOption = (field) => {
-    const newOption = prompt(`Enter new ${field}:`);
-    if (newOption && !transferOptions.includes(newOption)) {
-      setTransferOptions((prevOptions) => [...prevOptions, newOption]);
-    }
+    Swal.fire({
+      title: (`Add New ${field}`),
+      input: "text",
+      inputPlaceholder: (`Enter new ${field};`),
+      showCancelButton: true,
+      confirmButtonText: "Add",
+      cancelButtonText: "Cancel",
+      customClass: {
+      popup: "swal2-small-popup", // Add a custom class
+    },
+      inputValidator: (value) => {
+        if (!value) {
+          return "You need to enter a value!";
+        }
+        if (voucherTypes.includes(value)) {
+          return (`This ${field} already exists!`);
+        }
+      },
+    }).then((result) => {
+      if (result.isConfirmed) {
+        const newVoucherType = result.value;
+        setTransferOptions((prevVoucherTypes) => [
+          ...prevVoucherTypes,
+          newVoucherType,
+        ]);
+        Swal.fire("Added!", `New ${field} "${newVoucherType}" added.`, "success");
+      }
+    });
   };
 
   return (
@@ -452,7 +540,7 @@ export default function Transactions() {
                 <div className="mt-2">
                   <button
                     type="button"
-                    onClick={() => handleAddTransferOption("to")}
+                    onClick={() => handleAddTransferOption("To")}
                     className="px-4 py-2 bg-green-500 text-white rounded-lg mr-2"
                   >
                     Add To
@@ -482,7 +570,7 @@ export default function Transactions() {
                     onClick={handleAddVoucherType}
                     className="px-4 py-2 bg-green-500 text-white rounded-lg mr-2"
                   >
-                    Add Category
+                    Add Voucher type
                   </button>
                 </div>
               </div>
@@ -587,7 +675,7 @@ export default function Transactions() {
           >
             Add Transaction
           </button>
-          <ToastContainer/>
+          <ToastContainer />
         </form>
       </div>
     </div>

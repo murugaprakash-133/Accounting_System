@@ -5,7 +5,7 @@ import { Pie } from 'react-chartjs-2';
 import axios from 'axios';
 import 'chart.js/auto';
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+const API_BASE_URL = "http://localhost:5000";
 
 const DetailedReports = () => {
   const [transactions, setTransactions] = useState([]);

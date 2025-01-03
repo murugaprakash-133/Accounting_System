@@ -7,7 +7,7 @@ import { FaTrash } from "react-icons/fa";
 import { toast, ToastContainer } from "react-toastify";
 import Swal from "sweetalert2"
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+const API_BASE_URL = "http://localhost:5000";
 
 const MonthlyReport = () => {
   const [transactions, setTransactions] = useState([]);
@@ -137,7 +137,7 @@ const handleDelete = async (id, type, account, transactionType) => {
         const setter = account === "Bank 1" ? setTransfers : setTransferBanks;
 
         await deleteEntry(url, id, setter);
-        await deleteEntry(`/api/transactions/${id}`, id, setTransactions);
+        // await deleteEntry(`/api/transactions/${id}`, id, setTransactions);
       } else if (transactionType === "Internal") {
         if (account === "Bank 1") {
           await deleteEntry(`/api/transfers/${id}`, id, setTransfers);

@@ -33,7 +33,7 @@ app.use(cookieParser());
 // Configure CORS to allow requests from your frontend
 app.use(
   cors({
-    origin: "https://accounting-system-2z2w.onrender.com", // Your frontend's origin
+    origin: "http://localhost:5173", // Your frontend's origin
     methods: ["GET", "POST", "PUT", "DELETE"], // Allowed HTTP methods
     credentials: true, // Allow cookies and other credentials
   })
@@ -61,5 +61,5 @@ app.get("*", (req, res) => {
 // Start the server
 app.listen(PORT, () => {
   connectToMongoDB();
-  // console.log(`Server is running on port ${PORT}`);
+  console.log(`Server is running on port ${PORT}`);
 });

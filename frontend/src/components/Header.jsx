@@ -2,22 +2,28 @@ import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { FaUserCircle, FaChevronDown } from "react-icons/fa";
 import { useAuth } from "../context/AuthContext";
+import { toast } from "react-toastify";
 
 const Header = () => {
   const { isLoggedIn, userDetails, logout } = useAuth();
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const profileSidebarRef = useRef(null);
   const navigate = useNavigate();
+  const buttonRef = useRef(null);
+
 
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (
         profileSidebarRef.current &&
-        !profileSidebarRef.current.contains(event.target)
+        !profileSidebarRef.current.contains(event.target) &&
+        buttonRef.current &&
+        !buttonRef.current.contains(event.target)
       ) {
         setIsProfileOpen(false);
       }
     };
+
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
@@ -25,12 +31,10 @@ const Header = () => {
   const handleLogout = async () => {
     await logout();
     navigate("/login");
+    toast.error("Logout Successfully!")
   };
 
-  const toggleProfile = (e) => {
-    e.stopPropagation(); // Prevent triggering outside click handler
-    setIsProfileOpen((prevState) => !prevState);
-  };
+  const toggleProfile = () => setIsProfileOpen((prev) => !prev);
 
   return (
     <header className="fixed top-0 left-0 right-0 bg-gradient-to-r from-gray-700 to-gray-500 text-white px-6 py-4 flex justify-between items-center shadow-md z-50">
@@ -57,43 +61,49 @@ const Header = () => {
 
         {isLoggedIn && userDetails && (
           <div className="relative">
-            <button
-              onClick={toggleProfile}
-              className="flex items-center space-x-2 bg-gray-600 px-4 py-2 rounded-md hover:bg-gray-700 transition duration-300"
-            >
-              <FaUserCircle className="text-2xl" />
-              <span className="hidden sm:block truncate max-w-[150px]">
-                {userDetails.name}
-              </span>
-              <FaChevronDown
-                className={`transform transition-transform duration-300 ${
-                  isProfileOpen ? "rotate-180" : ""
-                }`}
-              />
-            </button>
+          {/* Profile Button */}
+          <button
+            onClick={toggleProfile}
+            ref={buttonRef}
+            className="flex items-center space-x-2 bg-gray-600 px-4 py-2 rounded-md hover:bg-gray-700 transition duration-300"
+          >
+            <FaUserCircle className="text-2xl" />
+            <span className="hidden sm:block truncate max-w-[150px] text-white">
+              {userDetails.name}
+            </span>
+            <FaChevronDown
+              className={`transform transition-transform duration-300 ${
+                isProfileOpen ? "rotate-180" : ""
+              }`}
+            />
+          </button>
 
             {isProfileOpen && (
               <div
                 ref={profileSidebarRef}
-                className="absolute right-0 mt-2 bg-white text-black rounded-md shadow-md p-4 w-[90%] sm:w-64 origin-top-right transform scale-100 transition-transform duration-300 ease-in-out"
+                className={`absolute right-0 sm:right-0 sm:left-auto mt-2 bg-white text-black rounded-md shadow-md p-3 sm:p-4 w-60 sm:w-64 max-h-[80vh] sm:max-h-none overflow-y-auto origin-top-right transform transition-transform duration-300 ease-in-out ${
+                  isProfileOpen
+                    ? "scale-100 opacity-100"
+                    : "scale-95 opacity-0 pointer-events-none"
+                }`}
                 style={{
                   zIndex: 100,
                 }}
               >
                 <div className="space-y-2">
-                  <p className="flex justify-between text-sm">
-                    <strong className="text-gray-600">Name:</strong>
-                    <span className="text-right text-gray-800 truncate max-w-[120px] sm:max-w-none">
+                  <p className="flex justify-between text-xs sm:text-sm">
+                    <strong className="text-gray-600 ">Name:</strong>
+                    <span className="text-right text-gray-800 truncate max-w-[100px] sm:max-w-none">
                       {userDetails.name}
                     </span>
                   </p>
-                  <p className="flex justify-between text-sm">
+                  <p className="flex justify-between text-xs sm:text-sm">
                     <strong className="text-gray-600">Email:</strong>
-                    <span className="text-right text-gray-800 truncate max-w-[120px] sm:max-w-none">
+                    <span className="text-right text-gray-800 truncate max-w-[100px] sm:max-w-none">
                       {userDetails.email}
                     </span>
                   </p>
-                  <p className="flex justify-between text-sm">
+                  <p className="flex justify-between text-xs sm:text-sm">
                     <strong className="text-gray-600">Role:</strong>
                     <span className="text-right text-gray-800">
                       {userDetails.role}
@@ -102,7 +112,7 @@ const Header = () => {
                 </div>
                 <button
                   onClick={handleLogout}
-                  className="w-full bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600 mt-4 transition duration-300"
+                  className="w-full bg-red-500 text-white text-xs sm:text-sm px-3 sm:px-4 py-2 rounded-md hover:bg-red-600 mt-4 transition duration-300"
                 >
                   Logout
                 </button>
