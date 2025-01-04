@@ -22,7 +22,7 @@ const transporter = nodemailer.createTransport({
   service: "gmail",
   auth: {
     user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS, // Use environment variables for security
+    pass: process.env.EMAIL_PASS,
   },
 });
 
@@ -129,20 +129,17 @@ const generateAndSendExcel = async () => {
   }
 };
 
-// Schedule the task to run every 10 minutes for testing
-// schedule.scheduleJob("*/5 * * * *", async () => {
-//   await generateAndSendExcel();
-// });
-
-// Uncomment for production to run on the last day of the month
-schedule.scheduleJob("59 23 28-31 * *", async () => {
+// Schedule the task to run on the last day of each month at 11:00 PM
+schedule.scheduleJob("0 23 28-31 * *", async () => {
   const currentDate = new Date();
   const lastDayOfMonth = new Date(
     currentDate.getFullYear(),
     currentDate.getMonth() + 1,
     0
   ).getDate();
+
   if (currentDate.getDate() === lastDayOfMonth) {
+    console.log("Last day of the month detected. Sending report at 11:00 PM...");
     await generateAndSendExcel();
   }
 });

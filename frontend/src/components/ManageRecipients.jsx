@@ -56,7 +56,7 @@ const ManageRecipients = () => {
   return (
     <div className="min-h-screen bg-gray-100 py-10 px-8 mt-20">
       <h2 className="text-4xl font-bold mb-6 text-gray-800">Manage Recipients</h2>
-      <div className="mb-5">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
         <input
           type="email"
           value={newEmail}

@@ -204,14 +204,14 @@ const handleDelete = async (id, type, account, transactionType) => {
   };
 
   return (
-    <div className="p-6 bg-gray-50 min-h-screen mt-20">
+    <div className="p-6 bg-gray-50 min-h-screen mt-20 mb-6">
       {loading && <p>Loading...</p>}
-      <div className="mb-6 flex justify-between items-center">
-        <div>
-          <h2 className="text-3xl font-semibold text-gray-800">Monthly Report</h2>
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center">
+        <div className="mb-4 sm:mb-0">
+          <h2 className="text-2xl sm:text-3xl font-semibold text-gray-800">Monthly Report</h2>
           <p className="text-gray-700">Overview of your transactions</p>
         </div>
-        <div className="flex items-center space-x-4">
+        <div className="flex flex-wrap items-center space-y-2 sm:space-y-0 sm:space-x-4 gap-x-2">
           <select
             value={selectedMonth}
             onChange={(e) => setSelectedMonth(parseInt(e.target.value))}
@@ -242,22 +242,22 @@ const handleDelete = async (id, type, account, transactionType) => {
           </button>
         </div>
       </div>
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 mb-8">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-8">
         <div className="bg-white p-6 rounded-md shadow-md">
-          <h3 className="font-semibold text-xl">Total Income</h3>
-          <p className="text-2xl font-bold text-green-600">
+          <h3 className="font-semibold text-lg sm:text-xl">Total Income</h3>
+          <p className="text-xl sm:text-2xl font-bold text-green-600">
             {formatCurrency(totalIncome)}
           </p>
         </div>
         <div className="bg-white p-6 rounded-md shadow-md">
-          <h3 className="font-semibold text-xl">Total Expenses</h3>
-          <p className="text-2xl font-bold text-red-600">
+          <h3 className="font-semibold text-lg sm:text-xl">Total Expenses</h3>
+          <p className="text-xl sm:text-2xl font-bold text-red-600">
             {formatCurrency(totalExpenses)}
           </p>
         </div>
         <div className="bg-white p-6 rounded-md shadow-md">
-          <h3 className="font-semibold text-xl">Net Profit</h3>
-          <p className="text-2xl font-bold text-blue-600">
+          <h3 className="font-semibold text-lg sm:text-xl">Net Profit</h3>
+          <p className="text-xl sm:text-2xl font-bold text-blue-600">
             {formatCurrency(totalIncome - totalExpenses)}
           </p>
         </div>
@@ -270,31 +270,31 @@ const handleDelete = async (id, type, account, transactionType) => {
           <table className="w-full table-auto border-collapse">
             <thead>
               <tr className="bg-gray-100">
-                <th className="text-left py-4 px-4 border-b-2 border-gray-300 text-gray-700 font-medium uppercase">
+                <th className="text-left py-2 sm:py-4 px-2 sm:px-4 border-b-2 border-gray-300 text-xs sm:text-sm text-gray-700 font-medium uppercase hidden md:table-cell">
                   Date
                 </th>
-                <th className="text-left py-4 px-4 border-b-2 border-gray-300 text-gray-700 font-medium uppercase">
+                <th className="text-left py-2 sm:py-4 px-2 sm:px-4 border-b-2 border-gray-300 text-xs sm:text-sm text-gray-700 font-medium uppercase hidden md:table-cell">
                   Time
                 </th>
-                <th className="text-left py-4 px-4 border-b-2 border-gray-300 text-gray-700 font-medium uppercase">
+                <th className="text-left py-2 sm:py-4 px-2 sm:px-4 border-b-2 border-gray-300 text-xs sm:text-sm text-gray-700 font-medium uppercase hidden md:table-cell">
                   Description
                 </th>
-                <th className="text-left py-4 px-4 border-b-2 border-gray-300 text-gray-700 font-medium uppercase">
+                <th className="text-left py-2 sm:py-4 px-2 sm:px-4 border-b-2 border-gray-300 text-xs sm:text-sm text-gray-700 font-medium uppercase hidden md:table-cell">
                   Voucher Type
                 </th>
-                <th className="text-left py-4 px-4 border-b-2 border-gray-300 text-gray-700 font-medium uppercase">
+                <th className="text-left py-2 sm:py-4 px-2 sm:px-4 border-b-2 border-gray-300 text-xs sm:text-sm text-gray-700 font-medium uppercase hidden md:table-cell">
                   Voucher No
                 </th>
-                <th className="text-right py-4 px-4 border-b-2 border-gray-300 text-gray-700 font-medium uppercase">
+                <th className="text-right py-2 sm:py-4 px-2 sm:px-4 border-b-2 border-gray-300 text-xs sm:text-sm text-gray-700 font-medium uppercase">
                   Debit ₹
                 </th>
-                <th className="text-right py-4 px-4 border-b-2 border-gray-300 text-gray-700 font-medium uppercase">
+                <th className="text-right py-2 sm:py-4 px-2 sm:px-4 border-b-2 border-gray-300 text-xs sm:text-sm text-gray-700 font-medium uppercase">
                   Credit ₹
                 </th>
-                <th className="text-right py-4 px-4 border-b-2 border-gray-300 text-gray-700 font-medium uppercase">
+                <th className="text-right py-2 sm:py-4 px-2 sm:px-4 border-b-2 border-gray-300 text-xs sm:text-sm text-gray-700 font-medium uppercase">
                   Balance
                 </th>
-                <th className="text-right py-4 px-4 border-b-2 border-gray-300 text-gray-700 font-medium uppercase">
+                <th className="text-right py-2 sm:py-4 px-2 sm:px-4 border-b-2 border-gray-300 text-xs sm:text-sm text-gray-700 font-medium uppercase">
                   Action
                 </th>
               </tr>
@@ -316,36 +316,36 @@ const handleDelete = async (id, type, account, transactionType) => {
                       index % 2 === 0 ? "bg-gray-50" : "bg-white"
                     } hover:bg-gray-200`}
                   >
-                    <td className="py-4 px-6 border-b border-gray-300 text-gray-800">
+                    <td className="py-2 sm:py-4 px-2 sm:px-4 border-b border-gray-300 text-xs sm:text-sm text-gray-800 hidden md:table-cell">
                       {formattedDate}
                     </td>
-                    <td className="py-4 px-6 border-b border-gray-300 text-gray-800">
+                    <td className="py-2 sm:py-4 px-2 sm:px-4 border-b border-gray-300 text-xs sm:text-sm text-gray-800 hidden md:table-cell">
                       {transaction.time} {transaction.amPm}
                     </td>
-                    <td className="py-4 px-6 border-b border-gray-300 text-gray-800">
+                    <td className="py-2 sm:py-4 px-2 sm:px-4 border-b border-gray-300 text-xs sm:text-sm text-gray-800 hidden md:table-cell">
                       {transaction.description}
                     </td>
-                    <td className="py-4 px-6 border-b border-gray-300 text-gray-800">
+                    <td className="py-2 sm:py-4 px-2 sm:px-4 border-b border-gray-300 text-xs sm:text-sm text-gray-800 hidden md:table-cell">
                       {transaction.voucherType}
                     </td>
-                    <td className="py-4 px-6 border-b border-gray-300 text-gray-800">
+                    <td className="py-2 sm:py-4 px-2 sm:px-4 border-b border-gray-300 text-xs sm:text-sm text-gray-800 hidden md:table-cell">
                       {transaction.voucherNo}
                     </td>
-                    <td className="py-4 px-6 border-b border-gray-300 text-right font-semibold text-red-600">
+                    <td className="py-2 sm:py-4 px-2 sm:px-4 border-b border-gray-300 text-right text-xs sm:text-sm font-semibold text-red-600">
                       {transaction.type === "expense" ||
                       transaction.type === "transfer"
                         ? `₹${transaction.amount.toFixed(2)}`
                         : " "}
                     </td>
-                    <td className="py-4 px-6 border-b border-gray-300 text-right font-semibold text-green-600">
+                    <td className="py-2 sm:py-4 px-2 sm:px-4 border-b border-gray-300 text-right text-xs sm:text-sm font-semibold text-green-600">
                       {transaction.type === "income"
                         ? `₹${transaction.amount.toFixed(2)}`
                         : " "}
                     </td>
-                    <td className="py-4 px-6 border-b border-gray-300 text-right text-gray-800">
+                    <td className="py-2 sm:py-4 px-2 sm:px-4 border-b border-gray-300 text-right text-xs sm:text-sm text-gray-800">
                       ₹{transaction.balance.toFixed(2)}
                     </td>
-                    <td className="py-4 px-6 border-b border-gray-300">
+                    <td className="py-2 sm:py-4 px-2 sm:px-4 border-b border-gray-300 text-right">
                       <FaTrash
                         onClick={() => 
                           handleDelete(transaction.transactionId, transaction.type, transaction.account) }
@@ -361,34 +361,34 @@ const handleDelete = async (id, type, account, transactionType) => {
           <ToastContainer/>
         </div>
       </div>
-      <div className="bg-white p-6 rounded-md pt-4 mt-2 shadow-md">
+      <div className="bg-white p-6 rounded-md mt-2 shadow-md">
         <h3 className="font-semibold text-xl mb-4">Transfer Bank 1</h3>
         <div className="overflow-x-auto">
           <table className="w-full table-auto border-collapse">
             <thead>
               <tr className="bg-gray-100">
-                <th className="text-left py-4 px-4 border-b-2 border-gray-300 text-gray-700 font-medium uppercase">
+                <th className="text-left py-2 sm:py-4 px-2 sm:px-4 border-b-2 border-gray-300 text-xs sm:text-sm text-gray-700 font-medium uppercase hidden md:table-cell">
                   Date
                 </th>
-                <th className="text-left py-4 px-4 border-b-2 border-gray-300 text-gray-700 font-medium uppercase">
+                <th className="text-left py-2 sm:py-4 px-2 sm:px-4 border-b-2 border-gray-300 text-xs sm:text-sm text-gray-700 font-medium uppercase hidden md:table-cell">
                   Time
                 </th>
-                <th className="text-left py-4 px-4 border-b-2 border-gray-300 text-gray-700 font-medium uppercase">
+                <th className="text-left py-2 sm:py-4 px-2 sm:px-4 border-b-2 border-gray-300 text-xs sm:text-sm text-gray-700 font-medium uppercase hidden md:table-cell">
                   Description
                 </th>
-                <th className="text-left py-4 px-4 border-b-2 border-gray-300 text-gray-700 font-medium uppercase">
+                <th className="text-left py-2 sm:py-4 px-2 sm:px-4 border-b-2 border-gray-300 text-xs sm:text-sm text-gray-700 font-medium uppercase hidden md:table-cell">
                   Transaction Type
                 </th>
-                <th className="text-right py-4 px-4 border-b-2 border-gray-300 text-gray-700 font-medium uppercase">
+                <th className="text-right py-2 sm:py-4 px-2 sm:px-4 border-b-2 border-gray-300 text-xs sm:text-sm text-gray-700 font-medium uppercase">
                   Debit ₹
                 </th>
-                <th className="text-right py-4 px-4 border-b-2 border-gray-300 text-gray-700 font-medium uppercase">
+                <th className="text-right py-2 sm:py-4 px-2 sm:px-4 border-b-2 border-gray-300 text-xs sm:text-sm text-gray-700 font-medium uppercase">
                   Credit ₹
                 </th>
-                <th className="text-right py-4 px-4 border-b-2 border-gray-300 text-gray-700 font-medium uppercase">
+                <th className="text-right py-2 sm:py-4 px-2 sm:px-4 border-b-2 border-gray-300 text-xs sm:text-sm text-gray-700 font-medium uppercase">
                   Balance
                 </th>
-                <th className="text-right py-4 px-4 border-b-2 border-gray-300 text-gray-700 font-medium uppercase">
+                <th className="text-right py-2 sm:py-4 px-2 sm:px-4 border-b-2 border-gray-300 text-xs sm:text-sm text-gray-700 font-medium uppercase">
                   Action
                 </th>
               </tr>
@@ -411,34 +411,34 @@ const handleDelete = async (id, type, account, transactionType) => {
                       index % 2 === 0 ? "bg-gray-50" : "bg-white"
                     } hover:bg-gray-200`}
                   >
-                    <td className="py-4 px-6 border-b border-gray-300 text-gray-800">
+                    <td className="py-2 sm:py-4 px-2 sm:px-4 border-b border-gray-300 text-xs sm:text-sm text-gray-800 hidden md:table-cell">
                       {formattedDate}
                     </td>
-                    <td className="py-4 px-6 border-b border-gray-300 text-gray-800">
+                    <td className="py-2 sm:py-4 px-2 sm:px-4 border-b border-gray-300 text-xs sm:text-sm text-gray-800 hidden md:table-cell">
                       {item.time} {item.amPm}
                     </td>
-                    <td className="py-4 px-6 border-b border-gray-300 text-gray-800">
+                    <td className="py-2 sm:py-4 px-2 sm:px-4 border-b border-gray-300 text-xs sm:text-sm text-gray-800 hidden md:table-cell">
                       {item.description}
                     </td>
-                    <td className="py-4 px-6 border-b border-gray-300 text-gray-800">
+                    <td className="py-2 sm:py-4 px-2 sm:px-4 border-b border-gray-300 text-xs sm:text-sm text-gray-800 hidden md:table-cell">
                       {item.transactionType}
                     </td>
-                    <td className="py-4 px-6 border-b border-gray-300 text-right font-semibold text-red-600">
+                    <td className="py-2 sm:py-4 px-2 sm:px-4 border-b border-gray-300 text-right text-xs sm:text-sm font-semibold text-red-600">
                       {item.transactionType === "expense" ||
                       item.from === "Bank 1"
                         ? `₹${item.amount.toFixed(2)}`
                         : " "}
                     </td>
-                    <td className="py-4 px-6 border-b border-gray-300 text-right font-semibold text-green-600">
+                    <td className="py-2 sm:py-4 px-2 sm:px-4 border-b border-gray-300 text-right text-xs sm:text-sm font-semibold text-green-600">
                       {item.transactionType === "income" ||
                       item.from === "Bank 2"
                         ? `₹${item.amount.toFixed(2)}`
                         : " "}
                     </td>
-                    <td className="py-4 px-6 border-b border-gray-300 text-right text-gray-800">
+                    <td className="py-2 sm:py-4 px-2 sm:px-4 border-b border-gray-300 text-right text-xs sm:text-sm text-gray-800">
                       ₹{item.balance.toFixed(2)}
                     </td>
-                    <td className="py-4 px-6 border-b border-gray-300">
+                    <td className="py-2 sm:py-4 px-2 sm:px-4 border-b border-gray-300 text-right">
                       <FaTrash
                         onClick={() => 
                           handleDelete(item.transactionId, (item.transactionType === "income" || item.transactionType === "expense") ? item.transactionType : item.type, (item.transactionType === "External" || item.transactionType === "Internal") ? item.from : item.to, item.transactionType)}
@@ -459,28 +459,28 @@ const handleDelete = async (id, type, account, transactionType) => {
           <table className="w-full table-auto border-collapse">
             <thead>
               <tr className="bg-gray-100">
-                <th className="text-left py-4 px-4 border-b-2 border-gray-300 text-gray-700 font-medium uppercase">
+                <th className="text-left py-2 sm:py-4 px-2 sm:px-4 border-b-2 border-gray-300 text-xs sm:text-sm text-gray-700 font-medium uppercase hidden md:table-cell">
                   Date
                 </th>
-                <th className="text-left py-4 px-4 border-b-2 border-gray-300 text-gray-700 font-medium uppercase">
+                <th className="text-left py-2 sm:py-4 px-2 sm:px-4 border-b-2 border-gray-300 text-xs sm:text-sm text-gray-700 font-medium uppercase hidden md:table-cell">
                   Time
                 </th>
-                <th className="text-left py-4 px-4 border-b-2 border-gray-300 text-gray-700 font-medium uppercase">
+                <th className="text-left py-2 sm:py-4 px-2 sm:px-4 border-b-2 border-gray-300 text-xs sm:text-sm text-gray-700 font-medium uppercase hidden md:table-cell">
                   Description
                 </th>
-                <th className="text-left py-4 px-4 border-b-2 border-gray-300 text-gray-700 font-medium uppercase">
+                <th className="text-left py-2 sm:py-4 px-2 sm:px-4 border-b-2 border-gray-300 text-xs sm:text-sm text-gray-700 font-medium uppercase hidden md:table-cell">
                   Transaction Type
                 </th>
-                <th className="text-right py-4 px-4 border-b-2 border-gray-300 text-gray-700 font-medium uppercase">
+                <th className="text-left py-2 sm:py-4 px-2 sm:px-4 border-b-2 border-gray-300 text-xs sm:text-sm text-gray-700 font-medium uppercase">
                   Debit ₹
                 </th>
-                <th className="text-right py-4 px-4 border-b-2 border-gray-300 text-gray-700 font-medium uppercase">
+                <th className="text-left py-2 sm:py-4 px-2 sm:px-4 border-b-2 border-gray-300 text-xs sm:text-sm text-gray-700 font-medium uppercase">
                   Credit ₹
                 </th>
-                <th className="text-right py-4 px-4 border-b-2 border-gray-300 text-gray-700 font-medium uppercase">
+                <th className="text-left py-2 sm:py-4 px-2 sm:px-4 border-b-2 border-gray-300 text-xs sm:text-sm text-gray-700 font-medium uppercase">
                   Balance
                 </th>
-                <th className="text-right py-4 px-4 border-b-2 border-gray-300 text-gray-700 font-medium uppercase">
+                <th className="text-left py-2 sm:py-4 px-2 sm:px-4 border-b-2 border-gray-300 text-xs sm:text-sm text-gray-700 font-medium uppercase">
                   Action
                 </th>
               </tr>
@@ -504,31 +504,31 @@ const handleDelete = async (id, type, account, transactionType) => {
                       index % 2 === 0 ? "bg-gray-50" : "bg-white"
                     } hover:bg-gray-200`}
                   >
-                    <td className="py-4 px-6 border-b border-gray-300 text-gray-800">
+                    <td className="py-2 sm:py-4 px-2 sm:px-4 border-b border-gray-300 text-xs sm:text-sm text-gray-800 hidden md:table-cell">
                       {formattedDate}
                     </td>
-                    <td className="py-4 px-6 border-b border-gray-300 text-gray-800">
+                    <td className="py-2 sm:py-4 px-2 sm:px-4 border-b border-gray-300 text-xs sm:text-sm text-gray-800 hidden md:table-cell">
                       {item.time} {item.amPm}
                     </td>
-                    <td className="py-4 px-6 border-b border-gray-300 text-gray-800">
+                    <td className="py-2 sm:py-4 px-2 sm:px-4 border-b border-gray-300 text-xs sm:text-sm text-gray-800 hidden md:table-cell">
                       {item.description}
                     </td>
-                    <td className="py-4 px-6 border-b border-gray-300 text-gray-800">
+                    <td className="py-2 sm:py-4 px-2 sm:px-4 border-b border-gray-300 text-xs sm:text-sm text-gray-800 hidden md:table-cell">
                       {item.transactionType}
                     </td>
-                    <td className="py-4 px-6 border-b border-gray-300 text-right font-semibold text-red-600">
+                    <td className="py-2 sm:py-4 px-2 sm:px-4 border-b border-gray-300 text-right text-xs sm:text-sm font-semibold text-red-600">
                       {item.transactionType === "expense" ||
                       item.from === "Bank 2"
                         ? `₹${item.amount.toFixed(2)}`
                         : " "}
                     </td>
-                    <td className="py-4 px-6 border-b border-gray-300 text-right font-semibold text-green-600">
+                    <td className="py-2 sm:py-4 px-2 sm:px-4 border-b border-gray-300 text-right text-xs sm:text-sm font-semibold text-green-600">
                       {item.transactionType === "income" ||
                       item.from === "Bank 1"
                         ? `₹${item.amount.toFixed(2)}`
                         : " "}
                     </td>
-                    <td className="py-4 px-6 border-b border-gray-300 text-right text-gray-800">
+                    <td className="py-2 sm:py-4 px-2 sm:px-4 border-b border-gray-300 text-right text-xs sm:text-sm text-gray-800">
                       ₹{item.balance.toFixed(2)}
                     </td>
                     <td className="py-4 px-6 border-b border-gray-300">
