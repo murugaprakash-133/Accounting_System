@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { FaUserCircle, FaLock, FaEnvelope } from "react-icons/fa";
+import { IoMdArrowDropdown } from "react-icons/io";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { toast, ToastContainer } from "react-toastify";
@@ -13,8 +14,12 @@ const Register = () => {
     password: "",
     confirmPassword: "",
     role: "",
+    otp: "",
   });
+  const [otpSent, setOtpSent] = useState(false); // Track if OTP is sent
   const [error, setError] = useState(null);
+  const [showPassword, setShowPassword] = useState(false); // Toggle password visibility
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false); // Toggle confirm password visibility
   const navigate = useNavigate();
 
   const handleInputChange = (e) => {
@@ -25,38 +30,27 @@ const Register = () => {
     e.preventDefault();
     setError(null);
 
-    // Validate form data
-    if (
-      !formData.email ||
-      !formData.name ||
-      !formData.password ||
-      !formData.confirmPassword ||
-      !formData.role
-    ) {
-      setError("All fields are required.");
-      return;
-    }
-
-    if (formData.password !== formData.confirmPassword) {
-      setError("Passwords do not match.");
-      return;
-    }
+    console.log("Form data being sent:", formData); // Log the payload
 
     try {
-      // Send POST request to backend
       const response = await axios.post(
         `${API_BASE_URL}/api/auth/signup`,
         formData
       );
 
-      // Handle success
-      if (response.status === 201) {
-        toast.success("Registration successful!");
-        navigate("/login");
+      if (response.data.message === "OTP sent to email") {
+        toast.success("OTP sent to your email! Please check your inbox.");
+        setOtpSent(true); // Set OTP step to true
+      } else if (response.status === 201) {
+        toast.success("Registration successful! Redirecting to login...");
+        navigate("/login"); // Navigate to login page after success
       }
     } catch (err) {
-      // Handle errors from the server
+      console.error("Signup error:", err.response?.data || err.message);
       setError(
+        err.response?.data?.error || "An error occurred. Please try again."
+      );
+      toast.error(
         err.response?.data?.error || "An error occurred. Please try again."
       );
     }
@@ -73,7 +67,8 @@ const Register = () => {
           {error && <p className="text-center text-red-500 mb-4">{error}</p>}
 
           {/* Email Input */}
-          <div className="relative w-full h-12 mb-6">
+          <div className="relative w-full h-12 mb-6 flex items-center">
+            <FaEnvelope className="absolute right-7 text-xl text-gray-500" />
             <input
               type="email"
               name="email"
@@ -82,13 +77,13 @@ const Register = () => {
               value={formData.email}
               required
               autoComplete="off"
-              className="w-full h-full bg-transparent border border-gray-600 rounded-full text-black px-5 pr-12 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-400"
+              className="w-full h-full bg-transparent border border-gray-600 rounded-full text-black pl-6 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-400"
             />
-            <FaEnvelope className="absolute right-4 top-1/2 transform -translate-y-1/2 text-xl" />
           </div>
 
           {/* Name Input */}
-          <div className="relative w-full h-12 mb-6">
+          <div className="relative w-full h-12 mb-6 flex items-center">
+            <FaUserCircle className="absolute right-7 text-xl text-gray-500" />
             <input
               type="text"
               name="name"
@@ -97,59 +92,72 @@ const Register = () => {
               value={formData.name}
               required
               autoComplete="off"
-              className="w-full h-full bg-transparent border border-gray-600 rounded-full text-black px-5 pr-12 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-400"
+              className="w-full h-full bg-transparent border border-gray-600 rounded-full text-black pl-6 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-400"
             />
-            <FaUserCircle className="absolute right-4 top-1/2 transform -translate-y-1/2 text-xl" />
           </div>
 
           {/* Password Input */}
-          <div className="relative w-full h-12 mb-6">
+          <div className="relative w-full h-12 mb-6 flex items-center">
+            {/* <FaLock className="absolute left-4 text-xl text-gray-500" /> */}
             <input
-              type="password"
+              type={showPassword ? "text" : "password"}
               name="password"
               placeholder="Password"
               onChange={handleInputChange}
               value={formData.password}
               required
               autoComplete="off"
-              className="w-full h-full bg-transparent border border-gray-600 rounded-full text-black px-5 pr-12 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-400"
+              className="w-full h-full bg-transparent border border-gray-600 rounded-full text-black pl-6 pr-6 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-400"
             />
-            <FaLock className="absolute right-4 top-1/2 transform -translate-y-1/2 text-xl" />
           </div>
 
           {/* Confirm Password Input */}
-          <div className="relative w-full h-12 mb-6">
+          <div className="relative w-full h-12 mb-6 flex items-center">
+            {/* <FaLock className="absolute left-4 text-xl text-gray-500" /> */}
             <input
-              type="password"
+              type={showConfirmPassword ? "text" : "password"}
               name="confirmPassword"
               placeholder="Confirm Password"
               onChange={handleInputChange}
               value={formData.confirmPassword}
               required
               autoComplete="off"
-              className="w-full h-full bg-transparent border border-gray-600 rounded-full text-black px-5 pr-12 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-400"
+              className="w-full h-full bg-transparent border border-gray-600 rounded-full text-black pl-6 pr-6 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-400"
             />
-            <FaLock className="absolute right-4 top-1/2 transform -translate-y-1/2 text-xl" />
           </div>
 
           {/* Role Dropdown */}
-          <div className="relative w-full h-12 mb-6">
+          <div className="relative w-full h-12 mb-6 flex items-center">
             <select
               name="role"
               onChange={handleInputChange}
               value={formData.role}
               required
-              autoComplete="off"
-              className="w-full h-full bg-transparent border border-gray-600 rounded-full text-black px-5 placeholder-slate-400 appearance-none focus:outline-none focus:ring-2 focus:ring-slate-400"
+              className="w-full h-full bg-transparent border border-gray-600 rounded-full text-black pl-6 appearance-none placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-400"
             >
               <option value="">Role</option>
               <option value="User">User</option>
               <option value="Admin">Admin</option>
             </select>
-            <div className="absolute text-black right-5 top-1/2 transform -translate-y-1/2 pointer-events-none">
-              ▼
-            </div>
+            <IoMdArrowDropdown className="absolute right-7 text-xl text-gray-500" />
           </div>
+
+          {/* OTP Input */}
+          {otpSent && (
+            <div className="relative w-full h-12 mb-6 flex items-center">
+              <FaEnvelope className="absolute right-7 text-xl text-gray-500" />
+              <input
+                type="text"
+                name="otp"
+                placeholder="Enter OTP"
+                onChange={handleInputChange}
+                value={formData.otp}
+                required
+                autoComplete="off"
+                className="w-full h-full bg-transparent border border-gray-600 rounded-full text-black pl-6 pr-6 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-400"
+              />
+            </div>
+          )}
 
           {/* Submit Button */}
           <div className="text-center">
@@ -157,9 +165,9 @@ const Register = () => {
               type="submit"
               className="w-1/2 h-12 bg-sky-400 text-white font-bold rounded-full shadow-md hover:bg-sky-700 transition focus:outline-none focus:ring-2 focus:ring-white"
             >
-              Register
+              {otpSent ? "Verify & Register" : "Send OTP"}
             </button>
-            <ToastContainer/>
+            <ToastContainer />
           </div>
 
           <div className="mt-6 text-center">

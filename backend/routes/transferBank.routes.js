@@ -4,7 +4,7 @@ import {
   getTransferBanks,
   updateTransferBank,
   deleteTransferBank,
-} from "../controllers/transferBank.controller.js";
+} from "../controllers/transferbank.controller.js";
 import protectRoute from "../middleware/protectRoute.js";
 
 const router = express.Router();

@@ -1,6 +1,5 @@
 import Transaction from "../models/transaction.model.js";
-import Transfer from "../models/transfer.model.js";
-import TransferBank from "../models/transferBank.model.js";
+import TransferBank from "../models/transferbank.model.js";
 import { recalculateBalances } from "../utils/balanceUtils.js";
 
 // Create a new transaction
@@ -50,15 +49,19 @@ export const createTransferBank = async (req, res) => {
   }
 };
 
-
-// Get all transactions for the authenticated user with optional filters and include balance
+// Get all transfer banks for the authenticated user with optional filters and include balance
 export const getTransferBanks = async (req, res) => {
   try {
     const { month, year, type, page = 1, limit = 10 } = req.query;
 
-    const query = { userId: req.user._id };
+    // Build dynamic query
+    const query = {};
 
-    // Validate and filter by month and year if provided
+    if (req.user.role !== "Admin") {
+      query.userId = req.user._id; // Filter by userId for non-admin users
+    }
+
+    // Filter by month and year if provided
     if (month && year) {
       const parsedMonth = parseInt(month, 10);
       const parsedYear = parseInt(year, 10);
@@ -82,29 +85,33 @@ export const getTransferBanks = async (req, res) => {
       query.type = type;
     }
 
-    // Fetch transactions with balance included
+    // Determine the fetch limit based on user role
+    const fetchLimit = req.user.role === "Admin" ? 0 : parseInt(limit, 10);
+
+    // Fetch transfer banks with role-based logic
     const transferBanks = await TransferBank.find(query)
-      .sort({ createdAt: -1 })
-      .skip((page - 1) * limit)
-      .limit(parseInt(limit, 10))
+      .sort({ createdAt: -1 }) // Sort by most recent
+      .skip(req.user.role === "Admin" ? 0 : (page - 1) * fetchLimit) // Pagination for non-admin users
+      .limit(fetchLimit || 0) // No limit for admin
       .select("+balance"); // Include the balance field
 
+    // Count total transfer banks for pagination
     const totalTransferBanks = await TransferBank.countDocuments(query);
 
+    // Respond with the result
     res.status(200).json({
       transferBanks,
       totalTransferBanks,
       totalPages: Math.ceil(totalTransferBanks / limit),
-      currentPage: page,
+      currentPage: parseInt(page, 10),
     });
   } catch (error) {
-    console.error("Error fetching transactions:", error);
+    console.error("Error fetching transfer banks:", error);
     res
       .status(500)
-      .json({ message: error.message || "Error fetching transactions" });
+      .json({ message: error.message || "Error fetching transfer banks" });
   }
 };
-
 
 // Get monthly cash flow data dynamically
 export const getMonthlyCashFlowData = async (req, res) => {
@@ -157,7 +164,7 @@ export const getMonthlyCashFlowData = async (req, res) => {
 
     const daysInMonth = new Date(parsedYear, parsedMonth, 0).getDate();
     const cashFlowData = Array.from({ length: daysInMonth }, (_, i) => ({
-      day: Day `${i + 1}`,
+      day: Day`${i + 1}`,
       cashIn: groupedByDay[i + 1]?.cashIn || 0,
       cashOut: groupedByDay[i + 1]?.cashOut || 0,
       netCashFlow:
@@ -222,7 +229,6 @@ export const updateTransferBank = async (req, res) => {
       .json({ message: error.message || "Error updating transaction" });
   }
 };
-
 
 export const deleteTransferBank = async (req, res) => {
   try {

@@ -7,7 +7,7 @@ import Swal from "sweetalert2";
 import "../index.css";
 // import { useNavigate } from "react-router-dom";
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+const API_BASE_URL = "http://localhost:5000";
 
 export default function Transactions() {
   // const navigate = useNavigate();

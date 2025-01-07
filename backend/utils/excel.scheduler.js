@@ -6,7 +6,7 @@ import fs from "fs";
 import { fileURLToPath } from "url";
 import path from "path";
 import Transfer from "../models/transfer.model.js";
-import TransferBank from "../models/transferBank.model.js";
+import TransferBank from "../models/transferbank.model.js";
 import Transaction from "../models/transaction.model.js";
 import Recipient from "../models/recipient.model.js";
 

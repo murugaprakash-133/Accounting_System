@@ -1,7 +1,6 @@
 import Transaction from "../models/transaction.model.js";
 import Transfer from "../models/transfer.model.js";
 import { recalculateBalances } from "../utils/balanceUtils.js";
-import TransferBank from "../models/transferBank.model.js";
 
 // Create a new transaction
 export const createTransfer = async (req, res) => {
@@ -48,21 +47,28 @@ export const createTransfer = async (req, res) => {
   }
 };
 
-
-// Get all transactions for the authenticated user with optional filters
+// Get all transfers for the authenticated user with optional filters
 export const getTransfers = async (req, res) => {
   try {
     const { month, year, type, page = 1, limit = 10 } = req.query;
 
-    const query = { userId: req.user._id };
+    // Build dynamic query
+    const query = {};
 
-    // Validate and filter by month and year if provided
+    // For non-admin users, filter by userId
+    if (req.user.role !== "Admin") {
+      query.userId = req.user._id;
+    }
+
+    // Filter by month and year if provided
     if (month && year) {
       const parsedMonth = parseInt(month, 10);
       const parsedYear = parseInt(year, 10);
 
       if (isNaN(parsedMonth) || isNaN(parsedYear)) {
-        return res.status(400).json({ message: "Invalid month or year format" });
+        return res
+          .status(400)
+          .json({ message: "Invalid month or year format" });
       }
 
       const startOfMonth = new Date(parsedYear, parsedMonth - 1, 1);
@@ -78,34 +84,42 @@ export const getTransfers = async (req, res) => {
       query.type = type;
     }
 
+    // Determine the fetch limit based on user role
+    const fetchLimit = req.user.role === "Admin" ? 0 : parseInt(limit, 10);
+
+    // Fetch transfers with role-based logic
     const transfers = await Transfer.find(query)
-      .sort({ createdAt: -1 })
-      .skip((page - 1) * limit)
-      .limit(parseInt(limit, 10))
+      .sort({ createdAt: -1 }) // Sort by most recent
+      .skip(req.user.role === "Admin" ? 0 : (page - 1) * fetchLimit) // Apply pagination for users
+      .limit(fetchLimit || 0) // No limit for admin
       .select("+balance"); // Include the balance field
 
+    // Count total transfers for pagination
     const totalTransfers = await Transfer.countDocuments(query);
 
     // Calculate total income and expenses
     const totalIncome = transfers
-      .filter(transfer => transfer.type === "income")
+      .filter((transfer) => transfer.type === "income")
       .reduce((acc, curr) => acc + curr.amount, 0);
 
     const totalExpenses = transfers
-      .filter(transfer => transfer.type === "expense")
+      .filter((transfer) => transfer.type === "expense")
       .reduce((acc, curr) => acc + curr.amount, 0);
 
+    // Respond with the result
     res.status(200).json({
       transfers,
       totalTransfers,
       totalPages: Math.ceil(totalTransfers / limit),
-      currentPage: page,
+      currentPage: parseInt(page, 10),
       totalIncome,
       totalExpenses,
     });
   } catch (error) {
-    console.error("Error fetching transactions:", error);
-    res.status(500).json({ message: error.message || "Error fetching transactions" });
+    console.error("Error fetching transfers:", error);
+    res
+      .status(500)
+      .json({ message: error.message || "Error fetching transfers" });
   }
 };
 
@@ -149,11 +163,11 @@ export const getMonthlyCashFlowData = async (req, res) => {
     }, {});
 
     const totalCashIn = transfers
-      .filter(t => t.type === "income")
+      .filter((t) => t.type === "income")
       .reduce((sum, t) => sum + t.amount, 0);
 
     const totalCashOut = transfers
-      .filter(t => t.type === "expense")
+      .filter((t) => t.type === "expense")
       .reduce((sum, t) => sum + t.amount, 0);
 
     const netCashFlow = totalCashIn - totalCashOut;
@@ -163,7 +177,9 @@ export const getMonthlyCashFlowData = async (req, res) => {
       day: `Day ${i + 1}`,
       cashIn: groupedByDay[i + 1]?.cashIn || 0,
       cashOut: groupedByDay[i + 1]?.cashOut || 0,
-      netCashFlow: (groupedByDay[i + 1]?.cashIn || 0) - (groupedByDay[i + 1]?.cashOut || 0),
+      netCashFlow:
+        (groupedByDay[i + 1]?.cashIn || 0) -
+        (groupedByDay[i + 1]?.cashOut || 0),
     }));
 
     res.status(200).json({
@@ -174,7 +190,11 @@ export const getMonthlyCashFlowData = async (req, res) => {
     });
   } catch (error) {
     console.error("Error fetching monthly cash flow data:", error);
-    res.status(500).json({ message: error.message || "Error fetching monthly cash flow data." });
+    res
+      .status(500)
+      .json({
+        message: error.message || "Error fetching monthly cash flow data.",
+      });
   }
 };
 
@@ -184,9 +204,21 @@ export const updateTransfer = async (req, res) => {
     const { transferId } = req.params;
     const updates = req.body;
 
-    const allowedUpdates = ["type", "date", "time", "amount", "to", "description", "transactionType", "bankName", "bank"];
+    const allowedUpdates = [
+      "type",
+      "date",
+      "time",
+      "amount",
+      "to",
+      "description",
+      "transactionType",
+      "bankName",
+      "bank",
+    ];
     const updatesKeys = Object.keys(updates);
-    const isValidOperation = updatesKeys.every(key => allowedUpdates.includes(key));
+    const isValidOperation = updatesKeys.every((key) =>
+      allowedUpdates.includes(key)
+    );
 
     if (!isValidOperation) {
       return res.status(400).json({ message: "Invalid updates" });
@@ -205,10 +237,11 @@ export const updateTransfer = async (req, res) => {
     res.status(200).json(transfer);
   } catch (error) {
     console.error("Error updating transaction:", error);
-    res.status(500).json({ message: error.message || "Error updating transaction" });
+    res
+      .status(500)
+      .json({ message: error.message || "Error updating transaction" });
   }
 };
-
 
 export const deleteTransfer = async (req, res) => {
   try {

@@ -1,5 +1,5 @@
 import express from "express";
-import { createModifyOpenBalance, getLastModifiedBalancesForBothBanks } from "../controllers/modifyOb.controller.js";
+import { createModifyOpenBalance, getLastModifiedBalancesForBothBanks } from "../controllers/modifyob.controller.js";
 import protectRoute from "../middleware/protectRoute.js";
 
 const router = express.Router();

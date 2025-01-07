@@ -1,6 +1,6 @@
 import Transaction from "../models/transaction.model.js";
 import Transfer from "../models/transfer.model.js";
-import TransferBank from "../models/transferBank.model.js";
+import TransferBank from "../models/transferbank.model.js";
 import { recalculateBalances } from "../utils/balanceUtils.js";
 
 // Create a new transaction
@@ -25,7 +25,9 @@ export const createTransaction = async (req, res) => {
       .sort({ createdAt: -1 })
       .select("balance");
 
-    const lastTransferBank = await TransferBank.findOne({ userId: req.user._id })
+    const lastTransferBank = await TransferBank.findOne({
+      userId: req.user._id,
+    })
       .sort({ createdAt: -1 })
       .select("balance");
 
@@ -58,15 +60,17 @@ export const createTransaction = async (req, res) => {
   }
 };
 
-
-
-// Get all transactions for the authenticated user with optional filters
 export const getTransactions = async (req, res) => {
   try {
-    const { month, year, type } = req.query;
+    const { month, year, type, limit } = req.query;
 
-    // Build dynamic query
-    const query = { userId: req.user._id };
+    // Build the query object
+    const query = {};
+
+    // For non-admin users, filter by userId
+    if (req.user.role !== "Admin") {
+      query.userId = req.user._id;
+    }
 
     // Filter by month and year if provided
     if (month && year) {
@@ -83,8 +87,13 @@ export const getTransactions = async (req, res) => {
       query.type = type;
     }
 
+    // Determine the fetch limit based on role
+    const fetchLimit = req.user.role === "Admin" ? 0 : parseInt(limit) || 10;
+
+    // Fetch transactions based on the query
     const transactions = await Transaction.find(query)
-      .sort({ createdAt: -1 })
+      .sort({ createdAt: -1 }) // Sort by most recent
+      .limit(fetchLimit || 0) // No limit for admin; 10 for users
       .select("+balance"); // Include the balance field
 
     // Calculate total income and expenses
@@ -95,6 +104,7 @@ export const getTransactions = async (req, res) => {
       .filter((t) => t.type === "expense")
       .reduce((sum, t) => sum + t.amount, 0);
 
+    // Respond with the result
     res.status(200).json({
       transactions,
       totalIncome,
@@ -144,7 +154,8 @@ export const getMonthlyCashFlowData = async (req, res) => {
       cashIn: groupedByDay[i + 1]?.cashIn || 0,
       cashOut: groupedByDay[i + 1]?.cashOut || 0,
       netCashFlow:
-        (groupedByDay[i + 1]?.cashIn || 0) - (groupedByDay[i + 1]?.cashOut || 0),
+        (groupedByDay[i + 1]?.cashIn || 0) -
+        (groupedByDay[i + 1]?.cashOut || 0),
     }));
 
     res.status(200).json({
@@ -233,4 +244,3 @@ export const deleteTransaction = async (req, res) => {
     res.status(500).json({ message: "Internal server error." });
   }
 };
-

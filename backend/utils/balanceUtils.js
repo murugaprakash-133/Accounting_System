@@ -1,6 +1,6 @@
 import Transaction from "../models/transaction.model.js";
 import Transfer from "../models/transfer.model.js";
-import TransferBank from "../models/transferBank.model.js";
+import TransferBank from "../models/transferbank.model.js";
 
 export const recalculateBalances = async (userId) => {
     try {

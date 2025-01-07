@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 import Transfer from "./transfer.model.js"; // Adjust import path as necessary
-import TransferBank from "./transferBank.model.js"; // Adjust import path as necessary
+import TransferBank from "./transferbank.model.js"; // Adjust import path as necessary
 
 // Transaction Schema
 const transactionSchema = new mongoose.Schema(

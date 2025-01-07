@@ -11,6 +11,7 @@ import Header from "./components/Header";
 import Login from "./components/Login";
 import Register from "./components/Register";
 import ManageRecipients from "./components/ManageRecipients";
+import ForgotPassword from "./components/ForgotPassword";
 
 function App() {
   const { isLoggedIn, isInitialized } = useAuth();
@@ -40,6 +41,7 @@ function App() {
               <Route path="/monthly-reports" element={isLoggedIn ? <MonthlyReport /> : <Navigate to="/" />} />
               <Route path="/detailed-reports" element={isLoggedIn ? <DetailedReportslide /> : <Navigate to="/" />} />
               <Route path="/manage-recipients" element={isLoggedIn ? <ManageRecipients /> : <Navigate to="/" />} />
+              <Route path="/forgot-password" element={<ForgotPassword />} />
             </Routes>
           </div>
         </div>

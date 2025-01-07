@@ -8,13 +8,13 @@ import authRoutes from "./routes/auth.routes.js";
 import userRoutes from "./routes/user.routes.js";
 import transactionRoutes from "./routes/transaction.routes.js";
 import transferRoutes from "./routes/transfer.routes.js";
-import transferBankRoutes from "./routes/transferBank.routes.js";
+import transferBankRoutes from "./routes/transferbank.routes.js";
 import recipientRoutes from "./routes/recipient.routes.js";
 
 // import modifyObRoutes from "./routes/modifyOb.routes.js"; // Import modifyOb routes
 
 import connectToMongoDB from "./db/connectToMongoDB.js";
-import "./controllers/excel.scheduler.js";
+import "./utils/excel.scheduler.js";
 
 const app = express();
 

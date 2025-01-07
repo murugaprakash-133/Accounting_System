@@ -5,7 +5,8 @@ import axios from "axios";
 import * as XLSX from "xlsx";
 import { FaTrash } from "react-icons/fa";
 import { toast, ToastContainer } from "react-toastify";
-import Swal from "sweetalert2"
+import Swal from "sweetalert2";
+import { useAuth } from "../context/AuthContext";
 
 const API_BASE_URL = "http://localhost:5000";
 
@@ -18,6 +19,7 @@ const MonthlyReport = () => {
   const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth());
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
   const [loading, setLoading] = useState(false);
+  const { userDetails, isLoggedIn } = useAuth();
 
   const months = [
     "January",
@@ -42,7 +44,14 @@ const MonthlyReport = () => {
   const fetchData = async () => {
     setLoading(true);
     try {
-      await Promise.all([fetchTransactions(), fetchTransfers(), fetchTransferBanks()]);
+      if (userDetails?.role) {
+        // Fetch data only if the user's role is available
+        await Promise.all([
+          fetchTransactions(),
+          fetchTransfers(),
+          fetchTransferBanks(),
+        ]);
+      }
     } catch (error) {
       console.error("Error fetching data:", error);
     }
@@ -50,21 +59,28 @@ const MonthlyReport = () => {
   };
 
   useEffect(() => {
-    fetchData();
-  }, [selectedMonth, selectedYear]);
+    if (userDetails) {
+      fetchData();
+    }
+  }, [selectedMonth, selectedYear, userDetails]);
 
   const fetchTransactions = async () => {
     try {
-      const response = await axios.get(
-        `${API_BASE_URL}/api/transactions`,
-        {
-          params: {
-            month: selectedMonth + 1,
-            year: selectedYear,
-          },
-          withCredentials: true,
-        }
-      );
+      const { role } = userDetails || {}; // Get the user's role
+      const params = {
+        month: selectedMonth + 1,
+        year: selectedYear,
+      };
+
+      if (role === "User") {
+        params.limit = 10; // Add a limit parameter for the API to fetch only the latest 10 transactions
+      }
+
+      const response = await axios.get(`${API_BASE_URL}/api/transactions`, {
+        params,
+        withCredentials: true,
+      });
+
       const { transactions, totalIncome, totalExpenses } = response.data;
       setTransactions(transactions);
       setTotalIncome(totalIncome);
@@ -76,13 +92,21 @@ const MonthlyReport = () => {
 
   const fetchTransfers = async () => {
     try {
+      const { role } = userDetails || {}; // Get the user's role
+      const params = {
+        month: selectedMonth + 1,
+        year: selectedYear,
+      };
+
+      if (role === "User") {
+        params.limit = 10; // Add a limit parameter for the API to fetch only the latest 10 transfers
+      }
+
       const response = await axios.get(`${API_BASE_URL}/api/transfers`, {
-        params: {
-          month: selectedMonth + 1,
-          year: selectedYear,
-        },
+        params,
         withCredentials: true,
       });
+
       setTransfers(response.data.transfers);
     } catch (error) {
       console.error("Error fetching transfers:", error);
@@ -91,16 +115,21 @@ const MonthlyReport = () => {
 
   const fetchTransferBanks = async () => {
     try {
-      const response = await axios.get(
-        `${API_BASE_URL}/api/transferBanks`,
-        {
-          params: {
-            month: selectedMonth + 1,
-            year: selectedYear,
-          },
-          withCredentials: true,
-        }
-      );
+      const { role } = userDetails || {}; // Get the user's role
+      const params = {
+        month: selectedMonth + 1,
+        year: selectedYear,
+      };
+
+      if (role === "User") {
+        params.limit = 10; // Add a limit parameter for the API to fetch only the latest 10 transferBanks
+      }
+
+      const response = await axios.get(`${API_BASE_URL}/api/transferBanks`, {
+        params,
+        withCredentials: true,
+      });
+
       setTransferBanks(response.data.transferBanks);
     } catch (error) {
       console.error("Error fetching transferBanks:", error);
@@ -110,56 +139,68 @@ const MonthlyReport = () => {
   const deleteEntry = async (url, id, setter) => {
     const response = await axios.delete(url, { withCredentials: true });
     if (response.status === 200) {
-        setter((prev) => prev.filter((item) => item._id !== id));
-        // console.log(`Deleted successfully from ${url}`);
+      setter((prev) => prev.filter((item) => item._id !== id));
+      // console.log(`Deleted successfully from ${url}`);
     }
-};
+  };
 
-const handleDelete = async (id, type, account, transactionType) => {
-  const confirmDelete = await Swal.fire({
-    title: "Are you sure?",
-    text: `Are you sure you want to delete this ${type}? This action cannot be undone.`,
-    icon: "warning",
-    showCancelButton: true,
-    confirmButtonText: "Yes, delete it!",
-    cancelButtonText: "No, cancel!"
-  }).then(result => result.isConfirmed);
+  const handleDelete = async (id, type, account, transactionType) => {
+    const confirmDelete = await Swal.fire({
+      title: "Are you sure?",
+      text: `Are you sure you want to delete this ${type}? This action cannot be undone.`,
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Yes, delete it!",
+      cancelButtonText: "No, cancel!",
+    }).then((result) => result.isConfirmed);
 
-  if (!confirmDelete) return;
+    if (!confirmDelete) return;
 
-  try {
-    // Handle different types for deletion
-    if (type === "income" || type === "expense") {
-      await deleteEntry(`/api/transactions/${id}`, id, setTransactions);
-    } else if (type === "transfer") {
-      if (transactionType === "External") {
-        const url = account === "Bank 1" ? `/api/transfers/${id}` : `/api/transferBanks/${id}`;
-        const setter = account === "Bank 1" ? setTransfers : setTransferBanks;
+    try {
+      // Handle different types for deletion
+      if (type === "income" || type === "expense") {
+        await deleteEntry(`/api/transactions/${id}`, id, setTransactions);
+      } else if (type === "transfer") {
+        if (transactionType === "External") {
+          const url =
+            account === "Bank 1"
+              ? `/api/transfers/${id}`
+              : `/api/transferBanks/${id}`;
+          const setter = account === "Bank 1" ? setTransfers : setTransferBanks;
 
-        await deleteEntry(url, id, setter);
-        // await deleteEntry(`/api/transactions/${id}`, id, setTransactions);
-      } else if (transactionType === "Internal") {
-        if (account === "Bank 1") {
-          await deleteEntry(`/api/transfers/${id}`, id, setTransfers);
-          const linkedId = id.replace("Bank1", "Bank2");
-          await deleteEntry(`/api/transferBanks/${linkedId}`, linkedId, setTransferBanks);
-        } else if (account === "Bank 2") {
-          await deleteEntry(`/api/transferBanks/${id}`, id, setTransferBanks);
-          const linkedId = id.replace("Bank2", "Bank1");
-          await deleteEntry(`/api/transfers/${linkedId}`, linkedId, setTransfers);
+          await deleteEntry(url, id, setter);
+          // await deleteEntry(`/api/transactions/${id}`, id, setTransactions);
+        } else if (transactionType === "Internal") {
+          if (account === "Bank 1") {
+            await deleteEntry(`/api/transfers/${id}`, id, setTransfers);
+            const linkedId = id.replace("Bank1", "Bank2");
+            await deleteEntry(
+              `/api/transferBanks/${linkedId}`,
+              linkedId,
+              setTransferBanks
+            );
+          } else if (account === "Bank 2") {
+            await deleteEntry(`/api/transferBanks/${id}`, id, setTransferBanks);
+            const linkedId = id.replace("Bank2", "Bank1");
+            await deleteEntry(
+              `/api/transfers/${linkedId}`,
+              linkedId,
+              setTransfers
+            );
+          }
         }
       }
+
+      // Fetch updated data
+      await fetchData();
+      toast.success(
+        `${type.charAt(0).toUpperCase() + type.slice(1)} deleted successfully.`
+      );
+    } catch (error) {
+      console.error("Error details:", error.response?.data || error.message);
+      toast.error(`Failed to delete ${type}. Please try again.`);
     }
-
-    // Fetch updated data
-    await fetchData();
-    toast.success(`${type.charAt(0).toUpperCase() + type.slice(1)} deleted successfully.`);
-  } catch (error) {
-    console.error("Error details:", error.response?.data || error.message);
-    toast.error(`Failed to delete ${type}. Please try again.`);
-  }
-};
-
+  };
 
   const downloadExcel = () => {
     const formatData = (data, type) => {
@@ -208,7 +249,9 @@ const handleDelete = async (id, type, account, transactionType) => {
       {loading && <p>Loading...</p>}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center">
         <div className="mb-4 sm:mb-0">
-          <h2 className="text-2xl sm:text-3xl font-semibold text-gray-800">Monthly Report</h2>
+          <h2 className="text-2xl sm:text-3xl font-semibold text-gray-800">
+            Monthly Report
+          </h2>
           <p className="text-gray-700">Overview of your transactions</p>
         </div>
         <div className="flex flex-wrap items-center space-y-2 sm:space-y-0 sm:space-x-4 gap-x-2">
@@ -234,12 +277,14 @@ const handleDelete = async (id, type, account, transactionType) => {
               </option>
             ))}
           </select>
-          <button
-            onClick={downloadExcel}
-            className="bg-green-500 text-white px-4 py-2 rounded-md shadow hover:bg-green-600"
-          >
-            Download Excel
-          </button>
+          {isLoggedIn && userDetails?.role === "Admin" && (
+            <button
+              onClick={downloadExcel}
+              className="bg-green-500 text-white px-4 py-2 rounded-md shadow hover:bg-green-600"
+            >
+              Download Excel
+            </button>
+          )}
         </div>
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-8">
@@ -347,8 +392,13 @@ const handleDelete = async (id, type, account, transactionType) => {
                     </td>
                     <td className="py-2 sm:py-4 px-2 sm:px-4 border-b border-gray-300 text-right">
                       <FaTrash
-                        onClick={() => 
-                          handleDelete(transaction.transactionId, transaction.type, transaction.account) }
+                        onClick={() =>
+                          handleDelete(
+                            transaction.transactionId,
+                            transaction.type,
+                            transaction.account
+                          )
+                        }
                         className="text-red-500 cursor-pointer hover:text-red-600 transition-transform transform hover:scale-110"
                         size={20} // You can adjust the size as needed
                       />
@@ -358,7 +408,7 @@ const handleDelete = async (id, type, account, transactionType) => {
               })}
             </tbody>
           </table>
-          <ToastContainer/>
+          <ToastContainer />
         </div>
       </div>
       <div className="bg-white p-6 rounded-md mt-2 shadow-md">
@@ -421,7 +471,8 @@ const handleDelete = async (id, type, account, transactionType) => {
                       {item.description}
                     </td>
                     <td className="py-2 sm:py-4 px-2 sm:px-4 border-b border-gray-300 text-xs sm:text-sm text-gray-800 hidden md:table-cell">
-                      {item.transactionType}
+                      {item.transactionType.charAt(0).toUpperCase() +
+                        item.transactionType.slice(1)}
                     </td>
                     <td className="py-2 sm:py-4 px-2 sm:px-4 border-b border-gray-300 text-right text-xs sm:text-sm font-semibold text-red-600">
                       {item.transactionType === "expense" ||
@@ -440,8 +491,20 @@ const handleDelete = async (id, type, account, transactionType) => {
                     </td>
                     <td className="py-2 sm:py-4 px-2 sm:px-4 border-b border-gray-300 text-right">
                       <FaTrash
-                        onClick={() => 
-                          handleDelete(item.transactionId, (item.transactionType === "income" || item.transactionType === "expense") ? item.transactionType : item.type, (item.transactionType === "External" || item.transactionType === "Internal") ? item.from : item.to, item.transactionType)}
+                        onClick={() =>
+                          handleDelete(
+                            item.transactionId,
+                            item.transactionType === "income" ||
+                              item.transactionType === "expense"
+                              ? item.transactionType
+                              : item.type,
+                            item.transactionType === "External" ||
+                              item.transactionType === "Internal"
+                              ? item.from
+                              : item.to,
+                            item.transactionType
+                          )
+                        }
                         className="text-red-500 cursor-pointer hover:text-red-600 transition-transform transform hover:scale-110"
                         size={20} // You can adjust the size as needed
                       />
@@ -514,7 +577,8 @@ const handleDelete = async (id, type, account, transactionType) => {
                       {item.description}
                     </td>
                     <td className="py-2 sm:py-4 px-2 sm:px-4 border-b border-gray-300 text-xs sm:text-sm text-gray-800 hidden md:table-cell">
-                      {item.transactionType}
+                      {item.transactionType.charAt(0).toUpperCase() +
+                        item.transactionType.slice(1)}
                     </td>
                     <td className="py-2 sm:py-4 px-2 sm:px-4 border-b border-gray-300 text-right text-xs sm:text-sm font-semibold text-red-600">
                       {item.transactionType === "expense" ||
@@ -534,7 +598,19 @@ const handleDelete = async (id, type, account, transactionType) => {
                     <td className="py-4 px-6 border-b border-gray-300">
                       <FaTrash
                         onClick={() =>
-                          handleDelete(item.transactionId, (item.transactionType === "income" || item.transactionType === "expense") ? item.transactionType : item.type, (item.transactionType === "External" || item.transactionType === "Internal") ? item.from : item.to, item.transactionType)}
+                          handleDelete(
+                            item.transactionId,
+                            item.transactionType === "income" ||
+                              item.transactionType === "expense"
+                              ? item.transactionType
+                              : item.type,
+                            item.transactionType === "External" ||
+                              item.transactionType === "Internal"
+                              ? item.from
+                              : item.to,
+                            item.transactionType
+                          )
+                        }
                         className="text-red-500 cursor-pointer hover:text-red-600 transition-transform transform hover:scale-110"
                         size={20} // You can adjust the size as needed
                       />

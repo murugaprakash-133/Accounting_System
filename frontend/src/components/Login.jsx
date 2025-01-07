@@ -95,8 +95,14 @@ const Login = () => {
             <ToastContainer />
           </div>
 
-          <div className="mt-6 text-center">
-            <p className="text-sm text-gray-800">
+          <div className="mt-4 text-center">
+            <Link
+              to="/forgot-password"
+              className="font-normal text-sm text-gray-800 hover:underline"
+            >
+              Forgot Password?
+            </Link>
+            <p className="text-sm mt-1 text-gray-800">
               Don't have an account?{" "}
               <Link
                 to="/register"
