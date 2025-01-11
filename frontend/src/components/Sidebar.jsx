@@ -16,7 +16,7 @@ const Sidebar = () => {
       path: "/profit-loss",
       restricted: true,
     },
-    { title: "Cash Flow", icon: "💰", path: "/cash-flow", restricted: true },
+    // { title: "Cash Flow", icon: "💰", path: "/cash-flow", restricted: true },
     { title: "Monthly Reports", icon: "📅", path: "/monthly-reports" },
     {
       title: "Detailed Reports",
