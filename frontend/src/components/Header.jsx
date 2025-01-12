@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef } from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { FaUserCircle, FaChevronDown } from "react-icons/fa";
 import { useAuth } from "../context/AuthContext";
-import { toast } from "react-toastify";
+import { toast, ToastContainer } from "react-toastify";
 
 const Header = () => {
   const { isLoggedIn, userDetails, logout } = useAuth();
@@ -10,7 +10,7 @@ const Header = () => {
   const profileSidebarRef = useRef(null);
   const navigate = useNavigate();
   const buttonRef = useRef(null);
-
+  const location = useLocation();
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -31,8 +31,11 @@ const Header = () => {
   const handleLogout = async () => {
     await logout();
     navigate("/login");
-    toast.error("Logout Successfully!")
+    toast.error("Logout Successfully!");
   };
+
+  const isLoginOrRegisterPage =
+    location.pathname === "/login" || location.pathname === "/register" || location.pathname === "/";
 
   const toggleProfile = () => setIsProfileOpen((prev) => !prev);
 
@@ -50,7 +53,7 @@ const Header = () => {
 
       {/* Profile or Login Section */}
       <div className="ml-auto flex items-center space-x-4">
-        {!isLoggedIn && (
+        {!isLoggedIn && !isLoginOrRegisterPage && (
           <button
             onClick={() => navigate("/login")}
             className="bg-blue-600 px-4 py-2 rounded-md hover:bg-blue-700 transition duration-300 text-sm"
@@ -61,22 +64,22 @@ const Header = () => {
 
         {isLoggedIn && userDetails && (
           <div className="relative">
-          {/* Profile Button */}
-          <button
-            onClick={toggleProfile}
-            ref={buttonRef}
-            className="flex items-center space-x-2 bg-gray-600 px-4 py-2 rounded-md hover:bg-gray-700 transition duration-300"
-          >
-            <FaUserCircle className="text-2xl" />
-            <span className="hidden sm:block truncate max-w-[150px] text-white">
-              {userDetails.name}
-            </span>
-            <FaChevronDown
-              className={`transform transition-transform duration-300 ${
-                isProfileOpen ? "rotate-180" : ""
-              }`}
-            />
-          </button>
+            {/* Profile Button */}
+            <button
+              onClick={toggleProfile}
+              ref={buttonRef}
+              className="flex items-center space-x-2 bg-gray-600 px-4 py-2 rounded-md hover:bg-gray-700 transition duration-300"
+            >
+              <FaUserCircle className="text-2xl" />
+              <span className="hidden sm:block truncate max-w-[150px] text-white">
+                {userDetails.name}
+              </span>
+              <FaChevronDown
+                className={`transform transition-transform duration-300 ${
+                  isProfileOpen ? "rotate-180" : ""
+                }`}
+              />
+            </button>
 
             {isProfileOpen && (
               <div
@@ -118,6 +121,7 @@ const Header = () => {
                 </button>
               </div>
             )}
+      <ToastContainer/>
           </div>
         )}
       </div>

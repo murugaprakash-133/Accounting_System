@@ -12,6 +12,9 @@ import Login from "./components/Login";
 import Register from "./components/Register";
 import ManageRecipients from "./components/ManageRecipients";
 import ForgotPassword from "./components/ForgotPassword";
+import "react-toastify/dist/ReactToastify.css";
+import { ToastContainer } from "react-toastify";
+
 
 function App() {
   const { isLoggedIn, isInitialized } = useAuth();
@@ -45,6 +48,7 @@ function App() {
             </Routes>
           </div>
         </div>
+        <ToastContainer position="top-right" autoClose={3000} />
       </div>
     </Router>
   );

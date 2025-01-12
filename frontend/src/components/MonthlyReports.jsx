@@ -190,10 +190,11 @@ const MonthlyReport = () => {
           }
         }
       }
+      
 
       // Fetch updated data
       await fetchData();
-      toast.success(
+      toast.error(
         `${type.charAt(0).toUpperCase() + type.slice(1)} deleted successfully.`
       );
     } catch (error) {
