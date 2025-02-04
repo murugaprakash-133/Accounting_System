@@ -33,7 +33,7 @@ app.use(cookieParser());
 // Configure CORS to allow requests from your frontend
 app.use(
   cors({
-    origin: "http://localhost:5173", // Your frontend's origin
+    origin: process.env.VITE_API_BASE_URL || "http://localhost:5173", // Your frontend's origin
     methods: ["GET", "POST", "PUT", "DELETE"], // Allowed HTTP methods
     credentials: true, // Allow cookies and other credentials
   })

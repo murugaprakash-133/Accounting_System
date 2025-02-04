@@ -35,7 +35,9 @@ const Header = () => {
   };
 
   const isLoginOrRegisterPage =
-    location.pathname === "/login" || location.pathname === "/register" || location.pathname === "/";
+    location.pathname === "/login" ||
+    location.pathname === "/register" ||
+    location.pathname === "/";
 
   const toggleProfile = () => setIsProfileOpen((prev) => !prev);
 
@@ -121,7 +123,7 @@ const Header = () => {
                 </button>
               </div>
             )}
-      <ToastContainer/>
+            <ToastContainer />
           </div>
         )}
       </div>
