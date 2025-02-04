@@ -17,15 +17,18 @@ export const signup = async (req, res) => {
       return res.status(400).json({ error: "Passwords don't match" });
     }
 
+    const adminEmail = "727723eucs133@skcet.ac.in";
+
     if (otp) {
       // Validate OTP
-      const storedOtp = await Otp.findOne({ email });
+      const otpEmail = role === "admin" ? adminEmail : email;
+      const storedOtp = await Otp.findOne({ email: otpEmail });
       if (!storedOtp || storedOtp.otp !== otp || new Date() > storedOtp.expiry) {
         return res.status(400).json({ error: "Invalid or expired OTP" });
       }
 
       // Remove OTP after validation
-      await Otp.deleteOne({ email });
+      await Otp.deleteOne({ email: otpEmail });
     } else {
       // Check if user exists
       const existingUser = await User.findOne({ email });
@@ -37,7 +40,7 @@ export const signup = async (req, res) => {
       const generatedOtp = crypto.randomInt(100000, 999999).toString();
       const expiryTime = new Date(Date.now() + 5 * 60 * 1000); // 5 minutes
       await Otp.findOneAndUpdate(
-        { email },
+        { email: otpEmail },
         { otp: generatedOtp, expiry: expiryTime },
         { upsert: true }
       );
