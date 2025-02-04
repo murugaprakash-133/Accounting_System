@@ -14,6 +14,7 @@ import ManageRecipients from "./components/ManageRecipients";
 import ForgotPassword from "./components/ForgotPassword";
 import "react-toastify/dist/ReactToastify.css";
 import { ToastContainer } from "react-toastify";
+//import board from "./components/board";
 
 
 function App() {
@@ -37,12 +38,13 @@ function App() {
               />
               <Route path="/login" element={<Login />} />
               <Route path="/register" element={<Register />} />
+              
               <Route path="/dashboard" element={isLoggedIn ? <Dashboard /> : <Navigate to="/" />} />
               <Route path="/income-expense" element={isLoggedIn ? <IncomeExpense /> : <Navigate to="/" />} />
               <Route path="/profit-loss" element={isLoggedIn ? <Profit_Loss /> : <Navigate to="/" />} />
               {/* <Route path="/cash-flow" element={isLoggedIn ? <CashFlowPart /> : <Navigate to="/" />} /> */}
               <Route path="/monthly-reports" element={isLoggedIn ? <MonthlyReport /> : <Navigate to="/" />} />
-              <Route path="/detailed-reports" element={isLoggedIn ? <DetailedReportslide /> : <Navigate to="/" />} />
+              <Route path="/detailed-reports" element={isLoggedIn ? <DetailedReportslide /> : <Navigate to="/" />} /> 
               <Route path="/manage-recipients" element={isLoggedIn ? <ManageRecipients /> : <Navigate to="/" />} />
               <Route path="/forgot-password" element={<ForgotPassword />} />
             </Routes>

@@ -5,7 +5,7 @@ import { fileURLToPath } from "url";
 import path from "path";
 import dotenv from "dotenv";
 import Transfer from "../models/transfer.model.js";
-import TransferBank from "../models/transferBank.model.js";
+// import TransferBank from "../models/transferBank.model.js";
 import Transaction from "../models/transaction.model.js";
 import Recipient from "../models/recipient.model.js";
 

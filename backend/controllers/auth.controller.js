@@ -100,7 +100,7 @@ export const login = async (req, res) => {
       return res.status(400).json({ error: "Invalid username or password" });
     }
 
-    // Generate token and set cookie (make sure generateTokenandSetCookie is implemented correctly)
+    // Generate token and set cookie
     generateTokenandSetCookie(user._id, res);
 
     // Return the user data along with the status code 200 if login is successful
