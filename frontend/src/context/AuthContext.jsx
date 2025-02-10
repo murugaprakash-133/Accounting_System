@@ -1,5 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 import axios from "axios";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const AuthContext = createContext();
 
@@ -60,6 +62,22 @@ export const AuthProvider = ({ children }) => {
         logout,
       }}
     >
+      <ToastContainer
+        position="top-right"
+        autoClose={5000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        style={{
+          position: "absolute",
+          top: "20px",
+          right: "20px",
+        }}
+      />
       {children}
     </AuthContext.Provider>
   );

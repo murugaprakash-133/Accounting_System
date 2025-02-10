@@ -4,8 +4,10 @@ import { IoMdArrowDropdown } from "react-icons/io";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
+const API_BASE_URL =
+  import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
 
 const Register = () => {
   const [formData, setFormData] = useState({
@@ -43,7 +45,7 @@ const Register = () => {
         setOtpSent(true); // Set OTP step to true
       } else if (response.status === 201) {
         toast.success("Registration successful! Redirecting to login...");
-        navigate("/login"); // Navigate to login page after success
+        setTimeout(() => navigate("/login"), 3000);
       }
     } catch (err) {
       console.error("Signup error:", err.response?.data || err.message);
@@ -58,6 +60,22 @@ const Register = () => {
 
   return (
     <div className="flex justify-center items-center min-h-screen bg-cover bg-center">
+      <ToastContainer
+        position="top-right"
+        autoClose={5000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        style={{
+          position: "absolute",
+          top: "20px",
+          right: "20px",
+        }}
+      />
       <div className="w-96 bg-white/10 backdrop-blur-lg border border-white/20 shadow-lg rounded-lg p-8 text-white">
         <form onSubmit={handleSubmit}>
           <h1 className="text-3xl text-center font-bold text-black mb-6">
@@ -167,7 +185,6 @@ const Register = () => {
             >
               {otpSent ? "Verify & Register" : "Send OTP"}
             </button>
-            <ToastContainer />
           </div>
 
           <div className="mt-6 text-center">
