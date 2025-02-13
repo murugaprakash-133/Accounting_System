@@ -3,6 +3,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { FaUserCircle, FaChevronDown } from "react-icons/fa";
 import { useAuth } from "../context/AuthContext";
 import { toast } from "react-toastify";
+import logo from "../assets/headerlogowhite.png";
 
 const Header = () => {
   const { isLoggedIn, userDetails, logout } = useAuth();
@@ -30,16 +31,16 @@ const Header = () => {
 
   const handleLogout = async () => {
     await logout(); // Perform logout
-  
+
     // Redirect to login first
     navigate("/login");
-  
+
     // Wait a bit before reloading to ensure navigation happens
     setTimeout(() => {
       window.location.reload();
       toast.error("Logout Successfully!");
     }, 500);
-  };  
+  };
 
   const isLoginOrRegisterPage =
     location.pathname === "/login" ||
@@ -53,9 +54,14 @@ const Header = () => {
       {/* Logo Section */}
       {!isLoggedIn && (
         <div
-          className="flex items-center text-2xl font-bold cursor-pointer"
+          className="flex items-center gap-3 text-2xl font-bold cursor-pointer"
           onClick={() => navigate("/")}
         >
+          <img
+            src={logo}
+            alt="logo"
+            className="cursor-pointer object-contain w-20 h-18 md:w-15 md:h-12"
+          />
           Accountify
         </div>
       )}
