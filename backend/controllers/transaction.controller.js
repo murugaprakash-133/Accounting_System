@@ -214,26 +214,16 @@ export const deleteTransaction = async (req, res) => {
       return res.status(404).json({ message: "Transaction not found" });
     }
 
-    // console.log("Successfully deleted transaction with ID:", transactionId);
-
     // Delete the corresponding entry in Transfer or TransferBank schema
     const transfer = await Transfer.findOneAndDelete({
       transactionId: transactionId, // Match by transactionId
       userId: req.user._id,
     });
 
-    // if (transfer) {
-    //   console.log("Linked transfer deleted:", transfer._id);
-    // }
-
     const transferBank = await TransferBank.findOneAndDelete({
       transactionId: transactionId, // Match by transactionId
       userId: req.user._id,
-    });
-
-    // if (transferBank) {
-    //   console.log("Linked transferBank deleted:", transferBank._id);
-    // }
+    })
 
     await recalculateBalances(req.user._id);
     res.status(200).json({
