@@ -4,7 +4,7 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import * as XLSX from "xlsx";
 import { FaTrash } from "react-icons/fa";
-import { toast, ToastContainer } from "react-toastify";
+import { toast } from "react-toastify";
 import Swal from "sweetalert2";
 import { useAuth } from "../context/AuthContext";
 
@@ -409,7 +409,7 @@ const MonthlyReport = () => {
               })}
             </tbody>
           </table>
-          <ToastContainer />
+          {/* <ToastContainer /> */}
         </div>
       </div>
       <div className="bg-white p-6 rounded-md mt-2 shadow-md">

@@ -1,8 +1,7 @@
 import React, { useState } from "react";
 import { FaEnvelope, FaLock } from "react-icons/fa";
 import axios from "axios";
-import { toast, ToastContainer } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
+import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
@@ -72,22 +71,6 @@ const ForgotPassword = () => {
       backgroundPosition: 'center',
       position: 'relative'
     }}>
-      <ToastContainer
-        position="top-right"
-        autoClose={5000}
-        hideProgressBar={false}
-        newestOnTop={false}
-        closeOnClick
-        rtl={false}
-        pauseOnFocusLoss
-        draggable
-        pauseOnHover
-        style={{
-          position: 'absolute',
-          top: '20px',
-          right: '20px',
-        }}
-      />
       <div style={{
         width: '400px',
         backgroundColor: 'rgba(255, 255, 255, 0.1)',

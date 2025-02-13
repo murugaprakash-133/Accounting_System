@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { FaUserCircle, FaChevronDown } from "react-icons/fa";
 import { useAuth } from "../context/AuthContext";
-import { toast, ToastContainer } from "react-toastify";
+import { toast } from "react-toastify";
 
 const Header = () => {
   const { isLoggedIn, userDetails, logout } = useAuth();
@@ -29,10 +29,17 @@ const Header = () => {
   }, []);
 
   const handleLogout = async () => {
-    await logout();
+    await logout(); // Perform logout
+  
+    // Redirect to login first
     navigate("/login");
-    toast.error("Logout Successfully!");
-  };
+  
+    // Wait a bit before reloading to ensure navigation happens
+    setTimeout(() => {
+      window.location.reload();
+      toast.error("Logout Successfully!");
+    }, 5000);
+  };  
 
   const isLoginOrRegisterPage =
     location.pathname === "/login" ||
@@ -123,7 +130,6 @@ const Header = () => {
                 </button>
               </div>
             )}
-            <ToastContainer />
           </div>
         )}
       </div>

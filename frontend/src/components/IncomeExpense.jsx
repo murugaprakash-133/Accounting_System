@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import axios from "axios";
-import { toast, ToastContainer } from "react-toastify";
+import { toast } from "react-toastify";
 import Swal from "sweetalert2";
 import "../index.css";
 // import { useNavigate } from "react-router-dom";
@@ -675,7 +675,6 @@ export default function Transactions() {
           >
             Add Transaction
           </button>
-          <ToastContainer />
         </form>
       </div>
     </div>

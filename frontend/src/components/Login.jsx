@@ -3,8 +3,7 @@ import { FaLock, FaEnvelope } from "react-icons/fa";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { useAuth } from "../context/AuthContext";
-import { toast, ToastContainer } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
+import { toast } from "react-toastify";
 
 const API_BASE_URL =
   import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
@@ -32,15 +31,15 @@ const Login = () => {
       const response = await axios.post(
         `${API_BASE_URL}/api/auth/login`,
         formData,
-        {
-          withCredentials: true,
-        }
+        { withCredentials: true }
       );
 
       if (response.status === 200) {
-        await refreshAuthStatus(); // Update the auth context only after login
-        toast.success("Login successfully!");
-        setTimeout(() => navigate("/dashboard"), 5000);
+        await refreshAuthStatus();
+        toast.success("Login successful!"); // Show success message
+
+        // Navigate immediately (without setTimeout)
+        navigate("/dashboard");
       }
     } catch (err) {
       setError(
@@ -51,22 +50,6 @@ const Login = () => {
 
   return (
     <div className="flex justify-center items-center min-h-screen bg-cover bg-center">
-      <ToastContainer
-        position="top-right"
-        autoClose={3000}
-        hideProgressBar={false}
-        newestOnTop={false}
-        closeOnClick
-        rtl={false}
-        pauseOnFocusLoss
-        draggable
-        pauseOnHover
-        style={{
-          position: "absolute",
-          top: "20px",
-          right: "20px",
-        }}
-      />
       <div className="w-96 bg-white/10 backdrop-blur-lg border border-white/20 shadow-lg rounded-lg p-8 text-white">
         <form onSubmit={handleSubmit}>
           <h1 className="text-3xl text-center font-bold text-black mb-6">

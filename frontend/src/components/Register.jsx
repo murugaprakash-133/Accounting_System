@@ -3,7 +3,7 @@ import { FaUserCircle, FaLock, FaEnvelope } from "react-icons/fa";
 import { IoMdArrowDropdown } from "react-icons/io";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
-import { toast, ToastContainer } from "react-toastify";
+import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 const API_BASE_URL =
@@ -60,22 +60,6 @@ const Register = () => {
 
   return (
     <div className="flex justify-center items-center min-h-screen bg-cover bg-center">
-      <ToastContainer
-        position="top-right"
-        autoClose={5000}
-        hideProgressBar={false}
-        newestOnTop={false}
-        closeOnClick
-        rtl={false}
-        pauseOnFocusLoss
-        draggable
-        pauseOnHover
-        style={{
-          position: "absolute",
-          top: "20px",
-          right: "20px",
-        }}
-      />
       <div className="w-96 bg-white/10 backdrop-blur-lg border border-white/20 shadow-lg rounded-lg p-8 text-white">
         <form onSubmit={handleSubmit}>
           <h1 className="text-3xl text-center font-bold text-black mb-6">

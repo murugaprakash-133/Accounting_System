@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { FaTrash } from "react-icons/fa";
-import { toast, ToastContainer } from "react-toastify";
+import { toast } from "react-toastify";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
 
@@ -92,7 +92,6 @@ const ManageRecipients = () => {
           ))}
         </tbody>
       </table>
-        <ToastContainer/>
     </div>
   );
 };

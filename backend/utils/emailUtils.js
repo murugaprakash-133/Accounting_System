@@ -23,7 +23,7 @@
 
 import nodemailer from "nodemailer";
 
-export const sendOtpEmail = async (email, otp, role) => {
+export const sendOtpEmail = async (email, otp, role, name = "User") => {
   const transporter = nodemailer.createTransport({
     service: "Gmail",
     auth: {
@@ -31,22 +31,36 @@ export const sendOtpEmail = async (email, otp, role) => {
       pass: process.env.EMAIL_PASS, 
     },
   });
-  console.log(role);
+
   const recipientEmail = role === "Admin" ? process.env.ADMIN_VERIFICATION_EMAIL : email;
 
-  // Define custom subjects for Admin and User
+  // Define dynamic subject lines
   const subject =
     role === "Admin"
-      ? "Admin Account Verification - OTP Required"
-      : "Your OTP for Account Registration";
+      ? "Admin Access Request - OTP Verification Required"
+      : "Welcome to CyborgForge! Verify Your Account with OTP";
+
+  // Define dynamic email body
+  const mailBody =
+    role === "Admin"
+      ? `<p>An admin registration request has been received.</p>
+         <p><strong>Requester Details:</strong></p>
+         <p>Name: ${name}</p>
+         <p>Email: ${email}</p>
+         <p>To approve and proceed with the request, use the OTP below:</p>
+         <p><strong>${otp}</strong></p>`
+      : `<p>Welcome to CyborgForge! We are dedicated to innovation in drone technology and AI-driven solutions.</p>
+         <p>To complete your registration, please use the OTP below:</p>
+         <p><strong>${otp}</strong></p>
+         <p>We look forward to having you on board!</p>`;
 
   const mailOptions = {
     from: process.env.EMAIL_USER,
     to: recipientEmail,
     subject: subject,
-    text: `Your OTP for ${role} registration is: ${otp}`,
-    html: `<p>Your OTP for ${role} registration is: <strong>${otp}</strong></p>`,
+    html: mailBody,
   };
 
   await transporter.sendMail(mailOptions);
 };
+
