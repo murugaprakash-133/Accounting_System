@@ -107,7 +107,7 @@ const Profit_Loss = () => {
   };
 
   return (
-    <div className="bg-gray-50 min-h-screen mt-10 p-8">
+    <div className="bg-gray-50 min-h-screen mt-20 p-8">
       {/* Header */}
       <div className="mb-8 flex flex-col sm:flex-row justify-between items-center space-x-8">
         <div>

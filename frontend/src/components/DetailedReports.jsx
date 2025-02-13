@@ -103,7 +103,7 @@ const DetailedReports = () => {
   };
 
   return (
-    <div className="p-6 max-w-4xl mx-auto mt-10">
+    <div className="bg-gray-50 p-8 min-h-screen mx-auto mt-20">
       <h2 className="text-2xl font-bold text-center mb-6 text-gray-800">Detailed Reports</h2>
 
       {/* Selectors for Month and Year */}
