@@ -42,8 +42,8 @@ export const signup = async (req, res) => {
         { upsert: true }
       );
 
-      console.log("Generated OTP:", generatedOtp);
-      await sendOtpEmail(email, generatedOtp);
+      console.log("Generated OTP:", generatedOtp," ",role);
+      await sendOtpEmail(email, generatedOtp, role);
 
       return res.status(200).json({ message: "OTP sent to email" });
     }

@@ -40,7 +40,7 @@ const Login = () => {
       if (response.status === 200) {
         await refreshAuthStatus(); // Update the auth context only after login
         toast.success("Login successfully!");
-        setTimeout(() => navigate("/dashboard"), 1500);
+        setTimeout(() => navigate("/dashboard"), 5000);
       }
     } catch (err) {
       setError(
@@ -53,7 +53,7 @@ const Login = () => {
     <div className="flex justify-center items-center min-h-screen bg-cover bg-center">
       <ToastContainer
         position="top-right"
-        autoClose={5000}
+        autoClose={3000}
         hideProgressBar={false}
         newestOnTop={false}
         closeOnClick
