@@ -38,7 +38,7 @@ const Header = () => {
     setTimeout(() => {
       window.location.reload();
       toast.error("Logout Successfully!");
-    }, 5000);
+    }, 500);
   };  
 
   const isLoginOrRegisterPage =

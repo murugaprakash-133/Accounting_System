@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { FaBars, FaTimes } from "react-icons/fa"; // Import icons
-import logo from "../assets/logo.png";
+import logo from "../assets/headerlogowhite.png";
 
 const Sidebar = () => {
   const { isLoggedIn, userDetails } = useAuth();
@@ -53,9 +53,9 @@ const Sidebar = () => {
           <img
             src={logo}
             alt="logo"
-            className="cursor-pointer object-contain w-10 h-10 md:w-12 md:h-12 transition-transform duration-500 transform hover:rotate-[360deg]"
+            className="cursor-pointer object-contain w-20 h-18 md:w-15 md:h-12"
           />
-          <span className="text-2xl font-bold px-3 py-2 text-gray-200 hover:text-white transition duration-300 ease-in-out w-full md:inline-block">
+          <span className="text-l font-bold px-3 py-2 text-gray-200 hover:text-white transition duration-300 ease-in-out w-full md:inline-block">
             Accountify
           </span>
 
