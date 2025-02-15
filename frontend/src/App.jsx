@@ -39,7 +39,7 @@ function App() {
                 element={isLoggedIn ? <Navigate to="/dashboard" /> : <Login />}
               />
               <Route path="/login" element={<Login />} />
-              <Route path="/register" element={<Register />} />
+              {/* <Route path="/register" element={<Register />} /> */}
 
               <Route
                 path="/dashboard"

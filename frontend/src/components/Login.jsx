@@ -69,7 +69,7 @@ const Login = () => {
               autoComplete="current-email"
               className="w-full h-full bg-transparent border border-gray-600 rounded-full text-black px-5 pr-12 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-400"
             />
-            <FaEnvelope className="absolute right-4 top-1/2 transform -translate-y-1/2 text-xl" />
+            <FaEnvelope className="text-zinc-800 absolute right-4 top-1/2 transform -translate-y-1/2 text-xl" />
           </div>
 
           <div className="relative w-full h-12 mb-6">
@@ -83,7 +83,7 @@ const Login = () => {
               autoComplete="current-password"
               className="w-full h-full bg-transparent border border-gray-600 rounded-full text-black px-5 pr-12 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-400"
             />
-            <FaLock className="absolute right-4 top-1/2 transform -translate-y-1/2 text-xl" />
+            <FaLock className="text-zinc-800 absolute right-4 top-1/2 transform -translate-y-1/2 text-xl" />
           </div>
 
           <div className="text-center">
@@ -95,7 +95,7 @@ const Login = () => {
             </button>
           </div>
 
-          <div className="mt-4 text-center">
+          {/* <div className="mt-4 text-center">
             <Link
               to="/forgot-password"
               className="font-normal text-sm text-gray-800 hover:underline"
@@ -111,7 +111,7 @@ const Login = () => {
                 Register
               </Link>
             </p>
-          </div>
+          </div> */}
         </form>
       </div>
     </div>
