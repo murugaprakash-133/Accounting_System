@@ -23,7 +23,15 @@ function App() {
   const { isLoggedIn, isInitialized } = useAuth();
 
   if (!isInitialized) {
-    return <p>Loading...</p>;
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <img
+          src="\src\assets\headerlogo.png" 
+          alt="Loading..."
+         className="w-10 h-5 animate-spin" // Tailwind animation for smooth effect
+        />
+      </div>
+    );
   }
 
   return (
