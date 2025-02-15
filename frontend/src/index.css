@@ -3,40 +3,47 @@
 @tailwind utilities;
 /* Override the SweetAlert2 Popup */
 .swal2-small-popup {
-    max-width: 280px !important; /* Force a smaller maximum width */
-    width: 90% !important;       /* Make it responsive to the screen */
-    padding: 15px !important;    /* Adjust padding for compact size */
-    border-radius: 8px !important; /* Smaller border radius for a compact look */
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Add a subtle shadow */
+  max-width: 500px !important;
+  width: 90% !important;
+  padding: 20px !important;
+  border-radius: 8px !important;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.swal2-small-popup .swal2-title {
+  font-size: 18px !important;
+}
+
+.swal2-small-popup .swal2-content {
+  font-size: 14px !important;
+}
+
+.swal2-small-popup .swal2-actions button {
+  font-size: 16px !important;
+  padding: 10px 16px !important;
+  margin: 0 10px;
+  border-radius: 5px !important;
+}
+
+/* Ensure Responsiveness for Mobile */
+@media (max-width: 768px) {
+  .swal2-small-popup {
+    max-width: 280px !important;
+    padding: 10px !important;
   }
-  
-  /* Adjust Title for Small Modal */
+
   .swal2-small-popup .swal2-title {
-    font-size: 16px !important; /* Reduce title font size */
-    margin-bottom: 10px !important; /* Adjust spacing */
+    font-size: 20px !important;
   }
-  
-  /* Adjust Input Field */
-  .swal2-small-popup .swal2-input {
-    font-size: 14px !important; /* Reduce input font size */
-    padding: 8px !important; /* Adjust input padding */
+
+  .swal2-small-popup .swal2-content {
+    font-size: 1px !important;
   }
-  
-  /* Adjust Buttons */
+
   .swal2-small-popup .swal2-actions button {
-    font-size: 14px !important; /* Reduce button font size */
-    padding: 6px 10px !important; /* Compact button padding */
+    font-size: 16px !important;
+    padding: 10px 16px !important;
+    margin: 0 10px 10px;
+    border-radius: 5px !important;
   }
-  
-  /* Ensure Responsiveness for Mobile */
-  @media (max-width: 768px) {
-    .swal2-small-popup {
-      max-width: 240px !important; /* Further reduce size for smaller screens */
-      padding: 10px !important;
-    }
-  
-    .swal2-small-popup .swal2-title {
-      font-size: 14px !important; /* Further reduce title font size */
-    }
-  }
-  
+}
