@@ -120,14 +120,15 @@
 
 // export default Login;
 
-"use client";
 
-import { useState } from "react";
+import React, { useState } from "react";
 import { FaLock, FaEnvelope } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { useAuth } from "../context/AuthContext";
 import { toast } from "react-toastify";
+import { HiOutlineMail } from "react-icons/hi";
+import { LuLockKeyhole } from "react-icons/lu";
 
 const API_BASE_URL =
   import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
@@ -160,14 +161,7 @@ const Login = () => {
 
       if (response.status === 200) {
         await refreshAuthStatus();
-        toast.success("Login successful!", {
-          position: "top-right",
-          autoClose: 3000,
-          hideProgressBar: false,
-          closeOnClick: true,
-          pauseOnHover: true,
-          draggable: true,
-        });
+        toast.success("Login successful!");
         navigate("/dashboard");
       }
     } catch (err) {
@@ -178,26 +172,17 @@ const Login = () => {
   };
 
   return (
-    <div className="flex justify-center items-center min-h-screen bg-gradient-to-r from-blue-500 to-purple-600">
-      <div className="w-full max-w-md bg-white shadow-lg rounded-lg p-8">
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <h1 className="text-3xl text-center font-bold text-gray-800 mb-6">
+    <div className="flex justify-center items-center min-h-screen bg-cover bg-center">
+      <div className="w-96 bg-white/10 backdrop-blur-lg border border-white/20 shadow-lg rounded-lg p-8 text-white">
+        <form onSubmit={handleSubmit}>
+          <h1 className="text-3xl text-center font-bold text-black mb-6">
             Login
           </h1>
 
-          {error && (
-            <div
-              className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative"
-              role="alert"
-            >
-              <span className="block sm:inline">{error}</span>
-            </div>
-          )}
+          {error && <p className="text-center text-red-500 mb-4">{error}</p>}
 
-          <div className="relative">
-            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-              <FaEnvelope className="h-5 w-5 text-gray-400" />
-            </div>
+          <div className="relative w-full h-12 mb-6">
+            <HiOutlineMail className="text-zinc-800 absolute left-4 top-1/2 transform -translate-y-1/2 text-2xl" />
             <input
               type="email"
               name="email"
@@ -205,15 +190,13 @@ const Login = () => {
               value={formData.email}
               onChange={handleInputChange}
               required
-              autoComplete="email"
-              className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+              autoComplete="current-email"
+              className="w-full h-full bg-transparent border border-gray-600 rounded-full text-black pl-12 pr-5 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-400"
             />
           </div>
 
-          <div className="relative">
-            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-              <FaLock className="h-5 w-5 text-gray-400" />
-            </div>
+          <div className="relative w-full h-12 mb-6">
+            <LuLockKeyhole className="text-zinc-800 absolute left-4 top-1/2 transform -translate-y-1/2 text-2xl" />
             <input
               type="password"
               name="password"
@@ -222,37 +205,18 @@ const Login = () => {
               onChange={handleInputChange}
               required
               autoComplete="current-password"
-              className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+              className="w-full h-full bg-transparent border border-gray-600 rounded-full text-black pl-12 pr-5 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-400"
             />
           </div>
 
-          <div>
+          <div className="text-center">
             <button
               type="submit"
-              className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+              className="w-1/2 h-12 bg-sky-400 text-white font-bold rounded-full shadow-md hover:bg-sky-700 transition focus:outline-none focus:ring-2 focus:ring-black"
             >
               Login
             </button>
           </div>
-
-          {/* <div className="flex items-center justify-between">
-            <div className="text-sm">
-              <Link
-                to="/forgot-password"
-                className="font-medium text-blue-600 hover:text-blue-500"
-              >
-                Forgot your password?
-              </Link>
-            </div>
-            <div className="text-sm">
-              <Link
-                to="/register"
-                className="font-medium text-blue-600 hover:text-blue-500"
-              >
-                Don't have an account?
-              </Link>
-            </div>
-          </div> */}
         </form>
       </div>
     </div>
