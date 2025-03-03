@@ -78,10 +78,10 @@ transferBankSchema.pre("save", async function (next) {
 
     // Update balance based on transaction type and from/to fields
     if (this.transactionType === "Internal") {
-      if (this.from === "Bank 2" && this.to === "Bank 1") {
-        this.balance = lastBalance - this.amount; // Subtract for Bank 1 to Bank 2
-      } else if (this.from === "Bank 1" && this.to === "Bank 2") {
-        this.balance = lastBalance + this.amount; // Add for Bank 2 to Bank 1
+      if (this.from === "Bank 2" && this.to === "Canara Cyborgforge LLP") {
+        this.balance = lastBalance - this.amount; // Subtract for Canara Cyborgforge LLP to Bank 2
+      } else if (this.from === "Canara Cyborgforge LLP" && this.to === "Bank 2") {
+        this.balance = lastBalance + this.amount; // Add for Bank 2 to Canara Cyborgforge LLP
       }
     } else if (this.transactionType === "External") {
       this.balance = lastBalance - this.amount;

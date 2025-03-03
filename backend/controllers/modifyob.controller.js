@@ -30,12 +30,12 @@ export const createModifyOpenBalance = async (req, res) => {
   }
 };
 
-// Controller to fetch the most recent ModifyOpenBalance entries for both Bank 1 and Bank 2
+// Controller to fetch the most recent ModifyOpenBalance entries for both Canara Cyborgforge LLP and Bank 2
 export const getLastModifiedBalancesForBothBanks = async (req, res) => {
   try {
-    // Fetch the most recent ModifyOpenBalance entry for Bank 1 and Bank 2
+    // Fetch the most recent ModifyOpenBalance entry for Canara Cyborgforge LLP and Bank 2
     const lastModifiedBalances = await Promise.all([
-      ModifyOpenBalance.findOne({ userId: req.user._id, bank: 'Bank 1' })
+      ModifyOpenBalance.findOne({ userId: req.user._id, bank: 'Canara Cyborgforge LLP' })
         .sort({ createdAt: -1 }) // Sort by creation date to get the most recent entry
         .limit(1),
       ModifyOpenBalance.findOne({ userId: req.user._id, bank: 'Bank 2' })
@@ -49,7 +49,7 @@ export const getLastModifiedBalancesForBothBanks = async (req, res) => {
 
     // Send the modified OB values for both banks
     res.status(200).json({ bank1ModifiedOB: bank1Balance, bank2ModifiedOB: bank2Balance });
-    // console.log(`Bank 1 Balance: ${bank1Balance}`);
+    // console.log(`Canara Cyborgforge LLP Balance: ${bank1Balance}`);
     // console.log(`Bank 2 Balance: ${bank2Balance}`);
   } catch (error) {
     console.error(error);

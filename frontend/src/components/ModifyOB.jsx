@@ -45,7 +45,7 @@ const ModifyOB = () => {
             }
           );
           const bankBalance =
-            formData.bank === "Bank 1"
+            formData.bank === "Canara Cyborgforge LLP"
               ? response.data.bank1ModifiedOB
               : response.data.bank2ModifiedOB;
           setFormData((prevData) => ({
@@ -186,7 +186,7 @@ const ModifyOB = () => {
               className="w-full px-4 py-2 bg-gray-50 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
               <option value="">Select Bank</option>
-              <option value="Bank 1">Bank 1</option>
+              <option value="Canara Cyborgforge LLP">Canara Cyborgforge LLP</option>
               <option value="Bank 2">Bank 2</option>
             </select>
           </div>

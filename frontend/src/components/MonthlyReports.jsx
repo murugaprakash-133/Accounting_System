@@ -163,15 +163,15 @@
 //       } else if (type === "transfer") {
 //         if (transactionType === "External") {
 //           const url =
-//             account === "Bank 1"
+//             account === "Canara Cyborgforge LLP"
 //               ? `/api/transfers/${id}`
 //               : `/api/transferBanks/${id}`;
-//           const setter = account === "Bank 1" ? setTransfers : setTransferBanks;
+//           const setter = account === "Canara Cyborgforge LLP" ? setTransfers : setTransferBanks;
 
 //           await deleteEntry(url, id, setter);
 //           // await deleteEntry(`/api/transactions/${id}`, id, setTransactions);
 //         } else if (transactionType === "Internal") {
-//           if (account === "Bank 1") {
+//           if (account === "Canara Cyborgforge LLP") {
 //             await deleteEntry(`/api/transfers/${id}`, id, setTransfers);
 //             const linkedId = id.replace("Bank1", "Bank2");
 //             await deleteEntry(
@@ -412,7 +412,7 @@
 //         </div>
 //       </div>
 //       <div className="bg-white p-6 rounded-md mt-2 shadow-md">
-//         <h3 className="font-semibold text-xl mb-4">Transfer Bank 1</h3>
+//         <h3 className="font-semibold text-xl mb-4">Transfer Canara Cyborgforge LLP</h3>
 //         <div className="overflow-x-auto">
 //           <table className="w-full table-auto border-collapse">
 //             <thead>
@@ -476,7 +476,7 @@
 //                     </td>
 //                     <td className="py-2 sm:py-4 px-2 sm:px-4 border-b border-gray-300 text-right text-xs sm:text-sm font-semibold text-red-600">
 //                       {item.transactionType === "expense" ||
-//                       item.from === "Bank 1"
+//                       item.from === "Canara Cyborgforge LLP"
 //                         ? `₹${item.amount.toFixed(2)}`
 //                         : " "}
 //                     </td>
@@ -588,7 +588,7 @@
 //                     </td>
 //                     <td className="py-2 sm:py-4 px-2 sm:px-4 border-b border-gray-300 text-right text-xs sm:text-sm font-semibold text-green-600">
 //                       {item.transactionType === "income" ||
-//                       item.from === "Bank 1"
+//                       item.from === "Canara Cyborgforge LLP"
 //                         ? `₹${item.amount.toFixed(2)}`
 //                         : " "}
 //                     </td>
@@ -799,13 +799,13 @@ const MonthlyReport = () => {
       } else if (type === "transfer") {
         if (transactionType === "External") {
           const url =
-            account === "Bank 1"
+            account === "Canara Cyborgforge LLP"
               ? `/api/transfers/${id}`
               : `/api/transferBanks/${id}`;
-          const setter = account === "Bank 1" ? setTransfers : setTransferBanks;
+          const setter = account === "Canara Cyborgforge LLP" ? setTransfers : setTransferBanks;
           await deleteEntry(url, id, setter);
         } else if (transactionType === "Internal") {
-          if (account === "Bank 1") {
+          if (account === "Canara Cyborgforge LLP") {
             await deleteEntry(`/api/transfers/${id}`, id, setTransfers);
             const linkedId = id.replace("Bank1", "Bank2");
             await deleteEntry(
@@ -1061,7 +1061,7 @@ const MonthlyReport = () => {
         </div>
       </div>
       <div className="bg-white p-6 rounded-md mt-2 shadow-md">
-        <h3 className="font-semibold text-xl mb-4">Transfer Bank 1</h3>
+        <h3 className="font-semibold text-xl mb-4">Transfer Canara Cyborgforge LLP</h3>
         <div className="overflow-x-auto">
           <table className="w-full table-auto border-collapse">
             <thead>
@@ -1124,7 +1124,7 @@ const MonthlyReport = () => {
                     </td>
                     <td className="py-2 sm:py-4 px-2 sm:px-4 border-b border-gray-300 text-right text-xs sm:text-sm font-semibold text-red-600">
                       {item.transactionType === "expense" ||
-                      item.from === "Bank 1"
+                      item.from === "Canara Cyborgforge LLP"
                         ? `₹${item.amount.toFixed(2)}`
                         : " "}
                     </td>
@@ -1234,7 +1234,7 @@ const MonthlyReport = () => {
                     </td>
                     <td className="py-2 sm:py-4 px-2 sm:px-4 border-b border-gray-300 text-right text-xs sm:text-sm font-semibold text-green-600">
                       {item.transactionType === "income" ||
-                      item.from === "Bank 1"
+                      item.from === "Canara Cyborgforge LLP"
                         ? `₹${item.amount.toFixed(2)}`
                         : " "}
                     </td>

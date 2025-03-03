@@ -45,15 +45,15 @@ export default function Transactions() {
     fetchUser();
   }, []);
 
-  const [voucherTypes, setVoucherTypes] = useState(["DD", "Check", "Challan"]);
+  const [voucherTypes, setVoucherTypes] = useState(["DD", "Cheque", "Challan", "Net Banking"]);
   const [categories, setCategories] = useState([
     "Food",
     "Education",
     "Household",
     "Transport",
   ]);
-  const [accounts, setAccounts] = useState(["Bank 1", "Bank 2"]);
-  const [transferOptions, setTransferOptions] = useState(["Bank 1", "Bank 2"]);
+  const [accounts, setAccounts] = useState(["Canara Cyborgforge LLP", "Bank 2"]);
+  const [transferOptions, setTransferOptions] = useState(["Canara Cyborgforge LLP", "Bank 2"]);
 
   function getCurrentTime() {
     const now = new Date();
@@ -131,9 +131,9 @@ export default function Transactions() {
         // console.log("Transaction saved:", transactionData);
 
         // Save the corresponding transfer in Transfer or TransferBank schema
-        if (formData.account === "Bank 1" || formData.account === "Bank 2") {
+        if (formData.account === "Canara Cyborgforge LLP" || formData.account === "Bank 2") {
           const transferEndpoint =
-            formData.account === "Bank 1"
+            formData.account === "Canara Cyborgforge LLP"
               ? "/api/transfers"
               : "/api/transferBanks";
 
@@ -170,7 +170,7 @@ export default function Transactions() {
         };
 
         const transferEndpoint =
-          formData.from === "Bank 1"
+          formData.from === "Canara Cyborgforge LLP"
             ? "/api/transfers"
             : formData.from === "Bank 2"
             ? "/api/transferBanks"
@@ -333,9 +333,9 @@ export default function Transactions() {
         // "From" can include all banks
         return transferOptions;
       }
-      // For "External", exclude "Bank 1" and "Bank 2" from both "From" and "To"
+      // For "External", exclude "Canara Cyborgforge LLP" and "Bank 2" from both "From" and "To"
       return transferOptions.filter(
-        (option) => !["Bank 1", "Bank 2"].includes(option)
+        (option) => !["Canara Cyborgforge LLP", "Bank 2"].includes(option)
       );
     }
 

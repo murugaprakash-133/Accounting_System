@@ -279,7 +279,7 @@ const Header = () => {
                     </span>
                   </p>
                   <p className="flex justify-between text-xs sm:text-sm">
-                    <strong className="text-gray-600">Email:</strong>
+                    <strong className="text-gray-600">Email: </strong>
                     <span className="text-right text-gray-800 truncate max-w-[100px] sm:max-w-none">
                       {userDetails.email}
                     </span>
